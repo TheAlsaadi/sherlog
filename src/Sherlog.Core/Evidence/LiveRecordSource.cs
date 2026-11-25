@@ -84,20 +84,41 @@ public sealed class LiveRecordSource : IRecordSource
     /// <summary>Builds the XPath query for one log: only the crash providers and events, from <paramref name="since"/> on.</summary>
     public static string BuildQuery(string log, DateTimeOffset since)
     {
-        var providers = string.Join(" or ", Filters[log].Select(f => $"(Provider[@Name='{f.Provider}'] and EventID={f.EventId})"));
         var time = since.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
-        return $"*[System[({providers}) and TimeCreated[@SystemTime>='{time}']]]";
+        var parts = Filters[log].Select(f =>
+        {
+            var system = $"System[Provider[@Name='{f.Provider}'] and EventID={f.EventId} and TimeCreated[@SystemTime>='{time}']]";
+
+            // Error reports of other kinds are not crashes and can number in the thousands; ask only for the kind we keep.
+            // EventData has to sit beside System inside the same *[...] for Windows to apply it.
+            return f.Provider == "Windows Error Reporting"
+                ? $"*[{system} and EventData[Data[@Name='EventName']='LiveKernelEvent']]"
+                : $"*[{system}]";
+        });
+        return string.Join(" or ", parts);
     }
 
+    // Oldest first, so the first event of each error report is the one kept. Windows logs a report again every
+    // time it retries sending it (thousands of times on some PCs); the retries add nothing, and skipping them
+    // before FormatDescription keeps reading fast.
     private static void ReadLog(string log, DateTimeOffset since, List<RawEventRecord> into)
     {
-        var query = new EventLogQuery(log, PathType.LogName, BuildQuery(log, since)) { ReverseDirection = true };
+        var query = new EventLogQuery(log, PathType.LogName, BuildQuery(log, since));
+        var seenReports = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         using var reader = new EventLogReader(query);
         for (var record = reader.ReadEvent(); record is not null; record = reader.ReadEvent())
         {
             using (record)
             {
-                into.Add(new RawEventRecord(log, record.ToXml(), TryFormat(record)));
+                var xml = record.ToXml();
+                if (record.ProviderName == "Windows Error Reporting"
+                    && EventXml.TryParse(xml)?.Data("ReportId", 19) is { } reportId
+                    && !seenReports.Add(reportId))
+                {
+                    continue;
+                }
+
+                into.Add(new RawEventRecord(log, xml, TryFormat(record)));
             }
         }
     }

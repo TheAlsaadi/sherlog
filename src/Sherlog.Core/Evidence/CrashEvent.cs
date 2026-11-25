@@ -19,7 +19,8 @@ public sealed record CrashEvent(
     string? ExceptionCode,
     string? BugCheckCode,
     string? EventName,
-    string? Message)
+    string? Message,
+    string? ReportId = null)
 {
     /// <summary>
     /// Normalizes an exception or bug-check code to "0x" + 8 lowercase hex digits.

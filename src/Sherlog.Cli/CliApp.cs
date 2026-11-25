@@ -11,6 +11,7 @@ public static class CliApp
         {
             CrashesCommand.Create(env),
             ExplainCommand.Create(env),
+            CollectCommand.Create(env),
             RecipesCommand.Create(env),
         };
 

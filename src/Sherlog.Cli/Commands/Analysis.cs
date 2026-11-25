@@ -42,8 +42,10 @@ internal static class Analysis
             throw new UserErrorException($"Couldn't open the evidence bundle {bundle}: {ex.Message}");
         }
 
+        // A bundle's "last N days" count back from when it was made, not from today.
+        var now = source is Sherlog.Core.Bundles.BundleRecordSource bundled ? bundled.CreatedUtc : env.Clock.GetUtcNow();
         var reader = new EvidenceReader(source);
-        var crashes = reader.ReadCrashes(env.Clock.GetUtcNow().AddDays(-days));
+        var crashes = reader.ReadCrashes(now.AddDays(-days));
         foreach (var warning in reader.Warnings.Distinct())
         {
             env.Error.WriteLine(warning);

@@ -84,6 +84,14 @@ public class ApplicationEventParserTests
     }
 
     [Fact]
+    public void Wer_report_id_is_read()
+    {
+        var crash = ApplicationEventParser.Parse(Fixture.Event("Application", "wer-1001-livekernelevent-141.xml"));
+
+        Assert.Equal("11111111-2222-3333-4444-555555555555", crash?.ReportId);
+    }
+
+    [Fact]
     public void Wer_positional_data_reads_event_name_and_p1()
     {
         var xml = System.Text.RegularExpressions.Regex.Replace(

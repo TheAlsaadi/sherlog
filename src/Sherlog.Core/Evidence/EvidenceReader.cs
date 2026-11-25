@@ -23,6 +23,13 @@ public sealed class EvidenceReader(IRecordSource source)
             .Where(c => c.Time >= since)
             .ToList();
 
+        // Windows logs an error-report event each time it retries sending a queued report: count each report once,
+        // at its earliest event.
+        fromLogs = fromLogs
+            .GroupBy(c => c.ReportId is null ? c.Id : "report:" + c.ReportId, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.OrderBy(c => c.Time).First())
+            .ToList();
+
         // A blue screen also leaves a Kernel-Power 41 event with the same bug-check code; count it once.
         fromLogs.RemoveAll(c => c.Source == EvidenceSources.UnexpectedShutdown && fromLogs.Any(b => IsBlueScreenTwin(b, c)));
 

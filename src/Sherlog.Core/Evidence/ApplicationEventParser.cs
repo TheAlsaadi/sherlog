@@ -52,7 +52,12 @@ public static class ApplicationEventParser
             ? CrashEvent.NormalizeCode(xml.Data("P1", 5))
             : null;
 
-        return Crash(xml, record, EvidenceSources.ErrorReport) with { EventName = eventName, BugCheckCode = code };
+        return Crash(xml, record, EvidenceSources.ErrorReport) with
+        {
+            EventName = eventName,
+            BugCheckCode = code,
+            ReportId = xml.Data("ReportId", 19),
+        };
     }
 
     private static CrashEvent Crash(EventXml xml, RawEventRecord record, string source) =>

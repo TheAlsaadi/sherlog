@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Time.Testing;
+using Sherlog.Core.Bundles;
 using Sherlog.Core.Evidence;
 using Sherlog.Core.Tests;
 
@@ -19,16 +20,27 @@ internal sealed class CliHarness
 
     public Queue<string?> Input { get; } = new();
 
+    public static readonly SystemSummary System = new("Windows 11 Pro", "26100", "Test CPU", 32, [new GpuInfo("Test GPU", "1.0", "2026-11-01")]);
+
     public int Run(params string[] args)
     {
         var env = new CliEnvironment(
-            OpenSource: path => path is null ? Source : Bundles.TryGetValue(path, out var b) ? b : throw new FileNotFoundException(path),
+            OpenSource: path => path switch
+            {
+                null => Source,
+                _ when Bundles.TryGetValue(path, out var b) => b,
+                _ when File.Exists(path) => BundleReader.Open(path).Records,
+                _ => throw new FileNotFoundException("File not found.", path),
+            },
             Out: Out,
             Error: Error,
             Clock: new FakeTimeProvider(Now),
             LibraryRoot: Repo.Path("library"),
             ReadLine: () => Input.Count > 0 ? Input.Dequeue() : null,
-            TimeZone: TimeZoneInfo.Utc);
+            TimeZone: TimeZoneInfo.Utc,
+            SystemInfo: () => System,
+            Redaction: () => new RedactionTargets("TESTPC", null, ["TESTUSER"]),
+            Version: "0.1.0-test");
         return CliApp.Run(args, env);
     }
 
