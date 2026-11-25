@@ -1,0 +1,1 @@
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event"><System><Provider Name="Display"/><EventID>4101</EventID><Level>2</Level><TimeCreated SystemTime="2026-11-22T20:15:00Z"/><EventRecordID>7001</EventRecordID><Channel>System</Channel><Computer>TESTPC</Computer><Security/></System><EventData><Data>nvlddmkm</Data><Data></Data></EventData></Event>

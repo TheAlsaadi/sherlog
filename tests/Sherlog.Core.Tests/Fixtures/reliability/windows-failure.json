@@ -1,0 +1,1 @@
+{"SourceName":"Microsoft-Windows-WER-SystemErrorReporting","EventIdentifier":"1001","ProductName":"Windows","RecordNumber":"902","TimeGenerated":"20261123080000.000000-000","Message":"The computer has rebooted from a bugcheck.","InsertionStrings":"0x00000116 (0xffffa00000000000, 0x0, 0x0, 0x4)\u001fC:\\WINDOWS\\Minidump\\x.dmp\u001f00000000-0000-0000-0000-000000000003"}

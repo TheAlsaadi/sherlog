@@ -290,10 +290,18 @@ sherlog/
   - `sherlog eval <folder>`: run diagnoses on labeled bundles and report accuracy
 - [ ] **Seed recipes:** research the most common gaming and app crash causes (graphics driver resets, overlays, corrupted game files, unstable memory or overclock, missing runtimes such as Visual C++ or DirectX, antivirus interference). Run research in parallel. Write at least **15 well-sourced recipes** first, then grow to **50**. Every recipe links its sources.
 - [ ] **Wording pass** (`design:ux-copy`): every diagnosis reads clearly to a non-technical person.
-- [ ] **👤 OWNER: field test.** Ask the owner to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred) and write a short `label.yaml` in each bundle with the real cause, when known. Claude Code then runs `sherlog eval`.
+- [ ] **Two kinds of test data, because crash causes are rarely known for certain:**
+  - **Seeded crashes (exact ground truth):** in Windows Sandbox or a VM, cause known crashes on purpose with small test programs (for example an access violation in a named module, a missing Visual C++ runtime, a deliberately hung app). The cause is known exactly, so these test the readers and matching precisely.
+  - **Field bundles (real-world truth):** **👤 OWNER** asks friends to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred).
+- [ ] **Two-layer `label.yaml`** written by `collect`:
+  - **Owner section, for the PC's owner (a friend, not technical):** a plain-language checklist: what crashed, what they were doing, anything that changed recently (new driver, update, new app, overclock), what they tried, whether it fixed it, and whether it still happens. Multiple choice where possible, plus a free-text note.
+  - **Investigator section, for Claude Code and the project owner:** `true_cause` (a recipe ID, or `unknown`), `evidence` (why we believe it) and `label_strength`: `confirmed-by-fix` (applying the matching fix stopped the crashes for 7 days or more), `owner-reported` (the owner's account fits the evidence) or `unknown`.
+- [ ] Claude Code investigates each bundle, fills the investigator section from the owner's answers and the evidence, and asks the owner a follow-up a week later where a fix was tried, to upgrade labels to `confirmed-by-fix`.
+- [ ] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
 
 ### Gate 1
-- [ ] At least **80%** of Confirmed and Likely diagnoses are correct on the labeled field-test bundles
+- [ ] **100%** of seeded crashes are read and matched correctly
+- [ ] At least **80%** of Confirmed and Likely diagnoses are correct on field bundles labeled `confirmed-by-fix` or `owner-reported`, with at least 10 such bundles
 - [ ] **No more than 1** Confirmed diagnosis is wrong
 - [ ] No more than **40%** of crashes end up Unclear
 - [ ] `sherlog explain` answers in under 5 seconds on a typical PC
@@ -407,7 +415,7 @@ Split into five sub-phases, each run through the full phase loop.
 | Phase | What the owner does |
 |---|---|
 | 0 | Answer the decision questions |
-| 1 | Run `sherlog collect` on 10–20 PCs and label the real causes |
+| 1 | Ask friends to run `sherlog collect` on 10–20 PCs and fill in the plain-language checklist; answer follow-ups a week later |
 | 2A | Review the threat model; approve security-critical PRs |
 | 2B | Run a game benchmark with and without the recorder |
 | 2D | Create the WinUI project in Visual Studio if needed; watch 3 people use the app |
