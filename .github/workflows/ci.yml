@@ -92,6 +92,26 @@ jobs:
           }
           Start-Sleep -Seconds 15  # give Windows Error Reporting time to write its records
 
+      - name: Diagnose (temporary, read-only)
+        shell: pwsh
+        run: |
+          $since = (Get-Date).AddMinutes(-15)
+          "WerSvc: " + (Get-Service WerSvc -ErrorAction SilentlyContinue | ForEach-Object { "$($_.Status), start $($_.StartType)" })
+          foreach ($key in 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting', 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting', 'HKCU:\SOFTWARE\Microsoft\Windows\Windows Error Reporting') {
+            if (Test-Path $key) { "$key -> " + ((Get-ItemProperty $key | Select-Object * -ExcludeProperty PS* | ConvertTo-Json -Compress)) } else { "$key -> (missing)" }
+          }
+          if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps') { 'LocalDumps configured' }
+          "AeDebug: " + ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug' -ErrorAction SilentlyContinue | Select-Object Debugger, Auto | ConvertTo-Json -Compress))
+          "ErrorMode: " + ((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Windows' -ErrorAction SilentlyContinue).ErrorMode)
+          foreach ($log in 'Application', 'System') {
+            $events = @(Get-WinEvent -FilterHashtable @{ LogName = $log; StartTime = $since } -ErrorAction SilentlyContinue)
+            "$log events in last 15 min: $($events.Count)"
+            $events | Group-Object ProviderName, Id | Sort-Object Count -Descending | Select-Object -First 15 | ForEach-Object { "  $($_.Count)  $($_.Name)" }
+          }
+          "Application log size/mode: " + ((Get-WinEvent -ListLog Application | ForEach-Object { "$($_.FileSize) bytes, max $($_.MaximumSizeInBytes), $($_.LogMode), records $($_.RecordCount)" }))
+          $wer = 'C:\ProgramData\Microsoft\Windows\WER'
+          if (Test-Path $wer) { Get-ChildItem $wer -Recurse -Directory -ErrorAction SilentlyContinue | Where-Object LastWriteTime -gt $since | Select-Object -First 10 | ForEach-Object { "WER dir: $($_.FullName)" } }
+
       - name: Collect and evaluate
         shell: pwsh
         run: |
