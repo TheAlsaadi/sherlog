@@ -21,4 +21,4 @@ Read plan.md, docs/concept.md and docs/adr/ before starting any work.
 ## Commands
 - Build: dotnet build
 - Test: dotnet test
-- Validate recipes: (added in Phase 1)
+- Validate recipes: dotnet run --project src/Sherlog.Cli -- recipes check
