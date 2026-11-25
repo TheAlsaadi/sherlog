@@ -36,6 +36,18 @@ public class ReliabilityRecordParserTests
     }
 
     [Fact]
+    public void Reliability_event_identifier_qualifier_bits_are_ignored()
+    {
+        // 1073742825 = 0x400003E9: event 1001 with qualifier bits set, as WMI reports some classic events.
+        var props = new Dictionary<string, string?>(Load("windows-failure.json").Properties) { ["EventIdentifier"] = "1073742825" };
+
+        var crash = ReliabilityRecordParser.Parse(new RawReliabilityRecord(props));
+
+        Assert.Equal(1001, crash?.EventId);
+        Assert.Equal("0x00000116", crash?.BugCheckCode);
+    }
+
+    [Fact]
     public void Reliability_unrelated_record_returns_null()
     {
         Assert.Null(ReliabilityRecordParser.Parse(Load("unrelated.json")));

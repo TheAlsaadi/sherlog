@@ -3,12 +3,12 @@ namespace Sherlog.Core.Evidence;
 /// <summary>Parses crash records from the Application log: events 1000, 1002 and 1001.</summary>
 public static class ApplicationEventParser
 {
-    // Windows Error Reporting events worth keeping. Plain app crashes and hangs (APPCRASH, AppHang*, BEX*)
-    // are already recorded by events 1000 and 1002; most other report types are not crashes.
+    // Windows Error Reporting events worth keeping. App crashes and hangs (APPCRASH, AppHang*, BEX*) are already
+    // recorded by events 1000 and 1002, blue screens (BlueScreen) by the System log's BugCheck event, and most
+    // other report types are not crashes. LiveKernelEvent (for example a graphics hang, 0x141) has no other record.
     private static readonly HashSet<string> KeptReportNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "LiveKernelEvent",
-        "BlueScreen",
     };
 
     /// <summary>Returns the crash this record describes, or null when it is not an application crash record.</summary>

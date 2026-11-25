@@ -46,6 +46,78 @@ public class EvidenceReaderTests
     }
 
     [Fact]
+    public void One_blue_screen_is_one_crash_not_two()
+    {
+        // After a blue screen Windows logs both BugCheck 1001 and Kernel-Power 41 with the same code, minutes apart.
+        var source = new FakeRecordSource();
+        source.Events.Add(Fixture.Event("System", "bugcheck-1001.xml"));                 // 08:00, 0x116
+        source.Events.Add(Fixture.Event("System", "kernel-power-41-bugcheck.xml"));       // 08:01, 0x116
+
+        var crashes = new EvidenceReader(source).ReadCrashes(LongAgo);
+
+        Assert.Equal(["sys-7002"], crashes.Select(c => c.Id));
+    }
+
+    [Fact]
+    public void Power_loss_shutdown_is_kept_next_to_a_blue_screen()
+    {
+        var source = new FakeRecordSource();
+        source.Events.Add(Fixture.Event("System", "bugcheck-1001.xml"));
+        source.Events.Add(Fixture.Event("System", "kernel-power-41.xml"));                // code 0 = power loss
+
+        var crashes = new EvidenceReader(source).ReadCrashes(LongAgo);
+
+        Assert.Equal(2, crashes.Count);
+    }
+
+    [Fact]
+    public void Reliability_hang_is_not_a_twin_of_an_app_error()
+    {
+        var hangRow = new Dictionary<string, string?>(
+            System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string?>>(Fixture.Text("reliability", "app-failure.json"))!)
+        {
+            ["SourceName"] = "Application Hang",
+            ["EventIdentifier"] = "1002",
+            ["TimeGenerated"] = "20261120143020.000000-000",
+        };
+        var source = new FakeRecordSource().AddAppError(1, T0);
+        source.Reliability.Add(new RawReliabilityRecord(hangRow));
+
+        var crashes = new EvidenceReader(source).ReadCrashes(LongAgo);
+
+        Assert.Equal(2, crashes.Count);
+    }
+
+    [Fact]
+    public void Warnings_added_while_records_are_read_lazily_are_kept()
+    {
+        var reader = new EvidenceReader(new LazyWarningSource());
+
+        reader.ReadCrashes(LongAgo);
+
+        Assert.Equal(["events warning", "reliability warning"], reader.Warnings);
+    }
+
+    private sealed class LazyWarningSource : IRecordSource
+    {
+        private readonly List<string> _warnings = [];
+
+        public IReadOnlyList<string> Warnings => _warnings;
+
+        public IEnumerable<RawEventRecord> ReadEvents(DateTimeOffset since)
+        {
+            _warnings.Add("events warning");
+            yield break;
+        }
+
+        public IEnumerable<RawReliabilityRecord> ReadReliability(DateTimeOffset since)
+        {
+            _warnings.Add("reliability warning");
+            yield break;
+        }
+    }
+
+    [Fact]
     public void Results_are_newest_first()
     {
         var source = new FakeRecordSource()

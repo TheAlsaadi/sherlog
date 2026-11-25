@@ -75,11 +75,25 @@ public class ApplicationEventParserTests
     [InlineData("WindowsUpdateFailure3")]
     [InlineData("AppHangB1")]
     [InlineData("BEX64")]
-    public void Wer_reports_other_than_kernel_and_bluescreen_are_ignored(string eventName)
+    [InlineData("BlueScreen")] // duplicates the System log's BugCheck event
+    public void Wer_reports_other_than_live_kernel_events_are_ignored(string eventName)
     {
         var xml = Fixture.Text("events", "wer-1001-livekernelevent-141.xml").Replace("LiveKernelEvent", eventName);
 
         Assert.Null(ApplicationEventParser.Parse(new RawEventRecord("Application", xml, null)));
+    }
+
+    [Fact]
+    public void Wer_positional_data_reads_event_name_and_p1()
+    {
+        var xml = System.Text.RegularExpressions.Regex.Replace(
+            Fixture.Text("events", "wer-1001-livekernelevent-141.xml"), " Name=\"[A-Za-z0-9]+\"", string.Empty);
+        Assert.DoesNotContain("Name=\"P1\"", xml);
+
+        var crash = ApplicationEventParser.Parse(new RawEventRecord("Application", xml, null));
+
+        Assert.Equal("LiveKernelEvent", crash?.EventName);
+        Assert.Equal("0x00000141", crash?.BugCheckCode);
     }
 
     [Fact]

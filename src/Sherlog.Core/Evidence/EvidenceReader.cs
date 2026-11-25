@@ -5,6 +5,9 @@ public sealed class EvidenceReader(IRecordSource source)
 {
     private static readonly TimeSpan TwinWindow = TimeSpan.FromSeconds(60);
 
+    // BugCheck 1001 is written after the dump is processed at the next boot, a few minutes from Kernel-Power 41.
+    private static readonly TimeSpan BlueScreenTwinWindow = TimeSpan.FromMinutes(10);
+
     private readonly List<string> _warnings = [];
 
     /// <summary>Plain-language warnings about sources that could not be read.</summary>
@@ -20,13 +23,18 @@ public sealed class EvidenceReader(IRecordSource source)
             .Where(c => c.Time >= since)
             .ToList();
 
+        // A blue screen also leaves a Kernel-Power 41 event with the same bug-check code; count it once.
+        fromLogs.RemoveAll(c => c.Source == EvidenceSources.UnexpectedShutdown && fromLogs.Any(b => IsBlueScreenTwin(b, c)));
+
         // Reliability Monitor repeats most event-log crashes; keep only the ones the logs don't already have.
         var fromReliability = source.ReadReliability(since)
             .Select(ReliabilityRecordParser.Parse)
             .OfType<CrashEvent>()
             .Where(c => c.Time >= since)
-            .Where(r => !fromLogs.Any(e => IsTwin(e, r)));
+            .Where(r => !fromLogs.Any(e => IsTwin(e, r)))
+            .ToList();
 
+        // Copy warnings only after every record has been read: a lazy source adds them while it is enumerated.
         _warnings.Clear();
         _warnings.AddRange(source.Warnings);
 
@@ -36,9 +44,16 @@ public sealed class EvidenceReader(IRecordSource source)
             .ToList();
     }
 
+    private static bool IsBlueScreenTwin(CrashEvent bugCheck, CrashEvent shutdown) =>
+        bugCheck.Source == EvidenceSources.BugCheck
+        && shutdown.BugCheckCode is not null and not "0x00000000"
+        && string.Equals(bugCheck.BugCheckCode, shutdown.BugCheckCode, StringComparison.OrdinalIgnoreCase)
+        && (bugCheck.Time - shutdown.Time).Duration() <= BlueScreenTwinWindow;
+
     private static bool IsTwin(CrashEvent logged, CrashEvent reliability)
     {
-        if ((logged.Time - reliability.Time).Duration() > TwinWindow)
+        // Same kind of crash (Reliability keeps the original event ID) at nearly the same time.
+        if (logged.EventId != reliability.EventId || (logged.Time - reliability.Time).Duration() > TwinWindow)
         {
             return false;
         }
