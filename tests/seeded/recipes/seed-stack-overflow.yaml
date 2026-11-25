@@ -1,0 +1,22 @@
+# Test recipe for a seeded crash (tests/seeded). Not part of the user-facing library.
+id: seed-stack-overflow
+version: 1
+title: "Seeded test crash: the program ran out of stack"
+category: crash
+references:
+  - https://learn.microsoft.com/en-us/windows/win32/debug/structured-exception-handling
+match:
+  any:
+    - source: application-error
+      app_name: SherlogSeedOverflow.exe
+      faulting_module: SherlogSeedOverflow.exe
+      exception_code: "0xc00000fd"
+confidence:
+  default: likely
+diagnosis:
+  summary: "Seeded test crash: the program ran out of stack (this only happens in Sherlog's own tests)."
+examples:
+  - source: application-error
+    app_name: SherlogSeedOverflow.exe
+    faulting_module: SherlogSeedOverflow.exe
+    exception_code: "0xc00000fd"

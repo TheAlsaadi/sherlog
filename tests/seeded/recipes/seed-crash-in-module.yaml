@@ -1,0 +1,22 @@
+# Test recipe for a seeded crash (tests/seeded). Not part of the user-facing library.
+id: seed-crash-in-module
+version: 1
+title: "Seeded test crash: a crash inside a named DLL"
+category: crash
+references:
+  - https://learn.microsoft.com/en-us/windows/win32/debug/structured-exception-handling
+match:
+  any:
+    - source: application-error
+      app_name: SherlogSeedCrash.exe
+      faulting_module: SherlogSeedModule.dll
+      exception_code: "0xc0000005"
+confidence:
+  default: likely
+diagnosis:
+  summary: "Seeded test crash: a crash inside a named DLL (this only happens in Sherlog's own tests)."
+examples:
+  - source: application-error
+    app_name: SherlogSeedCrash.exe
+    faulting_module: SherlogSeedModule.dll
+    exception_code: "0xc0000005"
