@@ -14,3 +14,19 @@ Windows Sandbox stays the place for seeded cases a runner cannot reproduce, such
 
 - If runners turn out not to record a seeded crash the way a normal PC does (for example Windows Error Reporting set up differently), that case moves to the sandbox and the gap is written down in `docs/gates/phase-1.md`.
 - The seeded-crash workflow only crashes its own test programs, filters evidence by their names, and never changes runner settings.
+
+## Amendment (2026-11-25): crashes run in Windows Sandbox
+
+- **Status:** Accepted, amends the decision above.
+
+The first CI run showed that GitHub's `windows-latest` image never logs crash events: zero "Application Error" (1000) and
+zero Windows Error Reporting (1001) events since the image was built, and none after our programs crashed with the
+expected exception codes. The image queues reports silently (`ForceQueue`, `DontShowUI`), configures `LocalDumps`, and
+sets an `AeDebug` debugger. As this ADR planned, we did not change runner settings to force it. Instead:
+
+- CI **builds** the seeded programs on every pull request and keeps them as the `seeded-programs` artifact.
+- `sandbox/Run-Seeded.ps1` runs them in Windows Sandbox, collects a bundle there, and scores it with `sherlog eval`.
+
+The first sandbox run matched 3 of 3 seeded crashes and showed something new: a missing Visual C++ runtime is logged as
+"Application Popup" (System log, event 26) naming the missing DLL, not as a crash. Sherlog now reads those as the
+`app-popup` evidence source, and the missing-runtime program is the fourth seeded case.

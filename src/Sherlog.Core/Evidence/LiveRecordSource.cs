@@ -26,6 +26,7 @@ public sealed class LiveRecordSource : IRecordSource
                 ("Display", 4101),
                 ("Microsoft-Windows-WER-SystemErrorReporting", 1001),
                 ("Microsoft-Windows-Kernel-Power", 41),
+                ("Application Popup", 26),
             ],
         };
 

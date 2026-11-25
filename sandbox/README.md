@@ -6,14 +6,15 @@ Sherlog never crashes programs, changes settings or applies fixes on a real PC. 
 ## Seeded crashes (Phase 1, Gate 1)
 
 Small C programs in [`tests/seeded`](../tests/seeded) crash in known ways. Gate 1 needs Sherlog to read and match
-**every** one of them.
+**every** one of them. The first run (2026-11-25) also showed that a missing Visual C++ runtime is not logged as a
+crash at all, but as an "Application Popup" (System log, event 26) naming the missing DLL; Sherlog now reads those.
 
 | Program | What it does | Expected record |
 |---|---|---|
 | `SherlogSeedCrash.exe` | Crashes inside `SherlogSeedModule.dll` | Application Error 1000, module `SherlogSeedModule.dll`, `0xc0000005` |
 | `SherlogSeedOverflow.exe` | Runs out of stack | Application Error 1000, `0xc00000fd` |
 | `SherlogSeedFastFail.exe` | Ends itself with `__fastfail` | Application Error 1000, `0xc0000409` |
-| `SherlogSeedNeedsRuntime.exe` | Needs the Visual C++ runtime, which the sandbox lacks | Discovery run: records whatever Windows logs, for a future recipe |
+| `SherlogSeedNeedsRuntime.exe` | Needs the Visual C++ runtime, which the sandbox lacks | Application Popup 26 naming `VCRUNTIME140.dll`, matched by the library recipe `runtime-vcredist-missing` |
 
 ### Why not on GitHub Actions?
 

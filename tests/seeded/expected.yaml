@@ -15,3 +15,7 @@ investigator:
       true_cause: "seed-fastfail"
       evidence: "__fastfail(7), on purpose."
       label_strength: "seeded"
+    - app_name: "SherlogSeedNeedsRuntime.exe"
+      true_cause: "runtime-vcredist-missing"
+      evidence: "Linked against the shared Visual C++ runtime; Windows Sandbox has none installed."
+      label_strength: "seeded"

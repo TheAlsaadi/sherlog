@@ -22,6 +22,7 @@ internal static class CrashDescriber
             CrashKind.Shutdown => latest.BugCheckCode is null or "0x00000000"
                 ? $"Your PC shut down unexpectedly {when}, without a blue screen. This often means it lost power or was switched off."
                 : $"Your PC restarted after a blue screen {when}" + Code(latest.BugCheckCode, "stop code") + ".",
+            CrashKind.Popup => $"{app} couldn't start because {latest.FaultingModule} is missing ({when.Replace("once on", "on", StringComparison.Ordinal)}).",
             CrashKind.Report => $"Windows recorded a problem with a driver or hardware {when}"
                 + Code(latest.BugCheckCode, latest.EventName ?? "code") + ".",
             _ => $"Windows recorded a failure {when}.",

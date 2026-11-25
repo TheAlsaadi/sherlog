@@ -51,6 +51,25 @@ public class SystemEventParserTests
     }
 
     [Fact]
+    public void Missing_dll_popup_maps_app_and_dll_even_with_a_translated_caption()
+    {
+        var crash = SystemEventParser.Parse(Fixture.Event("System", "app-popup-26-missing-dll.xml"));
+
+        Assert.NotNull(crash);
+        Assert.Equal("sys-386", crash.Id);
+        Assert.Equal(EvidenceSources.AppPopup, crash.Source);
+        Assert.Equal(26, crash.EventId);
+        Assert.Equal("SherlogTestGame.exe", crash.AppName);
+        Assert.Equal("VCRUNTIME140.dll", crash.FaultingModule);
+    }
+
+    [Fact]
+    public void Popup_that_names_no_app_and_dll_is_not_a_crash()
+    {
+        Assert.Null(SystemEventParser.Parse(Fixture.Event("System", "app-popup-26-other.xml")));
+    }
+
+    [Fact]
     public void Application_events_are_not_system_crashes()
     {
         Assert.Null(SystemEventParser.Parse(Fixture.Event("Application", "app-error-1000-named.xml")));

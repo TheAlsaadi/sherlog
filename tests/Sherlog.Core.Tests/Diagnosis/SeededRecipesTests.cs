@@ -37,13 +37,24 @@ public class SeededRecipesTests
     }
 
     [Fact]
+    public void Missing_runtime_popup_resolves_to_the_library_recipe()
+    {
+        var popup = new CrashEvent("sys-1", DateTimeOffset.UnixEpoch, EvidenceSources.AppPopup, "Application Popup", 26,
+            "SherlogSeedNeedsRuntime.exe", null, "VCRUNTIME140.dll", null, null, null, null, null);
+
+        var diagnosis = new Diagnoser(Loaded.Recipes, TimeZoneInfo.Utc).Diagnose(CrashGrouper.Group([popup])[0]);
+
+        Assert.Equal("runtime-vcredist-missing", diagnosis.Recipe?.Id);
+    }
+
+    [Fact]
     public void Expected_labels_name_every_seeded_program()
     {
         var label = LabelFile.Parse(File.ReadAllText(Repo.Path("tests", "seeded", "expected.yaml")));
 
         Assert.True(label.Investigator.Seeded);
         Assert.Equal(
-            ["SherlogSeedCrash.exe", "SherlogSeedFastFail.exe", "SherlogSeedOverflow.exe"],
+            ["SherlogSeedCrash.exe", "SherlogSeedFastFail.exe", "SherlogSeedNeedsRuntime.exe", "SherlogSeedOverflow.exe"],
             label.Investigator.Labels.Select(l => l.AppName).Order(StringComparer.Ordinal));
         Assert.All(label.Investigator.Labels, l => Assert.Equal("seeded", l.LabelStrength));
     }

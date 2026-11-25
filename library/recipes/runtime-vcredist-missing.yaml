@@ -1,0 +1,45 @@
+id: runtime-vcredist-missing
+version: 1
+title: Microsoft Visual C++ Redistributable is missing
+category: missing-file
+references:
+  - https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+  - https://learn.microsoft.com/en-us/cpp/windows/determining-which-dlls-to-redistribute
+
+# Windows shows "The code execution cannot proceed because VCRUNTIME140.dll was not found" and logs it as
+# Application Popup 26. These files are installed by the Visual C++ Redistributable (2015-2022, one package).
+match:
+  any:
+    - source: app-popup
+      faulting_module: "vcruntime140*.dll"
+    - source: app-popup
+      faulting_module: "msvcp140*.dll"
+    - source: app-popup
+      faulting_module: "concrt140.dll"
+    - source: app-popup
+      faulting_module: "vcomp140.dll"
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 30 }
+
+diagnosis:
+  summary: "This app couldn't start because a Microsoft Visual C++ file it needs isn't installed."
+  details: "Many games and apps rely on the free Microsoft Visual C++ Redistributable. It's missing or damaged on this PC, so Windows stopped the app before it could open."
+
+fixes:
+  - id: install-vc-redist
+    risk: safe
+    explain: "Download and install the latest Microsoft Visual C++ Redistributable (x64, and x86 for older 32-bit apps) from Microsoft, then start the app again."
+    actions:
+      - action: open_url
+        params: { url: "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" }
+
+examples:
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: VCRUNTIME140.dll
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: MSVCP140.dll

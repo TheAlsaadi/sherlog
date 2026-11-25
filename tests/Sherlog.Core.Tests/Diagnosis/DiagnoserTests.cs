@@ -164,6 +164,11 @@ public class DiagnoserTests
         Assert.Contains("0x00000116", diagnoser.Diagnose(Group(blue)).WhatWeKnow);
         Assert.Contains("without a blue screen", diagnoser.Diagnose(Group(power)).WhatWeKnow);
         Assert.Contains("stopped responding", diagnoser.Diagnose(Group(hang)).WhatWeKnow);
+
+        var popup = new CrashEvent("sys-4", T0, EvidenceSources.AppPopup, "Application Popup", 26,
+            "Game.exe", null, "VCRUNTIME140.dll", null, null, null, null, null);
+        Assert.Contains("Game.exe couldn't start because VCRUNTIME140.dll is missing", diagnoser.Diagnose(Group(popup)).WhatWeKnow);
+        Assert.Contains("Game.exe", diagnoser.Diagnose(Group(popup)).Summary);
     }
 
     [Fact]

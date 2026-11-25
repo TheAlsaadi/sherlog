@@ -72,7 +72,7 @@ public static class OwnerQuestions
         var times = group.Crashes.Count == 1 ? "once" : $"{group.Crashes.Count} times";
         var name = CrashKind.Of(c) switch
         {
-            CrashKind.App or CrashKind.Hang => c.AppName ?? "An app",
+            CrashKind.App or CrashKind.Hang or CrashKind.Popup => c.AppName ?? "An app",
             CrashKind.Display => $"Graphics driver {c.FaultingModule}",
             CrashKind.BugCheck => $"Blue screen {c.BugCheckCode}",
             CrashKind.Shutdown => "Unexpected shutdown",

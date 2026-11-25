@@ -84,8 +84,9 @@ $libraries = @('--library', (Join-Path $repo 'library\recipes'), '--library', (J
 $report = (& $sherlog eval $out @libraries --json) -join "`n" | ConvertFrom-Json
 Write-Host ''
 Write-Host "Results are in $out (bundle, inside-log.txt, event-summary.txt, runtime-events.txt)."
-if ($report.seeded.labeled -eq 3 -and $report.seeded.correct -eq 3) {
-    Write-Host 'Seeded crashes: 3 of 3 matched. Gate line passes.'
+$expected = @(Select-String -Path (Join-Path $repo 'tests\seeded\expected.yaml') -Pattern 'true_cause:').Count
+if ($report.seeded.labeled -eq $expected -and $report.seeded.correct -eq $expected) {
+    Write-Host "Seeded crashes: $expected of $expected matched. Gate line passes."
     exit 0
 }
 Write-Host "Seeded crashes: $($report.seeded.correct) of $($report.seeded.labeled) matched. Gate line fails."

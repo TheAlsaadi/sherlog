@@ -28,7 +28,32 @@ public static class SystemEventParser
             {
                 BugCheckCode = CrashEvent.NormalizeCode(xml.Data("BugcheckCode", 0), fromDecimal: true),
             },
+            ("Application Popup", 26) => MissingDll(xml, record),
             _ => null,
+        };
+    }
+
+    // "Game.exe - System Error" (the part after the dash is translated) and a message naming the missing DLL.
+    // File names are never translated, so only those are read. Popups that name no .exe and .dll aren't crashes.
+    private static readonly System.Text.RegularExpressions.Regex ExeInCaption =
+        new(@"^\s*([^\\/:*?""<>|]+?\.exe)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    private static readonly System.Text.RegularExpressions.Regex DllInMessage =
+        new(@"[A-Za-z0-9_.\-]+\.dll\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    private static CrashEvent? MissingDll(EventXml xml, RawEventRecord record)
+    {
+        var app = ExeInCaption.Match(xml.Data("Caption", 0) ?? string.Empty);
+        var dll = DllInMessage.Match(xml.Data("Message", 1) ?? string.Empty);
+        if (!app.Success || !dll.Success)
+        {
+            return null;
+        }
+
+        return Crash(xml, record, EvidenceSources.AppPopup) with
+        {
+            AppName = app.Groups[1].Value.Trim(),
+            FaultingModule = dll.Value,
         };
     }
 

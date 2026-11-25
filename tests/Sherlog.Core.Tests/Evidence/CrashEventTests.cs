@@ -34,7 +34,7 @@ public class CrashEventTests
     [Fact]
     public void EvidenceSources_All_lists_every_source_once()
     {
-        Assert.Equal(7, EvidenceSources.All.Count);
+        Assert.Equal(8, EvidenceSources.All.Count);
         Assert.Equal(EvidenceSources.All.Count, EvidenceSources.All.Distinct().Count());
         Assert.Contains("display-reset", EvidenceSources.All);
     }
