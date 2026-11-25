@@ -283,7 +283,7 @@ sherlog/
   - Blue-screen dump summaries (bug-check code and faulting driver only; optional, if Debugging Tools for Windows is installed). *Not done in Phase 1: dump files need admin rights; the bug-check code comes from the BugCheck event instead (ADR 0003).*
 - [x] **Recipe format v0** (`docs/recipe-format.md`, `library/schema/recipe.schema.json`, ADR). Start from Appendix B. In Phase 1 recipes only *diagnose*; their `fixes` are shown as suggestions, never run.
 - [x] **Recipe engine**: load and validate YAML, match evidence, assign confidence (**Confirmed**, **Likely**, **Unclear**) using the rules in the recipe, and use repeat patterns as evidence (for example, the same faulting module 3 times in 7 days).
-- [ ] **CLI commands** (`Sherlog.Cli`):
+- [x] **CLI commands** (`Sherlog.Cli`):
   - `sherlog crashes [--days 30]`: list crashes, grouped by cause
   - `sherlog explain --latest | <id>`: plain-language diagnosis with confidence and suggested fix
   - `sherlog collect --redact --out evidence.zip`: export an evidence bundle with user names, machine name and user-profile paths replaced
@@ -293,11 +293,11 @@ sherlog/
 - [ ] **Two kinds of test data, because crash causes are rarely known for certain:**
   - **Seeded crashes (exact ground truth):** in Windows Sandbox or a VM, cause known crashes on purpose with small test programs (for example an access violation in a named module, a missing Visual C++ runtime, a deliberately hung app). The cause is known exactly, so these test the readers and matching precisely.
   - **Field bundles (real-world truth):** **👤 OWNER** asks friends to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred).
-- [ ] **Two-layer `label.yaml`** written by `collect`:
+- [x] **Two-layer `label.yaml`** written by `collect`:
   - **Owner section, for the PC's owner (a friend, not technical):** a plain-language checklist: what crashed, what they were doing, anything that changed recently (new driver, update, new app, overclock), what they tried, whether it fixed it, and whether it still happens. Multiple choice where possible, plus a free-text note.
   - **Investigator section, for Claude Code and the project owner:** `true_cause` (a recipe ID, or `unknown`), `evidence` (why we believe it) and `label_strength`: `confirmed-by-fix` (applying the matching fix stopped the crashes for 7 days or more), `owner-reported` (the owner's account fits the evidence) or `unknown`.
 - [ ] Claude Code investigates each bundle, fills the investigator section from the owner's answers and the evidence, and asks the owner a follow-up a week later where a fix was tried, to upgrade labels to `confirmed-by-fix`.
-- [ ] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
+- [x] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
 
 ### Gate 1
 - [ ] **100%** of seeded crashes are read and matched correctly

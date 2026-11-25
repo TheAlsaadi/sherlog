@@ -118,6 +118,41 @@ public class EvidenceReaderTests
     }
 
     [Fact]
+    public void Retried_error_reports_count_once()
+    {
+        // Windows logs a WER 1001 event every time it retries sending a queued report; one report is one problem.
+        var xml = Fixture.Text("events", "wer-1001-livekernelevent-141.xml");
+        var source = new FakeRecordSource();
+        source.Events.Add(new RawEventRecord("Application", xml, null));
+        source.Events.Add(new RawEventRecord("Application", xml
+            .Replace("<EventRecordID>4245<", "<EventRecordID>4300<")
+            .Replace("2026-11-20T14:30:05Z", "2026-11-21T09:00:00Z"), null));
+        source.Events.Add(new RawEventRecord("Application", xml
+            .Replace("<EventRecordID>4245<", "<EventRecordID>4400<")
+            .Replace("11111111-2222-3333-4444-555555555555", "99999999-2222-3333-4444-555555555555"), null));
+
+        var ids = new EvidenceReader(source).ReadCrashes(LongAgo).Select(c => c.Id).Order();
+
+        Assert.Equal(["app-4245", "app-4400"], ids);
+    }
+
+    [Fact]
+    public void A_report_first_logged_before_the_window_is_not_a_recent_crash()
+    {
+        // The original report is 40 days old; Windows retried sending it yesterday.
+        var xml = Fixture.Text("events", "wer-1001-livekernelevent-141.xml");
+        var source = new FakeRecordSource();
+        source.Events.Add(new RawEventRecord("Application", xml.Replace("2026-11-20T14:30:05Z", "2026-10-11T08:00:00Z"), null));
+        source.Events.Add(new RawEventRecord("Application", xml
+            .Replace("<EventRecordID>4245<", "<EventRecordID>4999<")
+            .Replace("2026-11-20T14:30:05Z", "2026-11-19T08:00:00Z"), null));
+
+        var crashes = new EvidenceReader(source).ReadCrashes(new DateTimeOffset(2026, 10, 21, 0, 0, 0, TimeSpan.Zero));
+
+        Assert.Empty(crashes);
+    }
+
+    [Fact]
     public void Results_are_newest_first()
     {
         var source = new FakeRecordSource()

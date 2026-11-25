@@ -20,6 +20,14 @@ public sealed class EvidenceReader(IRecordSource source)
                 ? SystemEventParser.Parse(r)
                 : ApplicationEventParser.Parse(r))
             .OfType<CrashEvent>()
+            .ToList();
+
+        // Windows logs an error-report event each time it retries sending a queued report: count each report once,
+        // at its earliest event, and only then apply the time window, so a recent retry of an old report isn't
+        // mistaken for a recent crash.
+        fromLogs = fromLogs
+            .GroupBy(c => c.ReportId is null ? c.Id : "report:" + c.ReportId, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.OrderBy(c => c.Time).First())
             .Where(c => c.Time >= since)
             .ToList();
 
