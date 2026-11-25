@@ -111,6 +111,18 @@ jobs:
           "Application log size/mode: " + ((Get-WinEvent -ListLog Application | ForEach-Object { "$($_.FileSize) bytes, max $($_.MaximumSizeInBytes), $($_.LogMode), records $($_.RecordCount)" }))
           $wer = 'C:\ProgramData\Microsoft\Windows\WER'
           if (Test-Path $wer) { Get-ChildItem $wer -Recurse -Directory -ErrorAction SilentlyContinue | Where-Object LastWriteTime -gt $since | Select-Object -First 10 | ForEach-Object { "WER dir: $($_.FullName)" } }
+          "LocalDumps: " + ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue | Select-Object * -ExcludeProperty PS* | ConvertTo-Json -Compress))
+          Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue | ForEach-Object { "LocalDumps app key: $($_.PSChildName)" }
+          $folder = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue).DumpFolder
+          foreach ($f in @($folder, "$env:LOCALAPPDATA\CrashDumps", 'C:\Windows\System32\config\systemprofile\AppData\Local\CrashDumps') | Where-Object { $_ }) {
+            $expanded = [Environment]::ExpandEnvironmentVariables($f)
+            "Dump folder $expanded exists=$(Test-Path $expanded)"
+            Get-ChildItem $expanded -Filter 'SherlogSeed*' -ErrorAction SilentlyContinue | ForEach-Object { "  dump: $($_.Name)" }
+          }
+          "Application Error 1000 ever on this runner: " + @(Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; Id = 1000 } -ErrorAction SilentlyContinue).Count
+          "WER 1001 ever: " + @(Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Windows Error Reporting'; Id = 1001 } -ErrorAction SilentlyContinue).Count
+          "Application log oldest record: " + ((Get-WinEvent -LogName Application -Oldest -MaxEvents 1).TimeCreated)
+          "Process session: " + (Get-Process -Id $PID).SessionId + ", user: " + [Environment]::UserName
 
       - name: Collect and evaluate
         shell: pwsh
