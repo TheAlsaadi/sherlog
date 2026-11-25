@@ -275,14 +275,14 @@ sherlog/
 
 ### Tasks
 
-- [ ] **Evidence model** (`Sherlog.Core`): `CrashEvent` (time, app name, app version, faulting module, module version, exception code, source, raw record ID) and `EvidenceSource` interfaces, so readers can be tested with fixtures.
-- [ ] **Evidence readers**, each tested with synthetic fixtures:
+- [x] **Evidence model** (`Sherlog.Core`): `CrashEvent` (time, app name, app version, faulting module, module version, exception code, source, raw record ID) and `EvidenceSource` interfaces, so readers can be tested with fixtures.
+- [x] **Evidence readers**, each tested with synthetic fixtures:
   - Application log: "Application Error" (event ID 1000), "Application Hang" (1002), Windows Error Reporting (1001)
   - System log: display driver resets ("Display", event ID 4101), blue screens ("BugCheck", 1001), unexpected shutdowns ("Kernel-Power", 41)
   - Reliability Monitor records (WMI class `Win32_ReliabilityRecords`)
-  - Blue-screen dump summaries (bug-check code and faulting driver only; optional, if Debugging Tools for Windows is installed)
-- [ ] **Recipe format v0** (`docs/recipe-format.md`, `library/schema/recipe.schema.json`, ADR). Start from Appendix B. In Phase 1 recipes only *diagnose*; their `fixes` are shown as suggestions, never run.
-- [ ] **Recipe engine**: load and validate YAML, match evidence, assign confidence (**Confirmed**, **Likely**, **Unclear**) using the rules in the recipe, and use repeat patterns as evidence (for example, the same faulting module 3 times in 7 days).
+  - Blue-screen dump summaries (bug-check code and faulting driver only; optional, if Debugging Tools for Windows is installed). *Not done in Phase 1: dump files need admin rights; the bug-check code comes from the BugCheck event instead (ADR 0003).*
+- [x] **Recipe format v0** (`docs/recipe-format.md`, `library/schema/recipe.schema.json`, ADR). Start from Appendix B. In Phase 1 recipes only *diagnose*; their `fixes` are shown as suggestions, never run.
+- [x] **Recipe engine**: load and validate YAML, match evidence, assign confidence (**Confirmed**, **Likely**, **Unclear**) using the rules in the recipe, and use repeat patterns as evidence (for example, the same faulting module 3 times in 7 days).
 - [ ] **CLI commands** (`Sherlog.Cli`):
   - `sherlog crashes [--days 30]`: list crashes, grouped by cause
   - `sherlog explain --latest | <id>`: plain-language diagnosis with confidence and suggested fix
