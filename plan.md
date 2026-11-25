@@ -162,8 +162,8 @@ sherlog/
 
 ### Tasks
 
-- [ ] **👤 OWNER:** ask the decision questions from section 2 in one message.
-- [ ] Check the tooling:
+- [x] **👤 OWNER:** ask the decision questions from section 2 in one message.
+- [x] Check the tooling:
   ```bash
   gh auth status
   git --version
@@ -171,7 +171,7 @@ sherlog/
   OWNER=$(gh api user -q .login)   # or the organization the owner chose
   gh repo view "$OWNER/sherlog" >/dev/null 2>&1 && echo "Name already taken under $OWNER" || echo "Name available"
   ```
-- [ ] Create the local repo and skeleton **in the folder that already holds this `plan.md` and `docs/concept.md`** (the owner's starting folder; do not create a second folder):
+- [x] Create the local repo and skeleton **in the folder that already holds this `plan.md` and `docs/concept.md`** (the owner's starting folder; do not create a second folder):
   ```bash
   git init -b main
   dotnet new gitignore
@@ -188,8 +188,8 @@ sherlog/
   dotnet build && dotnet test
   ```
   (Service, App and MCP projects are added in their own phases.)
-- [ ] Add `Directory.Build.props`: target the current LTS framework (Windows-specific projects use the `-windows` target framework), `<Nullable>enable</Nullable>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<ImplicitUsings>enable</ImplicitUsings>`.
-- [ ] Add documents:
+- [x] Add `Directory.Build.props`: target the current LTS framework (Windows-specific projects use the `-windows` target framework), `<Nullable>enable</Nullable>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`, `<ImplicitUsings>enable</ImplicitUsings>`.
+- [x] Add documents:
   - `docs/concept.md` (already in place; provided with this plan)
   - `CLAUDE.md` (Appendix A)
   - `README.md`: a short, plain-language intro written from the concept, with a "Status: early development" note (`anthropic-skills:humanizer` final pass)
@@ -198,12 +198,12 @@ sherlog/
   - `docs/GLOSSARY.md` (evidence, diagnosis, confidence, recipe, action, undo record, change timeline)
   - `docs/adr/0001-tech-stack.md` (C#/.NET LTS, WinUI 3, Windows service, SQLite for local storage, xUnit)
   - `docs/adr/0002-fixes-are-recipes-not-scripts.md`
-- [ ] Add GitHub files:
+- [x] Add GitHub files:
   - `.github/workflows/ci.yml`: runs on `windows-latest` for pushes and PRs. Steps: checkout, `actions/setup-dotnet` (LTS), `dotnet build --configuration Release`, `dotnet test --configuration Release`, and validation of every `library/recipes/*.yaml` against `library/schema/recipe.schema.json` (once the schema exists). Name the job `build`.
   - `.github/dependabot.yml`: weekly updates for `nuget` and `github-actions`
   - `.github/CODEOWNERS`: owner for everything; `src/Sherlog.Service/`, `library/` and `.github/workflows/` explicitly listed
   - Issue templates (`bug.yml`, `recipe-request.yml`, `feature.yml`) and `PULL_REQUEST_TEMPLATE.md` with a checklist: tests added, no personal data, user-facing text reviewed, undo implemented (for actions)
-- [ ] Create the GitHub repo and push:
+- [x] Create the GitHub repo and push:
   ```bash
   git add -A && git commit -m "chore: initial repository skeleton, plan and concept"
   gh repo create "$OWNER/sherlog" --public --source . --remote origin \
@@ -214,7 +214,7 @@ sherlog/
     --add-topic windows --add-topic diagnostics --add-topic troubleshooting \
     --add-topic gaming --add-topic open-source --add-topic mcp
   ```
-- [ ] Create labels and milestones:
+- [x] Create labels and milestones:
   ```bash
   for l in "phase:0-setup" "phase:1-prove-it" "phase:2-first-release" "phase:3-lag" "phase:4-agents-community" "phase:5-everyone" \
            "area:core" "area:cli" "area:service" "area:app" "area:mcp" "area:library" "area:docs" \
@@ -225,12 +225,12 @@ sherlog/
     gh api "repos/$OWNER/sherlog/milestones" -f title="$m" >/dev/null
   done
   ```
-- [ ] Create one issue per Phase 1 task (later phases get theirs at the start of each phase):
+- [x] Create one issue per Phase 1 task (later phases get theirs at the start of each phase):
   ```bash
   gh issue create --title "Phase 1: Evidence readers for crash records" --label "phase:1-prove-it,area:core" --milestone "Phase 1 — Prove it" --body "See plan.md, Phase 1."
   # ...one per Phase 1 task
   ```
-- [ ] Turn on security features:
+- [x] Turn on security features:
   ```bash
   gh api -X PATCH "repos/$OWNER/sherlog/code-scanning/default-setup" -f state=configured   # CodeQL default setup
   gh api -X PATCH "repos/$OWNER/sherlog" --input - <<'EOF'
@@ -238,7 +238,7 @@ sherlog/
   EOF
   ```
   If an API call is refused (feature unavailable for the account), note it in `docs/gates/phase-0.md` and move on.
-- [ ] Protect `main` after the first CI run succeeds:
+- [x] Protect `main` after the first CI run succeeds:
   ```bash
   gh api -X PUT "repos/$OWNER/sherlog/branches/main/protection" --input - <<'EOF'
   {
@@ -253,10 +253,10 @@ sherlog/
   ```
 
 ### Gate 0
-- [ ] `gh repo view "$OWNER/sherlog"` shows the repo, with description and topics
-- [ ] CI is green on `main`, and branch protection requires the `build` check
-- [ ] All Phase 1 issues exist in the "Phase 1 — Prove it" milestone
-- [ ] Evidence written to `docs/gates/phase-0.md`
+- [x] `gh repo view "$OWNER/sherlog"` shows the repo, with description and topics
+- [x] CI is green on `main`, and branch protection requires the `build` check
+- [x] All Phase 1 issues exist in the "Phase 1 — Prove it" milestone
+- [x] Evidence written to `docs/gates/phase-0.md`
 
 ---
 
@@ -264,6 +264,14 @@ sherlog/
 
 **Goal:** prove that Sherlog can explain crashes correctly. Build a command-line tool that reads the crash records Windows already keeps, matches them to recipes, and prints a plain-language cause with a confidence level. **No fixes are applied in this phase.**
 **Skills:** full phase loop; `superpowers:dispatching-parallel-agents` for recipe research; `design:ux-copy` for diagnosis wording.
+
+**Notes from Phase 0:**
+- The solution file is `Sherlog.slnx` (the .NET 10 default format), not `Sherlog.sln`.
+- The template files `Class1.cs`, `Program.cs` and `UnitTest1.cs` are still in place; replace them with real code and tests.
+- Readers that use event logs or WMI need Windows-only APIs: switch those projects to the `-windows` target framework (ADR 0001).
+- CI already validates `library/recipes/*.yaml` with `check-jsonschema` once `library/schema/recipe.schema.json` exists.
+- Phase 1 issues: #2, #4–#10 in the "Phase 1 — Prove it" milestone.
+- `main` is protected: all work goes through a branch and a pull request that passes the `build` check.
 
 ### Tasks
 
