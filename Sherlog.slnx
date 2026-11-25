@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sherlog.Cli/Sherlog.Cli.csproj" />
+    <Project Path="src/Sherlog.Core/Sherlog.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Sherlog.Cli.Tests/Sherlog.Cli.Tests.csproj" />
+    <Project Path="tests/Sherlog.Core.Tests/Sherlog.Core.Tests.csproj" />
+  </Folder>
+</Solution>

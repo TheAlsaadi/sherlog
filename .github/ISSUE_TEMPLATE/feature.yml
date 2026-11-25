@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an idea for Sherlog
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation you were in and what was hard about it.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Sherlog to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do today instead?
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of Sherlog?
+      options:
+        - Crash explanations
+        - Lag
+        - Health check
+        - Fixes and undo
+        - App
+        - Command-line tool
+        - Agents (MCP)
+        - Recipe library
+        - Not sure

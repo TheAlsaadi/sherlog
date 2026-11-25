@@ -1,0 +1,7 @@
+# The owner reviews everything by default.
+*                       @TheAlsaadi
+
+# Security-critical areas, listed explicitly so they stay owned as maintainers are added.
+/src/Sherlog.Service/   @TheAlsaadi
+/library/               @TheAlsaadi
+/.github/workflows/     @TheAlsaadi

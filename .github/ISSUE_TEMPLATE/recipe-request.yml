@@ -1,0 +1,45 @@
+name: Recipe request
+description: Suggest a crash or problem Sherlog should recognise, and how to fix it
+labels: ["type:recipe", "area:library"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A recipe links something Windows records (for example an event ID and a faulting file) to a plain explanation and a fix built from approved actions. Recipes can't run commands or scripts.
+        Please don't paste raw crash dumps or logs with personal data.
+  - type: input
+    id: title
+    attributes:
+      label: Problem in one line
+      placeholder: e.g. Game crashes with the Discord overlay on
+    validations:
+      required: true
+  - type: textarea
+    id: signature
+    attributes:
+      label: What Windows records
+      description: Event log source and ID, faulting module, exception code, bug-check code, etc.
+      placeholder: |
+        Application log, event 1000, faulting module: DiscordHook64.dll, exception code 0xc0000005
+    validations:
+      required: true
+  - type: textarea
+    id: cause
+    attributes:
+      label: The cause, in plain words
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: The fix that worked
+      description: Which steps fixed it, and how you checked that it stayed fixed.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Links to vendor docs, Microsoft Learn, bug trackers or well-known reports. Every recipe needs sources.
+    validations:
+      required: true
