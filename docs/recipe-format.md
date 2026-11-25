@@ -14,12 +14,12 @@ category: driver-reset
 references:
   - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
 
+# Only the display-reset event names the driver. A blue screen with stop code 0x116 can come from any
+# graphics driver, so it belongs in a separate, vendor-neutral recipe.
 match:
   any:
     - source: display-reset
       faulting_module: nvlddmkm
-    - source: bugcheck
-      bugcheck_code: "0x00000116"
 
 confidence:
   default: likely
@@ -88,10 +88,13 @@ When several recipes match the same crash group, Sherlog picks:
 
 So a recipe for "`Game.exe` crashing in `FakeOverlay64.dll`" beats a general "crash in an overlay DLL" recipe, and both beat a fallback recipe with `priority: 900`.
 
+A field with a wildcard counts the same as an exact one, so `nv*.dll` and `nvwgf2umx.dll` are equally specific. Don't add fields only to win a tie; use `priority`, and let the `examples` test show you any overlap.
+
 ### Confidence
 
 - A matched recipe gives its `confidence.default` (Likely or Unclear).
-- It becomes **Confirmed** when any `confirmed_when` rule holds. `occurrences_within_days: {count: 3, days: 7}` means at least 3 crashes in the group within the 7 days ending at the most recent one. The window ends at the latest crash, not today, so a bundle diagnosed later gets the same answer.
+- A **Likely** recipe becomes **Confirmed** when any `confirmed_when` rule holds. `occurrences_within_days: {count: 3, days: 7}` means at least 3 crashes in the group within the 7 days ending at the most recent one (`count` 3–100, `days` 1–365). The window ends at the latest crash, not today, so a bundle diagnosed later gets the same answer.
+- An **Unclear** recipe stays Unclear however often the crash repeats: repeats make a problem more certain, not its cause.
 - A crash group no recipe matches is **Unclear**. Sherlog still says what it knows: the app, the file that failed, the error code and how often it happened.
 
 ### Fixes

@@ -32,7 +32,9 @@ public sealed class Diagnoser(IReadOnlyList<Recipe> recipes, TimeZoneInfo? timeZ
             return new Diagnosis(group, null, ConfidenceLevel.Unclear, summary, details, [], whatWeKnow);
         }
 
-        var confidence = best.Confidence.ConfirmedWhen.Any(rule => Holds(rule, group))
+        // Only a Likely match can be confirmed by repeats; an Unclear match stays Unclear however often it happens.
+        var confidence = best.Confidence.Default == ConfidenceLevel.Likely
+                         && best.Confidence.ConfirmedWhen.Any(rule => Holds(rule, group))
             ? ConfidenceLevel.Confirmed
             : best.Confidence.Default;
         return new Diagnosis(group, best, confidence, best.Summary, best.Details, best.Fixes, whatWeKnow);

@@ -78,15 +78,57 @@ public class RecipeLoaderTests
     [Fact]
     public void Yaml_syntax_error_is_reported_not_thrown()
     {
+        var error = Assert.Single(LoadOne("id: [unclosed\n").Errors);
+        Assert.Contains("line", error.Message);
+    }
+
+    [Fact]
+    public void Non_scalar_key_is_reported_not_thrown()
+    {
+        Assert.Single(LoadOne("? [a, b]\n: 1\n").Errors);
+    }
+
+    [Theory]
+    [InlineData("days: 7", "days: 2000000")]
+    [InlineData("count: 3", "count: 99999999999")]
+    public void Out_of_range_numbers_are_rejected(string from, string to)
+    {
+        var result = LoadOne(ValidText().Replace(from, to));
+
+        Assert.Empty(result.Recipes);
+        Assert.Single(result.Errors);
+    }
+
+    [Fact]
+    public void Repeat_count_below_three_is_rejected()
+    {
+        Assert.Single(LoadOne(ValidText().Replace("count: 3", "count: 2")).Errors);
+    }
+
+    [Theory]
+    [InlineData("      faulting_module: nvlddmkm\n    - source: bugcheck", "      faulting_module: nvlddmkm\n      foo: bar\n    - source: bugcheck", "/match/any/0/foo")]
+    [InlineData("bugcheck_code: \"0x00000116\"", "bugcheck_code: \"0x00000116X\"", "/match/any/1/bugcheck_code")]
+    [InlineData("      faulting_module: nvlddmkm\n    - source: bugcheck", "    - source: bugcheck", "/match/any/0")]
+    public void Error_message_points_at_the_real_problem(string from, string to, string location)
+    {
+        var text = ValidText();
+        Assert.Contains(from, text);
+
+        var error = Assert.Single(LoadOne(text.Replace(from, to)).Errors);
+
+        Assert.Contains(location, error.Message);
+    }
+
+    private static string ValidText() =>
+        File.ReadAllText(Fixture.Path("recipes", "valid", "gpu-nvidia-driver-reset.yaml")).ReplaceLineEndings("\n");
+
+    private static RecipeLoadResult LoadOne(string yaml)
+    {
         var dir = Directory.CreateTempSubdirectory("sherlog-recipes-");
         try
         {
-            File.WriteAllText(System.IO.Path.Combine(dir.FullName, "broken.yaml"), "id: [unclosed\n");
-
-            var result = RecipeLoader.LoadFolders([dir.FullName], Repo.SchemaPath);
-
-            Assert.Empty(result.Recipes);
-            Assert.Single(result.Errors);
+            File.WriteAllText(System.IO.Path.Combine(dir.FullName, "recipe.yaml"), yaml);
+            return RecipeLoader.LoadFolders([dir.FullName], Repo.SchemaPath);
         }
         finally
         {

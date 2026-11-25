@@ -100,14 +100,28 @@ public class DiagnoserTests
     }
 
     [Fact]
-    public void Unclear_default_stays_unclear_until_confirmed()
+    public void Unclear_recipe_never_becomes_confirmed()
     {
-        var recipe = Recipe("r", [When(EvidenceSources.ApplicationError, module: "FakeOverlay64.dll")], confidence: ConfidenceLevel.Unclear);
+        // The author said the match itself is unclear; repeats don't make the cause any clearer.
+        var recipe = Recipe("r", [When(EvidenceSources.ApplicationError, module: "FakeOverlay64.dll")],
+            confidence: ConfidenceLevel.Unclear, confirmedWhen: new RepeatRule(3, 7));
+        var group = Group(AppCrash(T0), AppCrash(T0.AddDays(-1)), AppCrash(T0.AddDays(-2)));
 
-        var diagnosis = For(recipe).Diagnose(Group(AppCrash(T0)));
+        var diagnosis = For(recipe).Diagnose(group);
 
         Assert.Equal(ConfidenceLevel.Unclear, diagnosis.Confidence);
         Assert.Equal("r", diagnosis.Recipe?.Id);
+    }
+
+    [Fact]
+    public void Repeat_window_includes_a_crash_exactly_on_its_edge()
+    {
+        var recipe = Recipe("r", [When(EvidenceSources.ApplicationError, module: "FakeOverlay64.dll")],
+            confirmedWhen: new RepeatRule(3, 7));
+
+        var group = Group(AppCrash(T0), AppCrash(T0.AddDays(-3)), AppCrash(T0.AddDays(-7)));
+
+        Assert.Equal(ConfidenceLevel.Confirmed, For(recipe).Diagnose(group).Confidence);
     }
 
     [Fact]

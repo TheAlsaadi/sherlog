@@ -52,42 +52,50 @@ public static class RecipeLoader
         return new RecipeLoadResult(recipes, errors);
     }
 
+    // Every failure becomes a RecipeError for this file: one bad recipe must never stop the others (or the CLI).
     private static (Recipe? Recipe, string? Error) LoadFile(string file, JsonSchema schema)
     {
-        JsonNode? node;
         try
         {
-            node = YamlJson.Parse(File.ReadAllText(file));
+            var node = YamlJson.Parse(File.ReadAllText(file));
+            if (node is null)
+            {
+                return (null, "The file is empty.");
+            }
+
+            using var doc = JsonDocument.Parse(node.ToJsonString());
+            var result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.List });
+            if (!result.IsValid)
+            {
+                return (null, DeepestError(result));
+            }
+
+            var dto = node.Deserialize<RecipeDto>(Json)!;
+            return (ToRecipe(dto, file), null);
         }
         catch (YamlException ex)
         {
             return (null, $"YAML syntax error at line {ex.Start.Line}: {ex.Message}");
         }
-
-        if (node is null)
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException
+                                       or InvalidOperationException or ArgumentException or FormatException)
         {
-            return (null, "The file is empty.");
+            return (null, $"The recipe could not be read: {ex.Message}");
         }
-
-        using var doc = JsonDocument.Parse(node.ToJsonString());
-        var result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.List });
-        if (!result.IsValid)
-        {
-            return (null, FirstError(result));
-        }
-
-        var dto = node.Deserialize<RecipeDto>(Json)!;
-        return (ToRecipe(dto, file), null);
     }
 
-    private static string FirstError(EvaluationResults result)
+    // Parent entries only say "some items do not match"; the deepest failing location names the actual problem.
+    private static string DeepestError(EvaluationResults result)
     {
-        var failures = (result.Details ?? [])
+        var deepest = (result.Details ?? [])
             .Where(d => d.Errors is { Count: > 0 })
-            .Select(d => $"{Location(d.InstanceLocation.ToString())}: {d.Errors!.Values.First()}")
-            .Distinct()
-            .ToList();
-        return failures.Count == 0 ? "The recipe does not match the recipe schema." : string.Join("; ", failures.Take(3));
+            .Select(d => (Location: d.InstanceLocation.ToString(), Message: d.Errors!.Values.First()))
+            .OrderByDescending(e => e.Location.Count(ch => ch == '/'))
+            .ThenByDescending(e => e.Location.Length)
+            .FirstOrDefault();
+        return deepest.Message is null
+            ? "The recipe does not match the recipe schema."
+            : $"{Location(deepest.Location)}: {deepest.Message}";
     }
 
     private static string Location(string pointer) => string.IsNullOrEmpty(pointer) ? "(top level)" : pointer;
