@@ -53,26 +53,15 @@ jobs:
           pipx run check-jsonschema --schemafile $schema $recipes.FullName
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-  # Crash small test programs on purpose on this throwaway machine, then check Sherlog reads and matches every one
-  # (ADR 0007). Runner settings are never changed.
-  seeded:
-    name: seeded crashes
-    needs: build
+  # Build the seeded-crash programs (tests/seeded) and keep them as an artifact. GitHub's runner images never log
+  # crash events (checked: zero Application Error 1000 / WER 1001 events), so the crashes themselves run in Windows
+  # Sandbox instead: sandbox/README.md, ADR 0007.
+  seeded-programs:
+    name: seeded programs
     runs-on: windows-latest
-    env:
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - name: Check out
         uses: actions/checkout@v7
-
-      - name: Set up .NET (LTS)
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Build Sherlog
-        run: dotnet build src/Sherlog.Cli --configuration Release
 
       - name: Build the seeded programs
         shell: cmd
@@ -81,76 +70,9 @@ jobs:
           call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
           call tests\seeded\build.cmd
 
-      - name: Crash the seeded programs
-        shell: pwsh
-        run: |
-          $bin = Resolve-Path tests/seeded/bin
-          foreach ($program in 'SherlogSeedCrash.exe', 'SherlogSeedOverflow.exe', 'SherlogSeedFastFail.exe') {
-            $process = Start-Process -FilePath (Join-Path $bin $program) -WorkingDirectory $bin -PassThru -NoNewWindow
-            if (-not $process.WaitForExit(60000)) { $process.Kill(); Write-Host "$program did not exit; killed it." }
-            Write-Host ("{0} exited with 0x{1:x8}" -f $program, $process.ExitCode)
-          }
-          Start-Sleep -Seconds 15  # give Windows Error Reporting time to write its records
-
-      - name: Diagnose (temporary, read-only)
-        shell: pwsh
-        run: |
-          $since = (Get-Date).AddMinutes(-15)
-          "WerSvc: " + (Get-Service WerSvc -ErrorAction SilentlyContinue | ForEach-Object { "$($_.Status), start $($_.StartType)" })
-          foreach ($key in 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting', 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting', 'HKCU:\SOFTWARE\Microsoft\Windows\Windows Error Reporting') {
-            if (Test-Path $key) { "$key -> " + ((Get-ItemProperty $key | Select-Object * -ExcludeProperty PS* | ConvertTo-Json -Compress)) } else { "$key -> (missing)" }
-          }
-          if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps') { 'LocalDumps configured' }
-          "AeDebug: " + ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug' -ErrorAction SilentlyContinue | Select-Object Debugger, Auto | ConvertTo-Json -Compress))
-          "ErrorMode: " + ((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Windows' -ErrorAction SilentlyContinue).ErrorMode)
-          foreach ($log in 'Application', 'System') {
-            $events = @(Get-WinEvent -FilterHashtable @{ LogName = $log; StartTime = $since } -ErrorAction SilentlyContinue)
-            "$log events in last 15 min: $($events.Count)"
-            $events | Group-Object ProviderName, Id | Sort-Object Count -Descending | Select-Object -First 15 | ForEach-Object { "  $($_.Count)  $($_.Name)" }
-          }
-          "Application log size/mode: " + ((Get-WinEvent -ListLog Application | ForEach-Object { "$($_.FileSize) bytes, max $($_.MaximumSizeInBytes), $($_.LogMode), records $($_.RecordCount)" }))
-          $wer = 'C:\ProgramData\Microsoft\Windows\WER'
-          if (Test-Path $wer) { Get-ChildItem $wer -Recurse -Directory -ErrorAction SilentlyContinue | Where-Object LastWriteTime -gt $since | Select-Object -First 10 | ForEach-Object { "WER dir: $($_.FullName)" } }
-          "LocalDumps: " + ((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue | Select-Object * -ExcludeProperty PS* | ConvertTo-Json -Compress))
-          Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue | ForEach-Object { "LocalDumps app key: $($_.PSChildName)" }
-          $folder = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps' -ErrorAction SilentlyContinue).DumpFolder
-          foreach ($f in @($folder, "$env:LOCALAPPDATA\CrashDumps", 'C:\Windows\System32\config\systemprofile\AppData\Local\CrashDumps') | Where-Object { $_ }) {
-            $expanded = [Environment]::ExpandEnvironmentVariables($f)
-            "Dump folder $expanded exists=$(Test-Path $expanded)"
-            Get-ChildItem $expanded -Filter 'SherlogSeed*' -ErrorAction SilentlyContinue | ForEach-Object { "  dump: $($_.Name)" }
-          }
-          "Application Error 1000 ever on this runner: " + @(Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Application Error'; Id = 1000 } -ErrorAction SilentlyContinue).Count
-          "WER 1001 ever: " + @(Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'Windows Error Reporting'; Id = 1001 } -ErrorAction SilentlyContinue).Count
-          "Application log oldest record: " + ((Get-WinEvent -LogName Application -Oldest -MaxEvents 1).TimeCreated)
-          "Process session: " + (Get-Process -Id $PID).SessionId + ", user: " + [Environment]::UserName
-
-      - name: Collect and evaluate
-        shell: pwsh
-        run: |
-          $sherlog = { dotnet run --project src/Sherlog.Cli --configuration Release --no-build -- @args }
-          New-Item -ItemType Directory -Force seeded | Out-Null
-          & $sherlog crashes --days 1 --library library/recipes --library tests/seeded/recipes
-          & $sherlog collect --no-questions --days 1 --out seeded/seeded.zip
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          # Swap in the known causes.
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $zip = [System.IO.Compression.ZipFile]::Open((Resolve-Path seeded/seeded.zip), 'Update')
-          $zip.GetEntry('label.yaml').Delete()
-          [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, (Resolve-Path tests/seeded/expected.yaml), 'label.yaml') | Out-Null
-          $zip.Dispose()
-
-          & $sherlog eval seeded --library library/recipes --library tests/seeded/recipes
-          $report = (& $sherlog eval seeded --library library/recipes --library tests/seeded/recipes --json) -join "`n" | ConvertFrom-Json
-          if ($report.seeded.labeled -ne 3 -or $report.seeded.correct -ne 3) {
-            Write-Host "::error::Seeded crashes matched $($report.seeded.correct) of $($report.seeded.labeled); expected 3 of 3."
-            exit 1
-          }
-
-      - name: Keep the seeded bundle
-        if: always()
+      - name: Keep the seeded programs
         uses: actions/upload-artifact@v4
         with:
-          name: seeded-bundle
-          path: seeded/
-          if-no-files-found: ignore
+          name: seeded-programs
+          path: tests/seeded/bin/
+          if-no-files-found: error
