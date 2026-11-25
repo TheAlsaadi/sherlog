@@ -1,0 +1,118 @@
+# Recipe format (v0)
+
+A recipe links something Windows records about a crash to a plain-language cause and to suggested fixes. Recipes live in `library/recipes/`, one YAML file per recipe, and must pass [`library/schema/recipe.schema.json`](../library/schema/recipe.schema.json). The decisions behind the format are in [ADR 0004](adr/0004-recipe-format-v0.md).
+
+Recipes never contain code or commands. In Phase 1 Sherlog only *explains* crashes: fixes are shown as suggestions and nothing is run.
+
+## A complete example
+
+```yaml
+id: gpu-nvidia-driver-reset
+version: 1
+title: NVIDIA graphics driver stopped responding
+category: driver-reset
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+
+match:
+  any:
+    - source: display-reset
+      faulting_module: nvlddmkm
+    - source: bugcheck
+      bugcheck_code: "0x00000116"
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 7 }
+
+diagnosis:
+  summary: "Your NVIDIA graphics driver stopped responding, and Windows had to restart it."
+  details: "This usually comes from a recent driver update, an unstable overclock, or overheating."
+
+fixes:
+  - id: guide-clean-driver-install
+    risk: advanced
+    explain: "Reinstall the graphics driver cleanly from NVIDIA's website."
+    actions:
+      - action: show_guidance
+        params: { guide: nvidia-clean-install }
+
+examples:
+  - source: display-reset
+    faulting_module: nvlddmkm
+```
+
+## Fields
+
+| Field | Required | What it is |
+|---|---|---|
+| `id` | yes | Lowercase words joined by `-`. Unique across the library. Labels and reports refer to it. |
+| `version` | yes | Whole number, starting at 1. Raise it when you change what the recipe matches or says. |
+| `title` | yes | Short name for maintainers. Users see `diagnosis.summary` instead. |
+| `category` | yes | `crash`, `hang`, `driver-reset`, `bluescreen` or `shutdown`. |
+| `references` | yes | At least one `https://` link supporting the cause and the fixes: vendor docs, Microsoft Learn, or a widely cited bug report. |
+| `priority` | no | 1–1000, default 100. Lower wins a tie (see "Which recipe wins"). Broad fallback recipes use a high number. |
+| `match.any` | yes | One or more conditions. The recipe matches a crash when **any one** condition holds. |
+| `confidence.default` | yes | `likely` or `unclear`. Never `confirmed`: confirmation has to be earned. |
+| `confidence.confirmed_when` | no | Rules that raise the diagnosis to Confirmed (see below). |
+| `diagnosis.summary` | yes | One plain sentence a non-technical person understands. |
+| `diagnosis.details` | no | Why this happens, in plain words. |
+| `fixes` | no | Suggested fixes, best first. |
+| `examples` | yes | At least one crash this recipe must explain (see "Examples"). |
+
+### Conditions
+
+A condition names an evidence `source` and at least one other field. **Every field in a condition must hold for the same crash.**
+
+| Field | Compared with |
+|---|---|
+| `source` | `application-error` (Application Error 1000), `application-hang` (1002), `wer` (Windows Error Reporting 1001, live kernel events), `display-reset` (Display 4101), `bugcheck` (blue screen), `kernel-power` (unexpected shutdown, 41), `reliability` (Reliability Monitor) |
+| `app_name` | The app's file name, for example `Game.exe`. `*` matches any run of characters. |
+| `faulting_module` | The file that failed, for example `nvwgf2umx.dll`, or the driver name for display resets (`nvlddmkm`). `*` allowed. |
+| `exception_code` | `0x` plus 8 lowercase hex digits, for example `"0xc0000005"`. Quote it. |
+| `bugcheck_code` | Same format, for example `"0x00000116"`. |
+| `event_name` | The Windows Error Reporting event name, for example `LiveKernelEvent`. |
+| `provider`, `event_id` | The event-log provider name and event ID, for rare cases the source alone doesn't pin down. |
+| `message_contains` | Text that must appear in the event's message. Avoid it when a structured field exists: messages are translated on non-English Windows. |
+
+Text comparisons ignore upper and lower case.
+
+### Which recipe wins
+
+When several recipes match the same crash group, Sherlog picks:
+
+1. the one whose matching condition constrains the **most fields** (most specific),
+2. then the lower `priority` number,
+3. then the recipe `id` in alphabetical order.
+
+So a recipe for "`Game.exe` crashing in `FakeOverlay64.dll`" beats a general "crash in an overlay DLL" recipe, and both beat a fallback recipe with `priority: 900`.
+
+### Confidence
+
+- A matched recipe gives its `confidence.default` (Likely or Unclear).
+- It becomes **Confirmed** when any `confirmed_when` rule holds. `occurrences_within_days: {count: 3, days: 7}` means at least 3 crashes in the group within the 7 days ending at the most recent one. The window ends at the latest crash, not today, so a bundle diagnosed later gets the same answer.
+- A crash group no recipe matches is **Unclear**. Sherlog still says what it knows: the app, the file that failed, the error code and how often it happened.
+
+### Fixes
+
+| Field | What it is |
+|---|---|
+| `id` | Lowercase words joined by `-`. |
+| `risk` | `safe`, `moderate` or `advanced`. |
+| `explain` | What the fix does and why, in plain words. |
+| `actions` | Steps from the approved-actions list only: `show_guidance`, `open_settings_page`, `open_url`, `verify_game_files`, `end_process`, `disable_startup_entry`, `rollback_driver`, `set_allowlisted_setting`, `run_system_check`. Each may have `params`. |
+| `when` | Conditions that need the change timeline (Phase 2). Recorded now, not checked yet. |
+| `verify.no_recurrence_days` | How many crash-free days count as "fixed". |
+
+### Examples
+
+Each entry under `examples` is the evidence of one crash this recipe must explain: a `source` plus the fields Windows would record (no wildcards). A test diagnoses every example against the **whole** library and fails if it lands on a different recipe or none. If your new recipe overlaps an existing one, that test tells you in your pull request.
+
+## Checking a recipe
+
+```powershell
+dotnet test
+```
+
+CI also validates every file in `library/recipes/` against the schema.

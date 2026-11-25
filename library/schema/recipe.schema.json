@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TheAlsaadi/sherlog/library/schema/recipe.schema.json",
+  "title": "Sherlog recipe (format v0)",
+  "description": "A reviewed library entry linking crash evidence to a plain-language cause and suggested fixes. See docs/recipe-format.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "title", "category", "references", "match", "confidence", "diagnosis", "examples"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 80 },
+    "version": { "type": "integer", "minimum": 1 },
+    "title": { "type": "string", "minLength": 3, "maxLength": 120 },
+    "category": { "enum": ["crash", "hang", "driver-reset", "bluescreen", "shutdown"] },
+    "priority": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 100 },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^https://\\S+$" }
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["any"],
+      "properties": {
+        "any": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/condition" } }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "enum": ["likely", "unclear"] },
+        "confirmed_when": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["occurrences_within_days"],
+            "properties": {
+              "occurrences_within_days": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["count", "days"],
+                "properties": {
+                  "count": { "type": "integer", "minimum": 2 },
+                  "days": { "type": "integer", "minimum": 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "diagnosis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 10, "maxLength": 200 },
+        "details": { "type": "string", "maxLength": 1000 }
+      }
+    },
+    "fixes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "risk", "explain", "actions"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "risk": { "enum": ["safe", "moderate", "advanced"] },
+          "explain": { "type": "string", "minLength": 10, "maxLength": 400 },
+          "when": { "type": "object" },
+          "actions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["action"],
+              "properties": {
+                "action": {
+                  "description": "Only actions on the approved-actions list (plan.md Appendix C).",
+                  "enum": [
+                    "show_guidance",
+                    "open_settings_page",
+                    "open_url",
+                    "verify_game_files",
+                    "end_process",
+                    "disable_startup_entry",
+                    "rollback_driver",
+                    "set_allowlisted_setting",
+                    "run_system_check"
+                  ]
+                },
+                "params": { "type": "object" }
+              }
+            }
+          },
+          "verify": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "no_recurrence_days": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "description": "Evidence of crashes this recipe must explain. The library test checks each one resolves to this recipe.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/evidence" }
+    }
+  },
+  "$defs": {
+    "code": { "type": "string", "pattern": "^0x[0-9a-f]{8}$" },
+    "fields": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": ["application-error", "application-hang", "wer", "display-reset", "bugcheck", "kernel-power", "reliability"]
+        },
+        "provider": { "type": "string", "minLength": 1 },
+        "event_id": { "type": "integer", "minimum": 0 },
+        "app_name": { "type": "string", "minLength": 1 },
+        "faulting_module": { "type": "string", "minLength": 1 },
+        "exception_code": { "$ref": "#/$defs/code" },
+        "bugcheck_code": { "$ref": "#/$defs/code" },
+        "event_name": { "type": "string", "minLength": 1 },
+        "message_contains": { "type": "string", "minLength": 3 }
+      }
+    },
+    "condition": {
+      "description": "Every field in one condition must hold for the same crash. At least one field besides source.",
+      "$ref": "#/$defs/fields",
+      "required": ["source"],
+      "minProperties": 2,
+      "unevaluatedProperties": false
+    },
+    "evidence": {
+      "description": "The evidence fields of one example crash. Wildcards are not allowed here.",
+      "$ref": "#/$defs/fields",
+      "required": ["source"],
+      "minProperties": 2,
+      "unevaluatedProperties": false,
+      "properties": {
+        "app_name": { "type": "string", "pattern": "^[^*]+$" },
+        "faulting_module": { "type": "string", "pattern": "^[^*]+$" }
+      }
+    }
+  }
+}

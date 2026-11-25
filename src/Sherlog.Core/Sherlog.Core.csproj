@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="9.7.0" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.15" />
     <PackageReference Include="System.Management" Version="10.0.15" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
 </Project>
