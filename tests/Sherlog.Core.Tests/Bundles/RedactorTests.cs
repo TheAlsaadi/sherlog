@@ -4,7 +4,7 @@ namespace Sherlog.Core.Tests.Bundles;
 
 public class RedactorTests
 {
-    private static readonly Redactor Redactor = new(new RedactionTargets("TESTPC", "CORP", ["TESTUSER", "OTHERUSER", "Sam", "jo"]));
+    private static readonly Redactor Redactor = new(new RedactionTargets("TESTPC", "CORP", ["TESTUSER", "OTHERUSER", "Sam", "Sam Smith", "jo", "王伟", "j"]));
 
     [Theory]
     [InlineData(@"C:\Users\TESTUSER\Games\x.exe", @"C:\Users\USER\Games\x.exe")]
@@ -52,9 +52,54 @@ public class RedactorTests
     }
 
     [Fact]
-    public void Short_user_name_only_replaced_in_paths()
+    public void Two_letter_names_are_replaced_as_whole_words()
     {
-        Assert.Equal(@"jo went home C:\Users\USER\x", Redactor.Redact(@"jo went home C:\Users\jo\x"));
+        Assert.Equal("USER went home, USER note, joke", Redactor.Redact("jo went home, 王伟 note, joke"));
+    }
+
+    [Fact]
+    public void One_letter_name_only_replaced_in_paths()
+    {
+        Assert.Equal(@"j went home C:\Users\USER\x", Redactor.Redact(@"j went home C:\Users\j\x"));
+    }
+
+    [Theory]
+    [InlineData(@"\Device\HarddiskVolume3\Users\Someone\x.dll", @"\Device\HarddiskVolume3\Users\USER\x.dll")]
+    [InlineData(@"\\host\c$\Users\Someone\x.dll", @"\\host\c$\Users\USER\x.dll")]
+    [InlineData(@"C:\Documents and Settings\Someone\x.dll", @"C:\Documents and Settings\USER\x.dll")]
+    public void Profile_paths_without_a_plain_drive_letter_are_replaced(string input, string expected)
+    {
+        Assert.Equal(expected, Redactor.Redact(input));
+    }
+
+    [Fact]
+    public void Path_rule_stops_at_the_end_of_the_name()
+    {
+        Assert.Equal("C:\\Users\\USER\u001fgame.exe\u001f1.0", Redactor.Redact("C:\\Users\\AJ\u001fgame.exe\u001f1.0"));
+        Assert.Equal(@"files in C:\Users\USER are gone", Redactor.Redact(@"files in C:\Users\Someone are gone"));
+    }
+
+    [Fact]
+    public void Known_name_with_a_space_is_replaced_whole_inside_paths()
+    {
+        Assert.Equal(@"C:\Users\USER\x.exe", Redactor.Redact(@"C:\Users\Sam Smith\x.exe"));
+    }
+
+    [Fact]
+    public void Computer_element_is_replaced_whatever_its_content()
+    {
+        // The NetBIOS name is cut to 15 characters; the event holds the full DNS name.
+        var redactor = new Redactor(new RedactionTargets("BOBS-GAMING-DES", null, []));
+
+        Assert.Equal("<Computer>PC</Computer>", redactor.Redact("<Computer>BOBS-GAMING-DESKTOP.corp.contoso.com</Computer>"));
+    }
+
+    [Fact]
+    public void Full_host_and_dns_domain_names_are_replaced()
+    {
+        var redactor = new Redactor(new RedactionTargets("BOBS-GAMING-DES", null, [], ["BOBS-GAMING-DESKTOP"], ["corp.contoso.com"]));
+
+        Assert.Equal("Reached PC.DOMAIN and PC", redactor.Redact("Reached BOBS-GAMING-DESKTOP.corp.contoso.com and bobs-gaming-desktop"));
     }
 
     [Fact]

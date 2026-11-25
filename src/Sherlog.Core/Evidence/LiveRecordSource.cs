@@ -87,13 +87,12 @@ public sealed class LiveRecordSource : IRecordSource
         var time = since.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
         var parts = Filters[log].Select(f =>
         {
-            var system = $"System[Provider[@Name='{f.Provider}'] and EventID={f.EventId} and TimeCreated[@SystemTime>='{time}']]";
-
             // Error reports of other kinds are not crashes and can number in the thousands; ask only for the kind we keep.
+            // They are read without a time limit: a recent retry of an old report can only be dated by its first event.
             // EventData has to sit beside System inside the same *[...] for Windows to apply it.
             return f.Provider == "Windows Error Reporting"
-                ? $"*[{system} and EventData[Data[@Name='EventName']='LiveKernelEvent']]"
-                : $"*[{system}]";
+                ? $"*[System[Provider[@Name='{f.Provider}'] and EventID={f.EventId}] and EventData[Data[@Name='EventName']='LiveKernelEvent']]"
+                : $"*[System[Provider[@Name='{f.Provider}'] and EventID={f.EventId} and TimeCreated[@SystemTime>='{time}']]]";
         });
         return string.Join(" or ", parts);
     }

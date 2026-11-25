@@ -39,9 +39,18 @@ public class LiveRecordSourceTests
         var query = LiveRecordSource.BuildQuery("Application", new DateTimeOffset(2026, 11, 1, 0, 0, 0, TimeSpan.Zero));
 
         // EventData must be a sibling of System inside the same *[...]; "*[EventData…]" nested there matches nothing.
-        Assert.Contains("Provider[@Name='Windows Error Reporting'] and EventID=1001", query);
-        Assert.Contains("]] and EventData[Data[@Name='EventName']='LiveKernelEvent']]", query);
+        Assert.Contains("*[System[Provider[@Name='Windows Error Reporting'] and EventID=1001] and EventData[Data[@Name='EventName']='LiveKernelEvent']]", query);
         Assert.DoesNotContain("*[EventData", query);
+    }
+
+    [Fact]
+    public void Error_reports_are_read_without_a_time_limit_so_retries_can_be_dated()
+    {
+        // A retry inside the window must be recognized as an old report, so the original has to be read too.
+        var query = LiveRecordSource.BuildQuery("Application", new DateTimeOffset(2026, 11, 1, 0, 0, 0, TimeSpan.Zero));
+        var werPart = query.Split(" or ").Single(p => p.Contains("Windows Error Reporting", StringComparison.Ordinal));
+
+        Assert.DoesNotContain("TimeCreated", werPart);
     }
 
     // Reads this PC's real log. Prints nothing; compares counts only.
@@ -50,8 +59,7 @@ public class LiveRecordSourceTests
     public void Live_kernel_reports_are_read_once_each()
     {
         var since = DateTimeOffset.UtcNow.AddDays(-30);
-        var time = since.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", System.Globalization.CultureInfo.InvariantCulture);
-        var unfiltered = $"*[System[Provider[@Name='Windows Error Reporting'] and EventID=1001 and TimeCreated[@SystemTime>='{time}']]]";
+        const string unfiltered = "*[System[Provider[@Name='Windows Error Reporting'] and EventID=1001]]";
 
         var expectedReports = DistinctLiveKernelReports(unfiltered);
         var returned = new LiveRecordSource().ReadEvents(since)

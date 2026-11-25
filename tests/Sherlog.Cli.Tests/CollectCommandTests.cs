@@ -71,7 +71,41 @@ public sealed class CollectCommandTests : IDisposable
         Assert.Equal(@"Path C:\Users\USER\x.exe on PC", message);
         var text = cli.Out.ToString();
         Assert.Contains(Path.GetFullPath(Out), text);
-        Assert.Contains("Nothing in this file names you or your PC.", text);
+        Assert.Contains("replaced your user name, your PC's name and your account ID", text);
+    }
+
+    [Fact]
+    public void Collect_to_a_missing_folder_fails_before_asking_anything()
+    {
+        var cli = new CliHarness();
+        cli.Source.AddAppError(1, CliHarness.Now.AddDays(-3));
+        cli.Input.Enqueue("1");
+        var target = Path.Combine(_dir, "missing", "evidence.zip");
+
+        var exit = cli.Run("collect", "--out", target);
+
+        Assert.Equal(1, exit);
+        Assert.Single(cli.Input);
+        Assert.Contains(Path.Combine(_dir, "missing"), cli.Error.ToString());
+    }
+
+    [Fact]
+    public void Collect_to_a_folder_path_fails_and_leaves_nothing_behind()
+    {
+        var cli = new CliHarness();
+
+        var exit = cli.Run("collect", "--no-questions", "--out", _dir);
+
+        Assert.Equal(1, exit);
+        Assert.Empty(Directory.GetFiles(Path.GetDirectoryName(_dir)!, Path.GetFileName(_dir) + "*.partial"));
+    }
+
+    [Fact]
+    public void Crashes_with_a_folder_as_bundle_exits_1()
+    {
+        var cli = new CliHarness();
+
+        Assert.Equal(1, cli.Run("crashes", "--bundle", _dir, "--library", CliHarness.ValidRecipes));
     }
 
     [Fact]

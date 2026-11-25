@@ -29,8 +29,7 @@ internal sealed class CliHarness
             {
                 null => Source,
                 _ when Bundles.TryGetValue(path, out var b) => b,
-                _ when File.Exists(path) => BundleReader.Open(path).Records,
-                _ => throw new FileNotFoundException("File not found.", path),
+                _ => BundleReader.Open(path).Records, // same as the real program
             },
             Out: Out,
             Error: Error,

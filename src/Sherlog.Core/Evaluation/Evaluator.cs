@@ -7,20 +7,23 @@ using Sherlog.Core.Recipes;
 namespace Sherlog.Core.Evaluation;
 
 /// <summary>
-/// Re-runs diagnosis on labeled bundles and scores it (ADR 0006): seeded and field results apart, field results
-/// split by label strength, and labels of unknown cause counted toward coverage only.
+/// Re-runs diagnosis on labeled bundles and scores it against Gate 1 (plan.md, ADR 0006): seeded and field results
+/// apart; field accuracy only from labels that are confirmed-by-fix or owner-reported; everything else is coverage.
 /// </summary>
 public static class Evaluator
 {
     private const string NoCrash = "(no crash found)";
 
+    private static readonly HashSet<string> CountedStrengths = new(StringComparer.Ordinal) { "confirmed-by-fix", "owner-reported" };
+
     public static EvalReport Evaluate(IEnumerable<string> bundlePaths, IReadOnlyList<Recipe> recipes)
     {
         var diagnoser = new Diagnoser(recipes, TimeZoneInfo.Utc);
         var misses = new List<EvalMiss>();
-        var unreadable = new List<string>();
+        var unreadable = new List<UnreadableBundle>();
         var byStrength = new Dictionary<string, StrengthScore>(StringComparer.Ordinal);
-        int seededLabeled = 0, seededCorrect = 0, wrongConfirmed = 0, groups = 0, unclear = 0, qualifying = 0, bundles = 0;
+        int seededLabeled = 0, seededCorrect = 0, wrongConfirmed = 0, qualifying = 0, bundles = 0;
+        int groups = 0, unclearGroups = 0, crashes = 0, unclearCrashes = 0;
 
         foreach (var path in bundlePaths)
         {
@@ -31,7 +34,7 @@ public static class Evaluator
             }
             catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
             {
-                unreadable.Add(path);
+                unreadable.Add(new UnreadableBundle(path, ex.Message));
                 continue;
             }
 
@@ -42,11 +45,17 @@ public static class Evaluator
             if (!seeded)
             {
                 groups += diagnoses.Count;
-                unclear += diagnoses.Count(d => d.Confidence == ConfidenceLevel.Unclear);
+                crashes += diagnoses.Sum(d => d.Group.Crashes.Count);
+                var unclear = diagnoses.Where(d => d.Confidence == ConfidenceLevel.Unclear).ToList();
+                unclearGroups += unclear.Count;
+                unclearCrashes += unclear.Sum(d => d.Group.Crashes.Count);
             }
 
+            var labels = bundle.Label.Investigator.Labels
+                .Where(l => l.TrueCause != "unknown" && (l.GroupId ?? l.AppName) is not null)
+                .Where(l => seeded || CountedStrengths.Contains(l.LabelStrength));
             var qualifies = false;
-            foreach (var label in bundle.Label.Investigator.Labels.Where(l => l.TrueCause != "unknown" && (l.GroupId ?? l.AppName) is not null))
+            foreach (var label in labels)
             {
                 var matched = Resolve(label, diagnoses);
                 if (matched.Count == 0)
@@ -72,7 +81,7 @@ public static class Evaluator
                     continue;
                 }
 
-                qualifies |= label.LabelStrength is "confirmed-by-fix" or "owner-reported";
+                qualifies = true;
                 var score = byStrength.GetValueOrDefault(label.LabelStrength, new StrengthScore(0, 0, 0));
                 foreach (var d in matched.DefaultIfEmpty())
                 {
@@ -95,9 +104,12 @@ public static class Evaluator
             qualifying += qualifies ? 1 : 0;
         }
 
+        var gate = byStrength.Values.Aggregate(new StrengthScore(0, 0, 0), (a, b) =>
+            new StrengthScore(a.Labeled + b.Labeled, a.ConfidentDiagnoses + b.ConfidentDiagnoses, a.ConfidentCorrect + b.ConfidentCorrect));
+
         return new EvalReport(
             new SeededScore(seededLabeled, seededCorrect),
-            new FieldScore(byStrength, wrongConfirmed, groups, unclear, qualifying),
+            new FieldScore(byStrength, gate, wrongConfirmed, groups, unclearGroups, crashes, unclearCrashes, qualifying),
             misses,
             bundles,
             unreadable);

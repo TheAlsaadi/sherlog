@@ -42,17 +42,25 @@ public static class BundleWriter
             Gpus = system.Gpus.Select(g => g with { Name = redactor.Redact(g.Name) }).ToList(),
         };
 
+        // Written to a side file and moved into place, so a failure never leaves a half-written bundle behind.
         var tempPath = zipPath + ".partial";
-        using (var zip = ZipFile.Open(tempPath, ZipArchiveMode.Create))
+        try
         {
-            Entry(zip, "manifest.json", JsonSerializer.Serialize(manifest, Json));
-            Entry(zip, "system.json", JsonSerializer.Serialize(safeSystem, Json));
-            Entry(zip, "events.jsonl", Lines(events.Select(e => JsonSerializer.Serialize(e, Json))));
-            Entry(zip, "reliability.jsonl", Lines(reliability.Select(r => JsonSerializer.Serialize(r.Properties, Json))));
-            Entry(zip, "label.yaml", redactor.Redact(label.ToYaml()));
-        }
+            using (var zip = ZipFile.Open(tempPath, ZipArchiveMode.Create))
+            {
+                Entry(zip, "manifest.json", JsonSerializer.Serialize(manifest, Json));
+                Entry(zip, "system.json", JsonSerializer.Serialize(safeSystem, Json));
+                Entry(zip, "events.jsonl", Lines(events.Select(e => JsonSerializer.Serialize(e, Json))));
+                Entry(zip, "reliability.jsonl", Lines(reliability.Select(r => JsonSerializer.Serialize(r.Properties, Json))));
+                Entry(zip, "label.yaml", Redacted(label, redactor).ToYaml());
+            }
 
-        File.Move(tempPath, zipPath, overwrite: true);
+            File.Move(tempPath, zipPath, overwrite: true);
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
     }
 
     // Parse failures are kept: a record Sherlog can't read today may be readable after a parser fix (ADR 0003).
@@ -66,6 +74,22 @@ public static class BundleWriter
     {
         var crash = ReliabilityRecordParser.Parse(record);
         return crash is null || crash.Time >= since;
+    }
+
+    // Redact the answers, not the written YAML: a profile named "Owner" would otherwise rename the "owner:" key.
+    private static LabelFile Redacted(LabelFile label, Redactor r)
+    {
+        string? R(string? s) => s is null ? null : r.Redact(s);
+        var o = label.Owner;
+        return new LabelFile(
+            new OwnerAnswers(R(o.WhatCrashed), R(o.Doing), o.RecentChanges.Select(r.Redact).ToList(), o.Tried.Select(r.Redact).ToList(),
+                R(o.Helped), R(o.StillHappens), R(o.Note)),
+            label.Investigator with
+            {
+                Labels = label.Investigator.Labels
+                    .Select(l => l with { AppName = R(l.AppName), Evidence = R(l.Evidence) })
+                    .ToList(),
+            });
     }
 
     private static string Lines(IEnumerable<string> lines) => string.Concat(lines.Select(l => l + "\n"));

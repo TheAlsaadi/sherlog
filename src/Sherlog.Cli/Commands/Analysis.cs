@@ -37,7 +37,7 @@ internal static class Analysis
         {
             source = env.OpenSource(bundle);
         }
-        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or IOException)
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
         {
             throw new UserErrorException($"Couldn't open the evidence bundle {bundle}: {ex.Message}");
         }

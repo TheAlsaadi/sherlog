@@ -34,7 +34,19 @@ internal static class CollectCommand
                 throw new UserErrorException("--days must be 1 or more.");
             }
 
+            // Check where the file will go before reading anything or asking questions, so answers are never lost.
             var path = Path.GetFullPath(result.GetValue(output)!);
+            var folder = Path.GetDirectoryName(path)!;
+            if (!Directory.Exists(folder))
+            {
+                throw new UserErrorException($"There's no such folder: {folder}");
+            }
+
+            if (Directory.Exists(path))
+            {
+                throw new UserErrorException($"{path} is a folder. Give a file name, for example {Path.Combine(path, "sherlog-evidence.zip")}");
+            }
+
             var now = env.Clock.GetUtcNow();
             var since = now.AddDays(-dayCount);
 
@@ -53,13 +65,21 @@ internal static class CollectCommand
                 .ToList();
             var label = new LabelFile(answers, new InvestigatorSection(false, labels));
 
-            BundleWriter.Write(path, snapshot, since, env.SystemInfo(), label, new Redactor(env.Redaction()), env.Version, now);
+            try
+            {
+                BundleWriter.Write(path, snapshot, since, env.SystemInfo(), label, new Redactor(env.Redaction()), env.Version, now);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                throw new UserErrorException($"Couldn't save {path}: {ex.Message}");
+            }
 
             var problems = groups.Count == 1 ? "1 problem" : $"{groups.Count} problems";
             env.Out.WriteLine();
             env.Out.WriteLine($"Saved {problems} from the last {dayCount} days to:");
             env.Out.WriteLine($"  {path}");
-            env.Out.WriteLine("Nothing in this file names you or your PC. You can open it to check before sending it.");
+            env.Out.WriteLine("Sherlog replaced your user name, your PC's name and your account ID with placeholders.");
+            env.Out.WriteLine("Open the file if you'd like to check it before you send it.");
             return 0;
         }));
         return command;

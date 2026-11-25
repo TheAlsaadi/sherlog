@@ -79,6 +79,23 @@ public sealed class BundleRoundTripTests : IDisposable
     }
 
     [Fact]
+    public void Owner_answers_survive_a_profile_named_like_a_label_key()
+    {
+        // OEM PCs often have a profile named "Owner"; redacting the YAML text would turn "owner:" into "USER:".
+        var redactor = new Redactor(new RedactionTargets("TESTPC", null, ["Owner", "note", "doing"]));
+        var label = new LabelFile(
+            OwnerAnswers.Empty with { Doing = "Playing a game", Note = "The Owner of this PC plays a lot" },
+            new InvestigatorSection(false, [new CrashLabel("g-74537a", "Owner.exe", "unknown", "Owner said so", "unknown")]));
+
+        BundleWriter.Write(ZipPath, new FakeRecordSource(), Since, System, label, redactor, "0.1.0-test", T0);
+        var read = BundleReader.Open(ZipPath).Label;
+
+        Assert.Equal("Playing a game", read.Owner.Doing);
+        Assert.Equal("The USER of this PC plays a lot", read.Owner.Note);
+        Assert.Equal("USER said so", Assert.Single(read.Investigator.Labels).Evidence);
+    }
+
+    [Fact]
     public void Bundle_reader_source_diagnoses_like_live()
     {
         var source = new FakeRecordSource().AddAppError(1, T0).AddAppError(2, T0.AddDays(-1), module: "Other.dll");
@@ -109,6 +126,18 @@ public sealed class BundleRoundTripTests : IDisposable
         BundleWriter.Write(ZipPath, new FakeRecordSource(), Since, System, label, TestRedactor, "0.1.0-test", T0);
 
         Assert.Equal(label.Investigator.Labels, BundleReader.Open(ZipPath).Label.Investigator.Labels);
+    }
+
+    [Fact]
+    public void A_failed_write_leaves_no_partial_file()
+    {
+        var folderAsTarget = Directory.CreateDirectory(Path.Combine(_dir, "taken.zip")).FullName;
+
+        // Windows reports this as access denied (UnauthorizedAccessException); what matters is the cleanup.
+        Assert.ThrowsAny<Exception>(() =>
+            BundleWriter.Write(folderAsTarget, new FakeRecordSource(), Since, System, Label(), TestRedactor, "t", T0));
+
+        Assert.False(File.Exists(folderAsTarget + ".partial"));
     }
 
     [Fact]

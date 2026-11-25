@@ -38,7 +38,7 @@ internal static class EvalCommand
             var report = Evaluator.Evaluate(bundles, recipes.Recipes);
             foreach (var bad in report.UnreadableBundles)
             {
-                env.Error.WriteLine($"Couldn't read {Path.GetFileName(bad)}; it was left out.");
+                env.Error.WriteLine($"Left out {Path.GetFileName(bad.Path)}: {bad.Reason}");
             }
 
             if (result.GetValue(json))
@@ -63,14 +63,17 @@ internal static class EvalCommand
             ? "Seeded crashes: none labeled."
             : $"Seeded crashes: {r.Seeded.Correct} of {r.Seeded.Labeled} matched correctly ({Percent(r.Seeded.Correct, r.Seeded.Labeled)}). Gate: 100%.");
         w.WriteLine();
+        var g = r.Field.GatePrecision;
         w.WriteLine($"Field bundles that count toward the gate: {r.Field.QualifyingBundles} (gate needs 10).");
+        w.WriteLine($"  Correct: {g.ConfidentCorrect} of {g.ConfidentDiagnoses} Confirmed or Likely diagnoses ({Percent(g.ConfidentCorrect, g.ConfidentDiagnoses)}; gate needs 80%).");
         foreach (var (strength, s) in r.Field.ByStrength.OrderBy(kv => kv.Key, StringComparer.Ordinal))
         {
-            w.WriteLine($"  {strength}: {s.ConfidentCorrect} of {s.ConfidentDiagnoses} Confirmed or Likely diagnoses correct ({Percent(s.ConfidentCorrect, s.ConfidentDiagnoses)}); {s.Labeled} labeled.");
+            w.WriteLine($"    {strength}: {s.ConfidentCorrect} of {s.ConfidentDiagnoses} correct; {s.Labeled} labeled.");
         }
 
         w.WriteLine($"  Wrong Confirmed: {r.Field.WrongConfirmed} (gate allows 1).");
-        w.WriteLine($"  Unclear: {r.Field.UnclearGroups} of {r.Field.Groups} problems ({Percent(r.Field.UnclearGroups, r.Field.Groups)}; gate allows 40%).");
+        w.WriteLine($"  Unclear: {r.Field.UnclearCrashes} of {r.Field.Crashes} crashes ({Percent(r.Field.UnclearCrashes, r.Field.Crashes)}; gate allows 40%), "
+                    + $"{r.Field.UnclearGroups} of {r.Field.Groups} problems.");
 
         if (r.Misses.Count > 0)
         {
