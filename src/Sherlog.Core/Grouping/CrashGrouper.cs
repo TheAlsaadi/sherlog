@@ -22,14 +22,14 @@ public static class CrashGrouper
     /// <summary>The lowercase signature that decides which group a crash belongs to.</summary>
     public static string Signature(CrashEvent c)
     {
-        string[] parts = KindOf(c) switch
+        string[] parts = CrashKind.Of(c) switch
         {
-            "app" => ["app", Part(c.AppName), Part(c.FaultingModule), Part(c.ExceptionCode)],
-            "hang" => ["hang", Part(c.AppName)],
-            "display" => ["display", Part(c.FaultingModule)],
-            "bugcheck" => ["bugcheck", Part(c.BugCheckCode)],
-            "shutdown" => ["shutdown", Part(c.BugCheckCode)],
-            "wer" => ["wer", Part(c.EventName), Part(c.BugCheckCode)],
+            CrashKind.App => ["app", Part(c.AppName), Part(c.FaultingModule), Part(c.ExceptionCode)],
+            CrashKind.Hang => ["hang", Part(c.AppName)],
+            CrashKind.Display => ["display", Part(c.FaultingModule)],
+            CrashKind.BugCheck => ["bugcheck", Part(c.BugCheckCode)],
+            CrashKind.Shutdown => ["shutdown", Part(c.BugCheckCode)],
+            CrashKind.Report => ["wer", Part(c.EventName), Part(c.BugCheckCode)],
             var other => [other, Part(c.AppName), Part(c.FaultingModule), Part(c.ExceptionCode), Part(c.BugCheckCode)],
         };
         return string.Join('|', parts);
@@ -41,25 +41,6 @@ public static class CrashGrouper
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(signature));
         return "g-" + Convert.ToHexStringLower(hash)[..6];
     }
-
-    // Reliability rows describe the same kinds of crash as the logs, so they map onto the same kinds.
-    private static string KindOf(CrashEvent c) => c.Source switch
-    {
-        EvidenceSources.ApplicationError => "app",
-        EvidenceSources.ApplicationHang => "hang",
-        EvidenceSources.DisplayReset => "display",
-        EvidenceSources.BugCheck => "bugcheck",
-        EvidenceSources.UnexpectedShutdown => "shutdown",
-        EvidenceSources.ErrorReport => "wer",
-        EvidenceSources.Reliability => c.EventId switch
-        {
-            1000 => "app",
-            1002 => "hang",
-            1001 => "bugcheck",
-            _ => "reliability",
-        },
-        _ => c.Source,
-    };
 
     private static string Part(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 }

@@ -1,0 +1,44 @@
+id: gpu-nvidia-driver-reset
+version: 1
+title: NVIDIA graphics driver stopped responding
+category: driver-reset
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+
+# Only the display-reset event names the driver. A blue screen with stop code 0x116 can come from any
+# graphics driver, so it belongs to a separate, vendor-neutral recipe.
+match:
+  any:
+    - source: display-reset
+      faulting_module: nvlddmkm
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 7 }
+
+diagnosis:
+  summary: "Your NVIDIA graphics driver stopped responding, and Windows had to restart it."
+  details: "This usually comes from a recent driver update, an unstable overclock, or overheating."
+
+fixes:
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "Your graphics driver was updated recently. Going back to the previous version often stops these crashes."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 7
+  - id: guide-clean-driver-install
+    risk: advanced
+    explain: "Reinstall the graphics driver cleanly from NVIDIA's website."
+    actions:
+      - action: show_guidance
+        params: { guide: nvidia-clean-install }
+
+examples:
+  - source: display-reset
+    faulting_module: nvlddmkm
