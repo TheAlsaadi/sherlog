@@ -56,4 +56,17 @@ public sealed record CrashEvent(
 
         return "0x" + value.ToString("x8", CultureInfo.InvariantCulture);
     }
+
+    /// <summary>Returns the file name part of a path, or null when empty.</summary>
+    public static string? FileNameOnly(string? pathOrName)
+    {
+        if (string.IsNullOrWhiteSpace(pathOrName))
+        {
+            return null;
+        }
+
+        var trimmed = pathOrName.Trim();
+        var cut = trimmed.LastIndexOfAny(['\\', '/']);
+        return cut >= 0 ? trimmed[(cut + 1)..] : trimmed;
+    }
 }
