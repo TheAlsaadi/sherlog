@@ -1,0 +1,53 @@
+id: security-bitdefender-atcuf
+version: 1
+title: Crash inside the Bitdefender Active Threat Control add-in (atcuf32.dll / atcuf64.dll)
+category: crash
+references:
+  - https://bugzilla.mozilla.org/show_bug.cgi?id=1591787
+  - https://www.bitdefender.com/consumer/support/answer/130706/
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior
+
+# atcuf32.dll / atcuf64.dll is the "BitDefender Active Threat Control Usermode Filter" (Mozilla bug 1591787),
+# loaded into running programs by Bitdefender's Advanced Threat Defense. In that bug an ATD exception
+# stopped the crashes, but a later app update also did, so the cause was never pinned on one side. Unclear.
+match:
+  any:
+    - source: application-error
+      faulting_module: atcuf*.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside a file that Bitdefender adds to running programs. Bitdefender may be the cause, but this is not certain."
+  details: "Bitdefender's Advanced Threat Defense loads a small helper file into other programs to watch how they behave. If that helper and the app don't get along, the app can crash. The app may also have hit a problem of its own that only showed up inside the helper."
+
+fixes:
+  - id: update-bitdefender
+    risk: safe
+    explain: "Make sure Bitdefender is fully updated. Bitdefender fixes clashes like this through its regular updates."
+    actions:
+      - action: show_guidance
+        params: { guide: update-bitdefender }
+  - id: add-bitdefender-atd-exception
+    risk: safe
+    explain: "Add the game or app as an Advanced Threat Defense exception in Bitdefender, so it stops watching that one program. Keep the rest of your protection turned on."
+    actions:
+      - action: open_url
+        params: { url: "https://www.bitdefender.com/consumer/support/answer/130706/" }
+  - id: update-crashing-app
+    risk: safe
+    explain: "Update the game or app too. A newer version may no longer clash with Bitdefender."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: atcuf64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Launcher.exe
+    faulting_module: atcuf32.dll
+    exception_code: "0xc0000005"

@@ -1,0 +1,50 @@
+id: bsod-kernel-data-inpage-error
+version: 1
+title: Blue screen 0x7A (KERNEL_DATA_INPAGE_ERROR)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x7a--kernel-data-inpage-error
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft: the exact cause is in the I/O status (parameter 2), which Sherlog doesn't see: bad sectors, loose
+# or faulty cables, the controller losing the drive, failing RAM, low resources or a virus. Storage leads, but
+# without parameter 2 it isn't safe to say which, so unclear.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x0000007a"
+    - source: kernel-power
+      bugcheck_code: "0x0000007a"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows couldn't read data it needed back from your drive, often because of a drive problem or loose cable, sometimes faulty RAM."
+  details: "Code 0x7A means Windows asked the drive for data it had stored there and didn't get it back. Damaged areas on the drive, a loose or faulty cable, a drive dropping off the system, and faulty memory are the usual reasons."
+
+fixes:
+  - id: check-drive-health
+    risk: safe
+    explain: "Check your drive for errors and look at its health status. If the drive reports problems, back up your files soon and consider replacing it."
+    actions:
+      - action: show_guidance
+        params: { guide: check-drive-health }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to rule out faulty RAM."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: install-windows-updates
+    risk: safe
+    explain: "Install Windows updates, including optional storage and chipset driver updates."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x0000007a"
+  - source: kernel-power
+    bugcheck_code: "0x0000007a"

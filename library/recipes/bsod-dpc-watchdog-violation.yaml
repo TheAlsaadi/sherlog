@@ -1,0 +1,50 @@
+id: bsod-dpc-watchdog-violation
+version: 1
+title: Blue screen 0x133 (DPC_WATCHDOG_VIOLATION)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x133-dpc-watchdog-violation
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft: "caused by faulty driver code that ... does not complete its work within the allotted time frame".
+# That a driver is involved is well supported, but WHICH driver (storage, graphics, network, audio...) is only in
+# the dump, and the fix depends on which, so unclear rather than likely.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000133"
+    - source: kernel-power
+      bugcheck_code: "0x00000133"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "A driver took too long to finish its work, so Windows stopped with a blue screen; the record doesn't say which driver."
+  details: "Code 0x133 means a driver held up the processor for longer than Windows allows. It usually comes from a driver bug, so updating your drivers and BIOS is the best first step."
+
+fixes:
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates, so known driver bugs are fixed."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: update-device-drivers
+    risk: safe
+    explain: "Get the newest storage, chipset, graphics and other drivers from your PC or motherboard maker's website. If a driver or device was added just before the blue screens began, that one is the first suspect."
+    actions:
+      - action: show_guidance
+        params: { guide: update-device-drivers }
+  - id: update-bios
+    risk: advanced
+    explain: "Install the latest BIOS from your PC or motherboard maker. Firmware updates can fix devices that keep drivers waiting."
+    actions:
+      - action: show_guidance
+        params: { guide: update-bios }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000133"
+  - source: kernel-power
+    bugcheck_code: "0x00000133"

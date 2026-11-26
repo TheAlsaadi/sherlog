@@ -1,0 +1,45 @@
+id: windows-app-not-responding
+version: 1
+title: App stopped responding and was closed (application hang)
+category: hang
+priority: 900
+references:
+  - https://learn.microsoft.com/en-us/previous-versions/windows/win32/win7appqual/preventing-hangs-in-windows-applications
+
+# Catch-all for Application Hang (event 1002) in any app. Windows marks a window "Not Responding" when it
+# hasn't handled input for 5 seconds; the event only says which app hung and was closed, not why.
+# Two fields (source + app_name "*"), priority 900, so any app-specific hang recipe wins.
+match:
+  any:
+    - source: application-hang
+      app_name: "*"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app stopped responding and was closed before it recovered. Windows doesn't record why it got stuck."
+  details: "Windows marks a program as \"Not Responding\" when it hasn't reacted to input for about 5 seconds. Often the app is busy waiting on something, such as a slow disk, a network connection or another program, and sometimes it is stuck for good because of a bug. If you waited, it might have recovered on its own."
+
+fixes:
+  - id: guide-app-not-responding
+    risk: safe
+    explain: "Shows what to check next time: give the app a minute, and look in Task Manager to see whether your processor, memory or disk is fully busy."
+    actions:
+      - action: show_guidance
+        params: { guide: app-not-responding }
+  - id: update-app
+    risk: safe
+    explain: "Update the app or game. Freezes caused by bugs are often fixed in newer versions."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app }
+  - id: verify-game-files
+    risk: safe
+    explain: "If this is a game, have its launcher check and repair the game files, in case a damaged file makes it get stuck while loading."
+    actions:
+      - action: verify_game_files
+
+examples:
+  - source: application-hang
+    app_name: Game.exe

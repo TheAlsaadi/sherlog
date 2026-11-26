@@ -1,0 +1,50 @@
+id: bsod-driver-irql-not-less-or-equal
+version: 1
+title: Blue screen 0xD1 (DRIVER_IRQL_NOT_LESS_OR_EQUAL)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xd1--driver-irql-not-less-or-equal
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft: "usually caused by drivers that have used improper memory addresses"; its support guide points at
+# network drivers first. The driver's name is only in the dump, which Sherlog doesn't read, and unstable RAM can
+# produce the same bad addresses, so this stays unclear.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x000000d1"
+    - source: kernel-power
+      bugcheck_code: "0x000000d1"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because a device driver used memory the wrong way; the record doesn't say which driver."
+  details: "Code 0xD1 is usually a bug in a device driver. Microsoft's guide mentions network drivers in particular, but any device driver, or unstable memory, can cause it. Updating your drivers is the best first step."
+
+fixes:
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates, so known driver bugs are fixed."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: update-device-drivers
+    risk: safe
+    explain: "Get the newest network, chipset and other drivers from your PC or motherboard maker's website. If a driver changed just before the blue screens began, that one is the first suspect."
+    actions:
+      - action: show_guidance
+        params: { guide: update-device-drivers }
+  - id: test-memory
+    risk: safe
+    explain: "If updating drivers doesn't help, run Windows Memory Diagnostic to rule out faulty RAM."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x000000d1"
+  - source: kernel-power
+    bugcheck_code: "0x000000d1"

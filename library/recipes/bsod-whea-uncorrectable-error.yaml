@@ -1,0 +1,51 @@
+id: bsod-whea-uncorrectable-error
+version: 1
+title: Blue screen 0x124 (WHEA_UNCORRECTABLE_ERROR)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# The error is reported by the hardware itself (machine check, PCIe error, etc.). Microsoft: "typically related
+# to physical hardware failures", heat, defective memory or processor; disable overclocking; a driver is "less
+# likely". So "a hardware-level problem" is likely, but WHICH part is unknown, so there is no confirmed_when:
+# repeats make the problem more certain, not which part is at fault.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000124"
+    - source: kernel-power
+      bugcheck_code: "0x00000124"
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your PC's hardware reported an error it couldn't recover from, usually caused by an overclock, overheating, or a faulty part such as the processor or memory."
+  details: "Code 0x124 comes from the hardware itself, not from an app. Microsoft says it is typically a hardware problem such as heat, faulty memory or a worn processor, and it can follow an unstable overclock or undervolt. A driver is possible but less likely."
+
+fixes:
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your fans spin and that your processor and graphics card aren't overheating under load. Cleaning dust out of the PC can help."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: reset-overclock-and-xmp
+    risk: advanced
+    explain: "If you overclocked or undervolted your processor or graphics card, or turned on XMP or EXPO for your memory, set them back to default in the BIOS and see whether the blue screens stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000124"
+  - source: kernel-power
+    bugcheck_code: "0x00000124"

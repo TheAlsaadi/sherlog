@@ -1,0 +1,43 @@
+id: security-sophos-hmpalert
+version: 1
+title: Crash inside the Sophos exploit-protection add-in (hmpalert.dll)
+category: crash
+references:
+  - https://bugzilla.mozilla.org/show_bug.cgi?id=1752733
+  - https://bugzilla.mozilla.org/show_bug.cgi?id=1329994
+  - https://docs.sophos.com/central/Customer/help/en-us/ManageYourProducts/Alerts/ThreatAdvice/FalsePositive/StopDetectingExploit/index.html
+
+# hmpalert.dll is loaded into programs by Sophos Intercept X / HitmanPro.Alert / Sophos Home exploit
+# protection. Mozilla tracked crashes in it (bugs 1329994, 1752733) and Sophos shipped fixes, but crashes
+# under other signatures continued, so a crash here is not proof Sophos caused it. Unclear.
+match:
+  any:
+    - source: application-error
+      faulting_module: hmpalert.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside a file that Sophos security software adds to running programs. Sophos may be the cause, but this is not certain."
+  details: "Sophos exploit protection loads a small helper file into other programs to block attacks. Some versions of that helper have crashed apps, and Sophos has fixed several of these in updates. The app may also have hit a problem of its own that only showed up inside the helper."
+
+fixes:
+  - id: update-sophos
+    risk: safe
+    explain: "Make sure Sophos is fully updated. Sophos has fixed crashes in this file in past updates. On a work or school PC, ask your IT team."
+    actions:
+      - action: show_guidance
+        params: { guide: update-sophos }
+  - id: ask-for-sophos-app-exclusion
+    risk: safe
+    explain: "Ask whoever manages Sophos (you, or your IT team) to add an exploit-protection exclusion for just this app. Keep the rest of your protection turned on."
+    actions:
+      - action: open_url
+        params: { url: "https://docs.sophos.com/central/Customer/help/en-us/ManageYourProducts/Alerts/ThreatAdvice/FalsePositive/StopDetectingExploit/index.html" }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: hmpalert.dll
+    exception_code: "0xc0000005"
