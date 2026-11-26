@@ -64,6 +64,10 @@ A crash caused on purpose by a test program on a throwaway machine, so its cause
 **Field bundle**:
 An evidence bundle from a real person's PC, where the cause has to be worked out.
 
+**Public case**:
+A solved tech-support thread turned into a test case: the crash facts the post gives, and the fix the poster said
+worked as the label (ADR 0010).
+
 **Owner answers**:
 The PC owner's plain-language account of a crash: what crashed, what they were doing, what changed, what they tried and whether it helped.
 

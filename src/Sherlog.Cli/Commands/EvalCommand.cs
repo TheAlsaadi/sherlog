@@ -10,7 +10,10 @@ internal static class EvalCommand
 {
     public static Command Create(CliEnvironment env)
     {
-        var folder = new Argument<string>("folder") { Description = "A folder of evidence bundles (.zip) with filled-in labels." };
+        var folder = new Argument<string>("folder")
+        {
+            Description = "A folder of evidence bundles (.zip) with filled-in labels, and/or public case files (.yaml).",
+        };
         var library = CommonOptions.Library();
         var json = CommonOptions.Json();
         var command = new Command("eval", "Check how often Sherlog's diagnoses match the labeled causes.") { folder, library, json };
@@ -23,10 +26,11 @@ internal static class EvalCommand
                 throw new UserErrorException($"There's no such folder: {dir}");
             }
 
-            var bundles = Directory.EnumerateFiles(dir, "*.zip", SearchOption.TopDirectoryOnly).Order(StringComparer.OrdinalIgnoreCase).ToList();
-            if (bundles.Count == 0)
+            var bundles = Files(dir, "*.zip");
+            var cases = Files(dir, "*.yaml");
+            if (bundles.Count == 0 && cases.Count == 0)
             {
-                throw new UserErrorException($"No .zip evidence bundles in {dir}.");
+                throw new UserErrorException($"No evidence bundles (.zip) or public cases (.yaml) in {dir}.");
             }
 
             var recipes = Analysis.LoadRecipes(env, result.GetValue(library));
@@ -35,7 +39,7 @@ internal static class EvalCommand
                 env.Error.WriteLine($"Skipped recipe {Path.GetFileName(error.FilePath)}: {error.Message}");
             }
 
-            var report = Evaluator.Evaluate(bundles, recipes.Recipes);
+            var report = Evaluator.Evaluate(bundles, recipes.Recipes, cases);
             foreach (var bad in report.UnreadableBundles)
             {
                 env.Error.WriteLine($"Left out {Path.GetFileName(bad.Path)}: {bad.Reason}");
@@ -57,23 +61,41 @@ internal static class EvalCommand
 
     private static void Print(TextWriter w, EvalReport r)
     {
-        w.WriteLine(r.BundleCount == 1 ? "Evaluated 1 bundle." : $"Evaluated {r.BundleCount} bundles.");
+        var bundles = r.BundleCount == 1 ? "1 bundle" : $"{r.BundleCount} bundles";
+        w.WriteLine(r.CaseCount == 0
+            ? $"Evaluated {bundles}."
+            : $"Evaluated {bundles} and {(r.CaseCount == 1 ? "1 public case" : $"{r.CaseCount} public cases")}.");
         w.WriteLine();
         w.WriteLine(r.Seeded.Labeled == 0
             ? "Seeded crashes: none labeled."
             : $"Seeded crashes: {r.Seeded.Correct} of {r.Seeded.Labeled} matched correctly ({Percent(r.Seeded.Correct, r.Seeded.Labeled)}). Gate: 100%.");
-        w.WriteLine();
-        var g = r.Field.GatePrecision;
-        w.WriteLine($"Field bundles that count toward the gate: {r.Field.QualifyingBundles} (gate needs 10).");
-        w.WriteLine($"  Correct: {g.ConfidentCorrect} of {g.ConfidentDiagnoses} Confirmed or Likely diagnoses ({Percent(g.ConfidentCorrect, g.ConfidentDiagnoses)}; gate needs 80%).");
-        foreach (var (strength, s) in r.Field.ByStrength.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+
+        // Gate 1 (ADR 0010): accuracy from public cases, the Unclear share from real PCs, wrong Confirmed from both.
+        if (r.CaseCount > 0)
         {
-            w.WriteLine($"    {strength}: {s.ConfidentCorrect} of {s.ConfidentDiagnoses} correct; {s.Labeled} labeled.");
+            w.WriteLine();
+            w.WriteLine($"Public cases that count toward the gate: {r.PublicCases.QualifyingBundles} (gate needs 30).");
+            Accuracy(w, r.PublicCases, gateLine: true);
+            w.WriteLine($"  Wrong Confirmed: {r.PublicCases.WrongConfirmed}.");
+            w.WriteLine($"  Unclear: {r.PublicCases.UnclearGroups} of {r.PublicCases.Groups} problems (not a gate line for public cases).");
         }
 
-        w.WriteLine($"  Wrong Confirmed: {r.Field.WrongConfirmed} (gate allows 1).");
-        w.WriteLine($"  Unclear: {r.Field.UnclearCrashes} of {r.Field.Crashes} crashes ({Percent(r.Field.UnclearCrashes, r.Field.Crashes)}; gate allows 40%), "
-                    + $"{r.Field.UnclearGroups} of {r.Field.Groups} problems.");
+        w.WriteLine();
+        if (r.BundleCount == 0)
+        {
+            w.WriteLine("Field bundles: none.");
+        }
+        else
+        {
+            w.WriteLine($"Field bundles with counted labels: {r.Field.QualifyingBundles}.");
+            Accuracy(w, r.Field, gateLine: r.CaseCount == 0);
+            w.WriteLine($"  Wrong Confirmed: {r.Field.WrongConfirmed}.");
+            w.WriteLine($"  Unclear: {r.Field.UnclearCrashes} of {r.Field.Crashes} crashes ({Percent(r.Field.UnclearCrashes, r.Field.Crashes)}; gate allows 40%), "
+                        + $"{r.Field.UnclearGroups} of {r.Field.Groups} problems.");
+        }
+
+        w.WriteLine();
+        w.WriteLine($"Wrong Confirmed in total: {r.PublicCases.WrongConfirmed + r.Field.WrongConfirmed} (gate allows 1).");
 
         if (r.Misses.Count > 0)
         {
@@ -85,6 +107,20 @@ internal static class EvalCommand
             }
         }
     }
+
+    private static void Accuracy(TextWriter w, FieldScore score, bool gateLine)
+    {
+        var g = score.GatePrecision;
+        var gate = gateLine ? "; gate needs 80%" : string.Empty;
+        w.WriteLine($"  Correct: {g.ConfidentCorrect} of {g.ConfidentDiagnoses} Confirmed or Likely diagnoses ({Percent(g.ConfidentCorrect, g.ConfidentDiagnoses)}{gate}).");
+        foreach (var (strength, s) in score.ByStrength.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+        {
+            w.WriteLine($"    {strength}: {s.ConfidentCorrect} of {s.ConfidentDiagnoses} correct; {s.Labeled} labeled.");
+        }
+    }
+
+    private static List<string> Files(string dir, string pattern) =>
+        Directory.EnumerateFiles(dir, pattern, SearchOption.TopDirectoryOnly).Order(StringComparer.OrdinalIgnoreCase).ToList();
 
     private static string Percent(int part, int whole) =>
         whole == 0 ? "n/a" : (100.0 * part / whole).ToString("0", CultureInfo.InvariantCulture) + "%";

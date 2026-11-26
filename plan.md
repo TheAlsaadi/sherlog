@@ -292,18 +292,22 @@ sherlog/
 - [x] **Wording pass** (`design:ux-copy`): every diagnosis reads clearly to a non-technical person.
 - [ ] **Two kinds of test data, because crash causes are rarely known for certain:**
   - **Seeded crashes (exact ground truth):** in Windows Sandbox or a VM, cause known crashes on purpose with small test programs (for example an access violation in a named module, a missing Visual C++ runtime, a deliberately hung app). The cause is known exactly, so these test the readers and matching precisely.
-  - **Field bundles (real-world truth):** **👤 OWNER** asks friends to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred).
+  - **Field bundles (real-world truth):** **👤 OWNER** asks friends to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred). *Changed by ADR 0010: the owner has no friends to ask, so field bundles come from the owner's own PCs (at least 2) plus any volunteers. Accuracy is measured on solved public cases instead (below).*
+  - **Solved public cases (real-world truth, ADR 0010):** a frozen set of at least 30 solved tech-support threads, each turned into a case file in `tests/public-cases/` (the crash facts, the link, and the fix that worked as the label). They're collected with a fixed list of searches, taking every thread that qualifies in order, and labeled before Sherlog is run on them.
 - [x] **Two-layer `label.yaml`** written by `collect`:
   - **Owner section, for the PC's owner (a friend, not technical):** a plain-language checklist: what crashed, what they were doing, anything that changed recently (new driver, update, new app, overclock), what they tried, whether it fixed it, and whether it still happens. Multiple choice where possible, plus a free-text note.
   - **Investigator section, for Claude Code and the project owner:** `true_cause` (a recipe ID, or `unknown`), `evidence` (why we believe it) and `label_strength`: `confirmed-by-fix` (applying the matching fix stopped the crashes for 7 days or more), `owner-reported` (the owner's account fits the evidence) or `unknown`.
 - [ ] Claude Code investigates each bundle, fills the investigator section from the owner's answers and the evidence, and asks the owner a follow-up a week later where a fix was tried, to upgrade labels to `confirmed-by-fix`.
 - [x] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
+- [x] `sherlog eval` also reads public case files (`*.yaml`) and reports them apart from bundles (ADR 0010).
+- [ ] Collect and freeze the first set of solved public cases (`tests/public-cases/gate-1/`).
 
 ### Gate 1
+*Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs.*
 - [x] **100%** of seeded crashes are read and matched correctly
-- [ ] At least **80%** of Confirmed and Likely diagnoses are correct on field bundles labeled `confirmed-by-fix` or `owner-reported`, with at least 10 such bundles
-- [ ] **No more than 1** Confirmed diagnosis is wrong
-- [ ] No more than **40%** of crashes end up Unclear, counted over every crash Sherlog shows in the field bundles, background live-kernel reports included (ADR 0009)
+- [ ] At least **80%** of Confirmed and Likely diagnoses are correct on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported`
+- [ ] **No more than 1** Confirmed diagnosis is wrong, across public cases and field bundles
+- [ ] No more than **40%** of crashes end up Unclear, counted over every crash Sherlog shows in field bundles from at least 2 real PCs, background live-kernel reports included (ADR 0009). Public cases don't count toward this share
 - [x] `sherlog explain` answers in under 5 seconds on a typical PC
 - [ ] Results and the list of misses written to `docs/gates/phase-1.md`. **If the gate fails, improve the recipes and repeat. Do not start Phase 2.**
 
