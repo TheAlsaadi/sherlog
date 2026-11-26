@@ -1,0 +1,58 @@
+id: anticheat-easy-anti-cheat
+version: 1
+title: Easy Anti-Cheat crashed or was the failing file
+category: crash
+references:
+  - https://www.easy.ac/support/articles
+  - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+# EAC's documented files: the EasyAntiCheat_EOS.exe service in Program Files (x86)\EasyAntiCheat_EOS and
+# EasyAntiCheat_EOS_Setup.exe in the game folder (older games: EasyAntiCheat.exe). The in-game module names are
+# not documented publicly, so the module condition uses the EasyAntiCheat prefix only. The anti-cheat being named
+# doesn't prove it is at fault (it watches the game closely and can be hit by others' problems), hence unclear.
+match:
+  any:
+    - source: application-error
+      app_name: "EasyAntiCheat*.exe"
+    - source: application-error
+      faulting_module: "EasyAntiCheat*"
+    # The service crashing in its own exe: two fields, so it beats the generic own-exe fallbacks.
+    - source: application-error
+      app_name: "EasyAntiCheat*.exe"
+      faulting_module: "EasyAntiCheat*.exe"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The crash involved Easy Anti-Cheat, the anti-cheat used by this game. Its files may be damaged, or other software may be getting in its way."
+  details: "Easy Anti-Cheat runs alongside protected games. Damaged game or anti-cheat files, or software that hooks into games such as overlays, monitoring tools or security software, can make it fail."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "Ask your game launcher to check the game's files. This also restores the anti-cheat files that come with the game."
+    actions:
+      - action: verify_game_files
+  - id: guide-eac-repair
+    risk: moderate
+    explain: "Shows Easy Anti-Cheat's own repair steps, which reinstall its service, and how to close overlays or monitoring tools it may conflict with. The repair needs administrator rights."
+    actions:
+      - action: show_guidance
+        params: { guide: easy-anti-cheat-repair }
+  - id: eac-support-page
+    risk: safe
+    explain: "Opens Easy Anti-Cheat's support page. They advise contacting the game's publisher first if the problem continues."
+    actions:
+      - action: open_url
+        params: { url: "https://www.easy.ac/support/articles" }
+
+examples:
+  - source: application-error
+    app_name: EasyAntiCheat_EOS.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: EasyAntiCheat_EOS.exe
+    faulting_module: EasyAntiCheat_EOS.exe
+    exception_code: "0xc0000005"

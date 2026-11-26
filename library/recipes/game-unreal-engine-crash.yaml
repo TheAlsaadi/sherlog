@@ -1,0 +1,60 @@
+id: game-unreal-engine-crash
+version: 1
+title: Unreal Engine game crashed in its own program file
+category: crash
+references:
+  - https://dev.epicgames.com/documentation/en-us/unreal-engine/crash-reporting-in-unreal-engine
+  - https://dev.epicgames.com/documentation/en-us/unreal-engine/packaging-your-project
+  - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+# Packaged Unreal Engine games run as <Project>-Win64-Shipping.exe (the Shipping build configuration; the plain
+# <Project>.exe is a small launcher). Shipping builds put the engine and game code in that one exe, so the faulting
+# module is the exe itself and the crash can be the game, the engine, or a graphics-driver problem. The exe naming
+# is the engine's default; the Epic packaging page documents the Shipping configuration, not the file name.
+# Only access violations and fail-fast are matched so that e.g. 0xc000001d still reaches the CPU recipe.
+match:
+  any:
+    - source: application-error
+      app_name: "*-Win64-Shipping.exe"
+      faulting_module: "*-Win64-Shipping.exe"
+      exception_code: "0xc0000005"
+    - source: application-error
+      app_name: "*-Win64-Shipping.exe"
+      faulting_module: "*-Win64-Shipping.exe"
+      exception_code: "0xc0000409"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This Unreal Engine game crashed inside its own program. The cause is often in the game, its files, or its add-ons, but Windows can't say which."
+  details: "Unreal games keep the engine and the game's code in one program file, so Windows names the game itself whatever went wrong. The game's own crash report usually says more."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "Ask your game launcher to check the game's files and replace any that are damaged or missing. It doesn't touch your saves."
+    actions:
+      - action: verify_game_files
+  - id: guide-unreal-crash-logs
+    risk: safe
+    explain: "Shows where Unreal games save their own crash reports and logs (in the game's Saved folder under AppData\\Local), which name the error and help the game's support team."
+    actions:
+      - action: show_guidance
+        params: { guide: unreal-crash-logs }
+  - id: guide-remove-mods-and-addons
+    risk: safe
+    explain: "Update the game and turn off mods and overlays for a while. If the crashes stop, one of them was the cause."
+    actions:
+      - action: show_guidance
+        params: { guide: remove-mods-and-addons }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestGame-Win64-Shipping.exe
+    faulting_module: SherlogTestGame-Win64-Shipping.exe
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: SherlogTestGame-Win64-Shipping.exe
+    faulting_module: SherlogTestGame-Win64-Shipping.exe
+    exception_code: "0xc0000409"

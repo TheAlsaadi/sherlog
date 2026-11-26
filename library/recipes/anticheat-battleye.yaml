@@ -1,0 +1,62 @@
+id: anticheat-battleye
+version: 1
+title: BattlEye anti-cheat crashed or was the failing file
+category: crash
+references:
+  - https://www.battleye.com/support/faq/
+  - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+# BattlEye's FAQ names the BEService.exe / BEService_x64.exe service and "the BattlEye Client in the game directory"
+# (commonly seen in crash records as BEClient_x64.dll; the FAQ doesn't spell out the file name). For client problems
+# BattlEye says to verify the game files; for service problems, to check security software. Naming it doesn't prove
+# it is at fault.
+match:
+  any:
+    - source: application-error
+      faulting_module: "BEClient*.dll"
+    - source: application-error
+      app_name: "BEService*.exe"
+    # The service crashing in its own exe: two fields, so it beats the generic own-exe fallbacks.
+    - source: application-error
+      app_name: "BEService*.exe"
+      faulting_module: "BEService*.exe"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The crash involved BattlEye, the anti-cheat used by this game. Its files may be outdated or damaged, or other software may be blocking it."
+  details: "BattlEye runs inside protected games and as a background service. An outdated or damaged BattlEye file in the game folder, or security software blocking its service, can make it fail."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "Ask your game launcher to check the game's files. BattlEye recommends this because it restores an outdated or damaged BattlEye client in the game folder."
+    actions:
+      - action: verify_game_files
+  - id: guide-battleye-security-software
+    risk: safe
+    explain: "Shows how to check that your antivirus or firewall isn't blocking the BattlEye service, as BattlEye's own help suggests."
+    actions:
+      - action: show_guidance
+        params: { guide: battleye-security-software }
+  - id: battleye-faq
+    risk: safe
+    explain: "Opens BattlEye's support page, which lists further steps and how to contact them if the problem continues."
+    actions:
+      - action: open_url
+        params: { url: "https://www.battleye.com/support/faq/" }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestGame.exe
+    faulting_module: BEClient_x64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: BEService_x64.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: BEService_x64.exe
+    faulting_module: BEService_x64.exe
+    exception_code: "0xc0000409"

@@ -1,0 +1,50 @@
+id: runtime-dotnet-unhandled-exception
+version: 1
+title: .NET app stopped after an error it didn't handle (0xe0434352)
+category: crash
+priority: 400
+references:
+  - https://learn.microsoft.com/en-us/shows/inside/e0434352
+  - https://learn.microsoft.com/en-us/archive/msdn-magazine/2008/september/clr-inside-out-unhandled-exception-processing-in-the-clr
+  - https://support.microsoft.com/help/2698555
+
+# 0xe0434352 ("CCR") is the code for every .NET exception; the faulting module is usually KERNELBASE.dll because
+# that is where the exception is raised. The code alone says nothing about which error it was (the .NET Runtime
+# event 1026 has the details, which Sherlog does not read). Priority 400 so it beats broad module recipes
+# (for example a KERNELBASE.dll fallback) but loses to recipes that name the app.
+match:
+  any:
+    - source: application-error
+      exception_code: "0xe0434352"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This app, built on Microsoft .NET, hit an error it didn't handle and had to close. Windows doesn't record which error it was."
+  details: "Common reasons are a missing or damaged file or setting the app expected, a bug in the app, or a problem with its add-ons. Less often, the .NET Framework on this PC is damaged."
+
+fixes:
+  - id: update-or-reinstall-app
+    risk: safe
+    explain: "Update or reinstall the app, or ask its launcher to check its files. This replaces missing or broken files and settings, the most common cause."
+    actions:
+      - action: verify_game_files
+  - id: guide-dotnet-error-details
+    risk: safe
+    explain: "Shows where Windows keeps the full .NET error message for this crash (Event Viewer, .NET Runtime), so you can send it to the app's support team."
+    actions:
+      - action: show_guidance
+        params: { guide: dotnet-error-details }
+  - id: dotnet-framework-repair-tool
+    risk: moderate
+    explain: "If several .NET apps crash this way, run Microsoft's .NET Framework Repair Tool. It checks for and repairs a damaged .NET Framework installation."
+    actions:
+      - action: open_url
+        params: { url: "https://support.microsoft.com/help/2698555" }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestTool.exe
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xe0434352"

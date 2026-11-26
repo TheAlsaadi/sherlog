@@ -1,0 +1,52 @@
+id: runtime-app-fail-fast
+version: 1
+title: App closed itself on purpose after an internal error (0xc0000409)
+category: crash
+priority: 800
+references:
+  - https://learn.microsoft.com/en-us/cpp/intrinsics/fastfail
+  - https://devblogs.microsoft.com/oldnewthing/20190108-00/?p=100655
+  - https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/abort
+
+# 0xc0000409 is named STATUS_STACK_BUFFER_OVERRUN, but it is also the code of every fail-fast request: abort(),
+# std::terminate() after an unhandled C++ exception, and other "stop now" checks. In ucrtbase.dll it is nearly
+# always abort(). In the app's own exe it can be either. Neither says why the app gave up, so this stays unclear,
+# with a high priority so recipes for a named app or module win.
+match:
+  any:
+    - source: application-error
+      faulting_module: "*.exe"
+      exception_code: "0xc0000409"
+    - source: application-error
+      faulting_module: ucrtbase.dll
+      exception_code: "0xc0000409"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This app ran into an error it couldn't recover from and closed itself on purpose. Windows doesn't record what the error was."
+  details: "Programs stop themselves like this when they detect something wrong, such as damaged data, a missing or broken file, or a bug. The error code sounds alarming but is used for all of these cases."
+
+fixes:
+  - id: update-or-verify-app
+    risk: safe
+    explain: "Update the app or game, or ask its launcher to check its files. Broken or mismatched game files are a common reason for a program to stop itself."
+    actions:
+      - action: verify_game_files
+  - id: guide-remove-mods-and-addons
+    risk: safe
+    explain: "If you use mods, plugins or overlays with this app, turn them off and try again. They often change the app in ways it doesn't expect."
+    actions:
+      - action: show_guidance
+        params: { guide: remove-mods-and-addons }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: SherlogTestApp.exe
+    exception_code: "0xc0000409"
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: ucrtbase.dll
+    exception_code: "0xc0000409"

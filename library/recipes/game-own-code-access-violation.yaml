@@ -1,0 +1,44 @@
+id: game-own-code-access-violation
+version: 1
+title: App or game crashed in its own program file (access violation)
+category: crash
+priority: 800
+references:
+  - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
+  - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+# Broad fallback: 0xc0000005 (STATUS_ACCESS_VIOLATION) with the faulting module being an .exe, which in practice
+# is the app's own program file. Causes range from a game bug or broken install to mods, overlays, unstable
+# overclocks or faulty memory; the evidence can't tell them apart. Engine recipes (Unreal) and anything naming
+# the app beat this one.
+match:
+  any:
+    - source: application-error
+      faulting_module: "*.exe"
+      exception_code: "0xc0000005"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This app crashed inside its own program file. The cause is often, but not always, a bug or a damaged file in the app itself."
+  details: "The program tried to use memory it wasn't allowed to. That can come from a bug, broken or outdated game files, mods, or less often an unstable overclock or faulty memory. If many different apps crash this way, the PC itself is more likely the cause."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "Ask your game launcher (Steam, Epic, and others) to check the game's files and replace any that are damaged or missing. It doesn't touch your saves."
+    actions:
+      - action: verify_game_files
+  - id: guide-remove-mods-and-addons
+    risk: safe
+    explain: "Update the game, and turn off mods, overlays and other add-ons for a while. If the crashes stop, one of them was the cause."
+    actions:
+      - action: show_guidance
+        params: { guide: remove-mods-and-addons }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestGame.exe
+    faulting_module: SherlogTestGame.exe
+    exception_code: "0xc0000005"

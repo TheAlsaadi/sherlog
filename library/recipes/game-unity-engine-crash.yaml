@@ -1,0 +1,54 @@
+id: game-unity-engine-crash
+version: 1
+title: Unity game crashed in the Unity engine or its game code
+category: crash
+references:
+  - https://docs.unity.com/en-us/engine/6000.0/manual/platform-specific/windows/standalone-binaries
+  - https://docs.unity3d.com/2021.2/Documentation/Manual/WindowsPlayerIL2CPPBuildProducedFiles.html
+  - https://docs.unity.com/en-us/engine/current/manual/get-started/project-configuration/log-files
+
+# UnityPlayer.dll holds all native Unity engine code; GameAssembly.dll (IL2CPP builds) holds the game's scripts.
+# A crash in either is shared by every Unity game, so the module says "Unity", not why. mono-2.0-bdwgc.dll
+# (Mono builds) is left out because no Unity page found names it.
+match:
+  any:
+    - source: application-error
+      faulting_module: UnityPlayer.dll
+    - source: application-error
+      faulting_module: GameAssembly.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This game, made with Unity, crashed inside the Unity engine or the game's own code. Windows can't tell why."
+  details: "Every Unity game uses the same engine files, so many different problems show up the same way: a bug in the game, broken game files, mods, or a graphics driver problem. The game's own log file usually names the error."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "Ask your game launcher to check the game's files and replace any that are damaged or missing. It doesn't touch your saves."
+    actions:
+      - action: verify_game_files
+  - id: guide-unity-player-log
+    risk: safe
+    explain: "Shows where Unity games write their log (Player.log in AppData\\LocalLow, in a folder named after the game's maker). The last lines usually say what went wrong and help the game's support team."
+    actions:
+      - action: show_guidance
+        params: { guide: unity-player-log }
+  - id: guide-remove-mods-and-addons
+    risk: safe
+    explain: "Update the game and turn off mods and overlays for a while. If the crashes stop, one of them was the cause."
+    actions:
+      - action: show_guidance
+        params: { guide: remove-mods-and-addons }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestGame.exe
+    faulting_module: UnityPlayer.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: SherlogTestGame.exe
+    faulting_module: GameAssembly.dll
+    exception_code: "0xc0000005"
