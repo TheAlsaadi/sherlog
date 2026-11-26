@@ -67,7 +67,7 @@ internal static class CollectCommand
         }
 
         var groups = CrashGrouper.Group(new EvidenceReader(snapshot).ReadCrashes(since));
-        var answers = askQuestions ? OwnerQuestions.Ask(env.Out, env.ReadLine, groups) : OwnerAnswers.Empty;
+        var answers = askQuestions ? OwnerQuestions.Ask(env.Out, env.ReadLine, groups, env.TimeZone) : OwnerAnswers.Empty;
         var labels = groups
             .Select(g => new CrashLabel(g.Id, g.Latest.AppName, "unknown", null, "unknown"))
             .ToList();

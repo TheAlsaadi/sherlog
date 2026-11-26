@@ -33,7 +33,7 @@ public static class OwnerQuestions
 
     private const string SomethingElse = "Something else";
 
-    public static OwnerAnswers Ask(TextWriter output, Func<string?> readLine, IReadOnlyList<CrashGroup> groups)
+    public static OwnerAnswers Ask(TextWriter output, Func<string?> readLine, IReadOnlyList<CrashGroup> groups, TimeZoneInfo timeZone)
     {
         var ended = false;
         string? Read()
@@ -51,7 +51,7 @@ public static class OwnerQuestions
         output.WriteLine("A few quick questions help find the cause. Press Enter to skip any of them.");
         output.WriteLine();
 
-        var crashChoices = groups.Take(9).Select(g => $"{Label(g)} ({g.Id})").Append(SomethingElse).ToList();
+        var crashChoices = groups.Take(9).Select(g => $"{Label(g, timeZone)} ({g.Id})").Append(SomethingElse).ToList();
         var whatCrashed = One(output, Read, $"1. {WhatCrashedQuestion}", crashChoices);
         var doing = One(output, Read, $"2. {DoingQuestion}", DoingChoices);
         var changes = Many(output, Read, $"3. {ChangesQuestion}", ChangeChoices);
@@ -65,11 +65,15 @@ public static class OwnerQuestions
         return new OwnerAnswers(whatCrashed, doing, changes, tried, helped, still, string.IsNullOrEmpty(note) ? null : note);
     }
 
-    /// <summary>A short name for a crash group that a person would recognize.</summary>
-    public static string Label(CrashGroup group)
+    /// <summary>
+    /// A short name for a crash group that a person would recognize, with when it last happened, so two problems with
+    /// the same app can be told apart.
+    /// </summary>
+    public static string Label(CrashGroup group, TimeZoneInfo timeZone)
     {
         var c = group.Latest;
-        var times = group.Crashes.Count == 1 ? "once" : $"{group.Crashes.Count} times";
+        var last = TimeZoneInfo.ConvertTime(c.Time, timeZone).ToString("MMM d", CultureInfo.InvariantCulture);
+        var times = group.Crashes.Count == 1 ? $"once on {last}" : $"{group.Crashes.Count} times, last on {last}";
         var name = CrashKind.Of(c) switch
         {
             CrashKind.App or CrashKind.Hang or CrashKind.Popup => c.AppName ?? "An app",
