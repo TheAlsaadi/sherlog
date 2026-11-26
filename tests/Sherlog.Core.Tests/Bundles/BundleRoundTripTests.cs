@@ -109,6 +109,21 @@ public sealed class BundleRoundTripTests : IDisposable
     }
 
     [Fact]
+    public void Popups_that_are_not_crashes_are_not_written()
+    {
+        // Other popups ("Delayed Write Failed", "Corrupt File") can name the person's documents.
+        var source = new FakeRecordSource();
+        source.Events.Add(Fixture.Event("System", "app-popup-26-other.xml"));
+        source.Events.Add(Fixture.Event("System", "app-popup-26-missing-dll.xml"));
+
+        BundleWriter.Write(ZipPath, source, Since.AddYears(-1), System, Label(), TestRedactor, "0.1.0-test", T0);
+
+        var events = BundleReader.Open(ZipPath).Records.ReadEvents(DateTimeOffset.MinValue).ToList();
+        Assert.Single(events);
+        Assert.Contains("VCRUNTIME140.dll", events[0].Xml);
+    }
+
+    [Fact]
     public void Records_older_than_since_are_not_written()
     {
         var source = new FakeRecordSource().AddAppError(1, T0).AddAppError(2, Since.AddDays(-1));

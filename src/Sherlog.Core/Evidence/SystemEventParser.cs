@@ -38,14 +38,24 @@ public static class SystemEventParser
     private static readonly System.Text.RegularExpressions.Regex ExeInCaption =
         new(@"^\s*([^\\/:*?""<>|]+?\.exe)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
+    // A missing DLL is named as a bare file ("because VCRUNTIME140.dll was not found"). Popups about a DLL that IS
+    // there ("entry point not found in C:\...\MSVCP140.dll", "bad image ... error status 0xc000012f") give its full
+    // path or a status code, so a file name right after a path separator, or any status code, rules the popup out.
     private static readonly System.Text.RegularExpressions.Regex DllInMessage =
-        new(@"[A-Za-z0-9_.\-]+\.dll\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+        new(@"(?<![\\/:A-Za-z0-9_.\-])[A-Za-z0-9_.\-]+\.dll\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    private static readonly System.Text.RegularExpressions.Regex StatusCode =
+        new(@"0x[0-9a-f]{8}", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
     private static CrashEvent? MissingDll(EventXml xml, RawEventRecord record)
     {
-        var app = ExeInCaption.Match(xml.Data("Caption", 0) ?? string.Empty);
-        var dll = DllInMessage.Match(xml.Data("Message", 1) ?? string.Empty);
-        if (!app.Success || !dll.Success)
+        // Right-to-left Windows can start the caption with invisible direction marks.
+        var caption = new string((xml.Data("Caption", 0) ?? string.Empty)
+            .Where(ch => char.GetUnicodeCategory(ch) != System.Globalization.UnicodeCategory.Format).ToArray());
+        var message = xml.Data("Message", 1) ?? string.Empty;
+        var app = ExeInCaption.Match(caption);
+        var dll = DllInMessage.Match(message);
+        if (!app.Success || !dll.Success || StatusCode.IsMatch(message))
         {
             return null;
         }

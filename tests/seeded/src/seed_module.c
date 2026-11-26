@@ -1,5 +1,5 @@
 /* SherlogSeedModule.dll: a DLL that crashes on purpose, so the crash is recorded "in a named module".
-   Built and run only on throwaway CI machines (ADR 0007). */
+   Built on CI and run only inside Windows Sandbox (ADR 0007, sandbox/README.md). */
 #include <windows.h>
 
 __declspec(dllexport) void seed_crash(void)

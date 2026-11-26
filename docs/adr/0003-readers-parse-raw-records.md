@@ -12,3 +12,9 @@ We chose this because Phase 1 is an accuracy experiment that will repeat: when G
 - `Sherlog.Core` and `Sherlog.Cli` (and their tests) target `net10.0-windows`, because live sources use Windows-only APIs (event log and WMI). The shared default in `Directory.Build.props` stays `net10.0` for projects that don't need Windows.
 - Bundles are larger than a parsed summary, and raw records can hold more personal data, so redaction (ADR 0005) runs on raw records before anything is written.
 - Blue-screen dump files are **not** read in Phase 1: Windows lets only administrators read them, and parsing them needs Debugging Tools. The bug-check code comes from the System log's BugCheck event instead.
+
+## Exception (2026-11-26): popups that aren't crashes are not kept
+
+"Application Popup" events (System log, 26) are read so Sherlog can see apps that couldn't start because a DLL is
+missing. Most popups aren't crashes, and some (for example "Delayed Write Failed") name the person's documents, so a
+popup Sherlog can't parse as a missing-DLL crash is **not** written to a bundle. Every other unparsed record is still kept.

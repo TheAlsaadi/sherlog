@@ -21,7 +21,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "This app needs a processor feature that your processor doesn't have. Some newer games need features that older processors lack."
+  summary: "This often means the app needs a processor feature that your processor doesn't have. An overclock can cause the same error."
   details: "Many recent games, and some game updates, need processor features that older CPUs don't have. In that case reinstalling or updating drivers won't help. Less often, a bug in the program or an unstable overclock causes the same error."
 
 fixes:

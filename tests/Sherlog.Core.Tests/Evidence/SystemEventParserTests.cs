@@ -63,6 +63,30 @@ public class SystemEventParserTests
         Assert.Equal("VCRUNTIME140.dll", crash.FaultingModule);
     }
 
+    private static RawEventRecord Popup(string caption, string message) => new("System",
+        Fixture.Text("events", "app-popup-26-missing-dll.xml")
+            .Replace(Fixture.Text("events", "app-popup-26-missing-dll.xml").Split("<Data Name=\"Caption\">")[1].Split("</Data>")[0], caption)
+            .Replace("The code execution cannot proceed because VCRUNTIME140.dll was not found. Reinstalling the program may fix this problem. ", message),
+        null);
+
+    [Theory]
+    [InlineData("Game.exe - Entry Point Not Found", @"The procedure entry point ?x@@YAXXZ could not be located in the dynamic link library C:\WINDOWS\SYSTEM32\MSVCP140.dll.")]
+    [InlineData("Game.exe - Bad Image", @"C:\Games\x.dll is either not designed to run on Windows or it contains an error. Error status 0xc000012f.")]
+    [InlineData("Game.exe - Ordinal Not Found", @"The ordinal 42 could not be located in the dynamic link library C:\Games\helper.dll.")]
+    public void Popups_about_a_dll_that_is_present_are_not_missing_dll_crashes(string caption, string message)
+    {
+        Assert.Null(SystemEventParser.Parse(Popup(caption, message)));
+    }
+
+    [Fact]
+    public void Caption_with_leading_right_to_left_mark_still_names_the_app()
+    {
+        var crash = SystemEventParser.Parse(Popup("\u200F\u202BGame.exe - \u0628", "The code execution cannot proceed because MSVCP140.dll was not found."));
+
+        Assert.Equal("Game.exe", crash?.AppName);
+        Assert.Equal("MSVCP140.dll", crash?.FaultingModule);
+    }
+
     [Fact]
     public void Popup_that_names_no_app_and_dll_is_not_a_crash()
     {
