@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because one of your processor's cores stopped responding, which can come from processor settings, the BIOS, heat or a driver."
+  summary: "Windows stopped with a blue screen because part of your processor stopped responding. Processor or BIOS settings, heat and drivers are common causes."
   details: "Code 0x101 means one processor core stopped answering the others. An unstable overclock or undervolt, an outdated BIOS, overheating or a stuck driver can all cause it, and the blue screen record doesn't say which."
 
 fixes:

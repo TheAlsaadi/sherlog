@@ -21,7 +21,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "This game, made with Unity, crashed inside the Unity engine or the game's own code. Windows can't tell why."
+  summary: "This game, made with Unity, crashed inside the Unity engine or the game's own code. Windows doesn't record why."
   details: "Every Unity game uses the same engine files, so many different problems show up the same way: a bug in the game, broken game files, mods, or a graphics driver problem. The game's own log file usually names the error."
 
 fixes:

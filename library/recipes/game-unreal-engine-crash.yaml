@@ -27,7 +27,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "This Unreal Engine game crashed inside its own program. The cause is often in the game, its files, or its add-ons, but Windows can't say which."
+  summary: "This Unreal Engine game crashed inside its own code. The cause is often in the game, its files or its add-ons, but Windows doesn't record which."
   details: "Unreal games keep the engine and the game's code in one program file, so Windows names the game itself whatever went wrong. The game's own crash report usually says more."
 
 fixes:

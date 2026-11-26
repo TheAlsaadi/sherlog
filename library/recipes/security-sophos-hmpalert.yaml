@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "The app crashed inside a file that Sophos security software adds to running programs. Sophos may be the cause, but this is not certain."
+  summary: "The app crashed inside a file that Sophos security software adds to running apps. Sophos may be the cause, but this isn't certain."
   details: "Sophos exploit protection loads a small helper file into other programs to block attacks. Some versions of that helper have crashed apps, and Sophos has fixed several of these in updates. The app may also have hit a problem of its own that only showed up inside the helper."
 
 fixes:

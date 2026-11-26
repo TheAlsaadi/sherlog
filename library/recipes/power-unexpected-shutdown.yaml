@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Your PC turned off or restarted without shutting down properly, and no blue screen was recorded, for example after a power cut, holding the power button, or a power supply problem."
+  summary: "Your PC turned off without shutting down properly, and no blue screen was recorded. A power cut, holding the power button or a power supply problem can all do this."
   details: "Windows logs this when power is lost before it can record an error. A power outage, an unplugged or drained laptop, or holding the power button on a frozen PC all cause it; if none of those happened, a weak power supply, overheating or an unstable overclock are the usual suspects."
 
 fixes:

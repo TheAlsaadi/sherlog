@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because a device driver used memory the wrong way; the record doesn't say which driver."
+  summary: "Windows stopped with a blue screen because a driver used memory the wrong way. Windows doesn't record which driver."
   details: "Code 0xD1 is usually a bug in a device driver. Microsoft's guide mentions network drivers in particular, but any device driver, or unstable memory, can cause it. Updating your drivers is the best first step."
 
 fixes:

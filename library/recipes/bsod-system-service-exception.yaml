@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen when a driver or Windows component hit an error, usually a driver, though damaged files or memory can do it too."
+  summary: "Windows stopped with a blue screen because a driver or part of Windows ran into an error. A driver is the most common cause."
   details: "Code 0x3B means code running inside Windows tried to use a bad memory address. Most of the time a driver is to blame, but the record doesn't say which one, and damaged system files or unstable memory can look the same."
 
 fixes:

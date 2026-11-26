@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because it found some of its internal data damaged, most often by a driver, sometimes by unstable memory or damaged files."
+  summary: "Windows stopped with a blue screen because it found some of its own data damaged. A driver is the most common cause; unstable memory or damaged files are others."
   details: "Code 0x139 means a safety check inside Windows found data that had been changed when it shouldn't have been. Microsoft lists driver bugs as the usual cause; unstable RAM and damaged system files can do the same, and the record doesn't say which."
 
 fixes:

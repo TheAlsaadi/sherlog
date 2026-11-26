@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "The app crashed inside a file that Bitdefender adds to running programs. Bitdefender may be the cause, but this is not certain."
+  summary: "The app crashed inside a file that Bitdefender adds to running apps. Bitdefender may be the cause, but this isn't certain."
   details: "Bitdefender's Advanced Threat Defense loads a small helper file into other programs to watch how they behave. If that helper and the app don't get along, the app can crash. The app may also have hit a problem of its own that only showed up inside the helper."
 
 fixes:

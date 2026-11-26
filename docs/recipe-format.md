@@ -56,7 +56,7 @@ examples:
 | `match.any` | yes | One or more conditions. The recipe matches a crash when **any one** condition holds. |
 | `confidence.default` | yes | `likely` or `unclear`. Never `confirmed`: confirmation has to be earned. |
 | `confidence.confirmed_when` | no | Rules that raise the diagnosis to Confirmed (see below). |
-| `diagnosis.summary` | yes | One plain sentence a non-technical person understands. |
+| `diagnosis.summary` | yes | What happened, in one plain sentence a non-technical person understands. A short second sentence may say how sure we are or name the common causes ("Windows doesn't record which driver."). Under 200 characters. Use "app" for programs in general and "game" only in game-specific recipes; say "blue screen", "graphics driver", "processor" and "memory" rather than technical names. |
 | `diagnosis.details` | no | Why this happens, in plain words. |
 | `fixes` | no | Suggested fixes, best first. |
 | `examples` | yes | At least one crash this recipe must explain (see "Examples"). |

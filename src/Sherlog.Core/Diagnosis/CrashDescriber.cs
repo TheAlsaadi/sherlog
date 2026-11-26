@@ -37,15 +37,18 @@ internal static class CrashDescriber
         return count == 1 ? $"once on {date}" : $"{count} times since {date}";
     }
 
+    // Windows writes "unknown" and 0x00000000 when it couldn't tell; those placeholders are left out.
     private static string Where(CrashEvent c)
     {
-        if (c.FaultingModule is null && c.ExceptionCode is null)
+        var module = string.Equals(c.FaultingModule, "unknown", StringComparison.OrdinalIgnoreCase) ? null : c.FaultingModule;
+        var code = c.ExceptionCode == "0x00000000" ? null : c.ExceptionCode;
+        if (module is null && code is null)
         {
             return string.Empty;
         }
 
-        var module = c.FaultingModule is null ? "Windows recorded the failure" : $"Windows recorded the failure in {c.FaultingModule}";
-        return $" {module}{Code(c.ExceptionCode, "error")}.";
+        var where = module is null ? "Windows recorded the failure" : $"Windows recorded the failure in {module}";
+        return $" {where}{Code(code, "error")}.";
     }
 
     private static string Code(string? code, string label) => code is null ? string.Empty : $" ({label} {code})";

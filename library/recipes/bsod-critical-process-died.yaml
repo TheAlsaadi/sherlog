@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "A Windows process your PC can't run without stopped suddenly, so Windows stopped with a blue screen; damaged system files, a driver or a drive problem are common causes."
+  summary: "Windows stopped with a blue screen because a part of Windows it can't run without stopped. Damaged system files, a driver or a drive problem are common causes."
   details: "Code 0xEF means one of the core processes that keep Windows running ended unexpectedly. Damaged Windows files, a recently added driver or device, and errors on the drive are the most common reasons."
 
 fixes:

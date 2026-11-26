@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "A driver took too long to finish its work, so Windows stopped with a blue screen; the record doesn't say which driver."
+  summary: "Windows stopped with a blue screen because a driver took too long to finish its work. Windows doesn't record which driver."
   details: "Code 0x133 means a driver held up the processor for longer than Windows allows. It usually comes from a driver bug, so updating your drivers and BIOS is the best first step."
 
 fixes:

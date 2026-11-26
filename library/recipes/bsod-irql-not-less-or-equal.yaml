@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because memory was used the wrong way, often by a faulty or outdated driver, sometimes because of unstable RAM or BIOS settings."
+  summary: "Windows stopped with a blue screen because memory was used the wrong way. A faulty or outdated driver is the most common cause; unstable memory settings are another."
   details: "Code 0xA means a driver or part of Windows reached for memory it wasn't allowed to use at that moment. Microsoft says it usually follows a faulty driver, service or BIOS; antivirus software and faulty or unstable memory can also cause it."
 
 fixes:

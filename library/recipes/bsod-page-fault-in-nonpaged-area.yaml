@@ -18,7 +18,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because something used memory that wasn't there, often a faulty driver or RAM, but other causes are possible."
+  summary: "Windows stopped with a blue screen because something used memory that wasn't there. A faulty driver or memory is the most common cause."
   details: "Code 0x50 can come from a buggy driver or system service, antivirus software, errors on your drive, or faulty memory. The blue screen record doesn't say which, so check the common causes one at a time."
 
 fixes:

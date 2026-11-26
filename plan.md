@@ -288,8 +288,8 @@ sherlog/
   - `sherlog explain --latest | <id>`: plain-language diagnosis with confidence and suggested fix
   - `sherlog collect --redact --out evidence.zip`: export an evidence bundle with user names, machine name and user-profile paths replaced
   - `sherlog eval <folder>`: run diagnoses on labeled bundles and report accuracy
-- [ ] **Seed recipes:** research the most common gaming and app crash causes (graphics driver resets, overlays, corrupted game files, unstable memory or overclock, missing runtimes such as Visual C++ or DirectX, antivirus interference). Run research in parallel. Write at least **15 well-sourced recipes** first, then grow to **50**. Every recipe links its sources.
-- [ ] **Wording pass** (`design:ux-copy`): every diagnosis reads clearly to a non-technical person.
+- [x] **Seed recipes:** research the most common gaming and app crash causes (graphics driver resets, overlays, corrupted game files, unstable memory or overclock, missing runtimes such as Visual C++ or DirectX, antivirus interference). Run research in parallel. Write at least **15 well-sourced recipes** first, then grow to **50**. Every recipe links its sources.
+- [x] **Wording pass** (`design:ux-copy`): every diagnosis reads clearly to a non-technical person.
 - [ ] **Two kinds of test data, because crash causes are rarely known for certain:**
   - **Seeded crashes (exact ground truth):** in Windows Sandbox or a VM, cause known crashes on purpose with small test programs (for example an access violation in a named module, a missing Visual C++ runtime, a deliberately hung app). The cause is known exactly, so these test the readers and matching precisely.
   - **Field bundles (real-world truth):** **👤 OWNER** asks friends to run `sherlog collect --redact` on **10–20 Windows PCs** (gaming PCs preferred).

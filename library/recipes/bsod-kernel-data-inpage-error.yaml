@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows couldn't read data it needed back from your drive, often because of a drive problem or loose cable, sometimes faulty RAM."
+  summary: "Windows stopped with a blue screen because it couldn't read data back from your drive. A drive problem or a loose cable is the most common cause."
   details: "Code 0x7A means Windows asked the drive for data it had stored there and didn't get it back. Damaged areas on the drive, a loose or faulty cable, a drive dropping off the system, and faulty memory are the usual reasons."
 
 fixes:

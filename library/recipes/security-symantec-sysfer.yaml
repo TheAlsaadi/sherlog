@@ -19,7 +19,7 @@ confidence:
   default: likely
 
 diagnosis:
-  summary: "The app crashed inside a file that Symantec Endpoint Protection adds to every program it watches. A clash with that protection is the likely cause."
+  summary: "The app crashed inside a file that Symantec Endpoint Protection adds to the apps it watches. A clash with that protection is the likely cause."
   details: "Symantec's Application Control feature loads a helper file into programs as they start. Broadcom, which makes Symantec Endpoint Protection, says some apps don't work properly with it, and repeated crashes in one app are most likely this clash."
 
 fixes:

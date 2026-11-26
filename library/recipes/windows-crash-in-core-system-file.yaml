@@ -22,7 +22,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "The app crashed inside a core Windows file. That file is almost never the real cause; it is just where a problem in the app showed up."
+  summary: "The app crashed inside a core Windows file. That file is almost never the cause: it's just where a problem in the app showed up."
   details: "Almost every program constantly uses these Windows files, so when something goes wrong in the app, an add-on or a driver, the crash is often recorded there. Microsoft's own guidance is to first make sure Windows, the app and any antivirus are up to date."
 
 fixes:

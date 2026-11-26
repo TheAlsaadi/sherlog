@@ -19,7 +19,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "The graphics part of Windows found a problem it couldn't recover from. The graphics driver is a possible cause, but this code doesn't say for sure."
+  summary: "The graphics part of Windows found a problem it couldn't recover from. The graphics driver is a possible cause, but Windows doesn't record for sure."
   details: "Microsoft only says that Windows' graphics system found something wrong. A graphics driver, a recent Windows or driver update, or a hardware problem can all lead to it."
 
 fixes:

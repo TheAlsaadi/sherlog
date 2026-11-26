@@ -20,7 +20,7 @@ confidence:
   default: unclear
 
 diagnosis:
-  summary: "Windows stopped with a blue screen because its memory was in a bad state, often, but not always, from unstable RAM or memory settings."
+  summary: "Windows stopped with a blue screen because of a memory problem. Unstable memory or memory settings are a common cause, but not the only one."
   details: "Code 0x1A means Windows found its own memory records damaged. Faulty RAM, memory overclocking (XMP or EXPO) and buggy drivers can all cause it, and the blue screen record alone doesn't say which."
 
 fixes:
