@@ -64,10 +64,17 @@ public static class BundleWriter
     }
 
     // Parse failures are kept: a record Sherlog can't read today may be readable after a parser fix (ADR 0003).
+    // Except popups: most aren't crashes, and messages like "Delayed Write Failed" can name the person's documents.
     private static bool IsSince(RawEventRecord record, DateTimeOffset since)
     {
         var crash = record.Log == "System" ? SystemEventParser.Parse(record) : ApplicationEventParser.Parse(record);
-        return crash is null || crash.Time >= since;
+        if (crash is null)
+        {
+            return !record.Xml.Contains("Name=\"Application Popup\"", StringComparison.Ordinal)
+                   && !record.Xml.Contains("Name='Application Popup'", StringComparison.Ordinal);
+        }
+
+        return crash.Time >= since;
     }
 
     private static bool IsSince(RawReliabilityRecord record, DateTimeOffset since)

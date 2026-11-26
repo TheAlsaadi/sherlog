@@ -1,0 +1,55 @@
+id: gpu-video-scheduler-internal-error
+version: 1
+title: Blue screen 0x119 (VIDEO_SCHEDULER_INTERNAL_ERROR)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x119---video-scheduler-internal-error
+  - https://support.microsoft.com/en-us/windows/experience/performance-optimization/troubleshooting-windows-unexpected-restarts-and-stop-code-errors
+
+# Microsoft's parameter table splits 0x119 between graphics-driver faults (invalid fence, failed
+# command submission, fatal GPU page fault...) and internal Windows state errors "typically caused by
+# a memory corruption or bad hardware". Parameter 1 is not available to Sherlog, so the cause is
+# UNCLEAR between the graphics driver and memory/hardware.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000119"
+    - source: kernel-power
+      bugcheck_code: "0x00000119"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The part of Windows that hands work to your graphics card found a problem. This often comes from the graphics driver, but can also come from memory or other hardware."
+  details: "Microsoft says this code means either the graphics driver did something wrong, or Windows' own records were damaged, which usually points to faulty memory or hardware. Sherlog can't tell which from the blue screen record alone."
+
+fixes:
+  - id: update-graphics-driver
+    risk: safe
+    explain: "Install the newest driver for your graphics card from NVIDIA, AMD, Intel or your PC maker. Microsoft recommends this first when a graphics driver is involved."
+    actions:
+      - action: show_guidance
+        params: { guide: update-graphics-driver }
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "If your graphics driver was updated just before the blue screens started, going back to the previous version may stop them."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 14
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to check whether your RAM is faulty, since damaged memory can also cause this code."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000119"
+  - source: kernel-power
+    bugcheck_code: "0x00000119"

@@ -1,0 +1,21 @@
+# Labels for the seeded-crash bundle built on CI (ADR 0007). Each program crashes in a known way.
+format: 1
+investigator:
+  seeded: true
+  labels:
+    - app_name: "SherlogSeedCrash.exe"
+      true_cause: "seed-crash-in-module"
+      evidence: "Access violation inside SherlogSeedModule.dll, on purpose."
+      label_strength: "seeded"
+    - app_name: "SherlogSeedOverflow.exe"
+      true_cause: "seed-stack-overflow"
+      evidence: "Unbounded recursion, on purpose."
+      label_strength: "seeded"
+    - app_name: "SherlogSeedFastFail.exe"
+      true_cause: "seed-fastfail"
+      evidence: "__fastfail(7), on purpose."
+      label_strength: "seeded"
+    - app_name: "SherlogSeedNeedsRuntime.exe"
+      true_cause: "runtime-vcredist-missing"
+      evidence: "Linked against the shared Visual C++ runtime; Windows Sandbox has none installed."
+      label_strength: "seeded"

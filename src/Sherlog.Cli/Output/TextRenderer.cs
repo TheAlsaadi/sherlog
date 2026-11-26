@@ -6,15 +6,15 @@ namespace Sherlog.Cli.Output;
 /// <summary>Plain-text output for people. Final wording comes from the Phase 1 wording pass.</summary>
 internal static class TextRenderer
 {
-    public const string NoChangesLine = "Sherlog doesn't change anything on your PC in this version.";
+    public const string NoChangesLine = "Sherlog only explains. It hasn't changed anything on your PC.";
 
     public static string NoCrashes(int days) => $"No crashes found in the last {days} days.";
 
     public static string Meaning(ConfidenceLevel level) => level switch
     {
-        ConfidenceLevel.Confirmed => "Confirmed means it has happened often enough, in the same way, that we're sure of the cause.",
-        ConfidenceLevel.Likely => "Likely means a strong pattern points to this cause. The suggestion below is worth trying.",
-        _ => "Unclear means we can't name the cause yet. Here is what we know and what you can try.",
+        ConfidenceLevel.Confirmed => "Confirmed means this has happened several times in the same way, so we're confident about the cause.",
+        ConfidenceLevel.Likely => "Likely means a strong pattern points to this cause. The steps below are worth trying.",
+        _ => "Unclear means we can't name the cause yet. Here's what Windows recorded and what you can try.",
     };
 
     public static void Crashes(TextWriter w, IReadOnlyList<Diagnosis> diagnoses, int days, TimeZoneInfo tz)

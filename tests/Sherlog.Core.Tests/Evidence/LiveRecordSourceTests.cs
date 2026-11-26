@@ -29,6 +29,7 @@ public class LiveRecordSourceTests
 
         Assert.Contains("Provider[@Name='Display'] and EventID=4101", query);
         Assert.Contains("Provider[@Name='Microsoft-Windows-Kernel-Power'] and EventID=41", query);
+        Assert.Contains("Provider[@Name='Application Popup'] and EventID=26", query);
         Assert.Contains("@SystemTime>='2026-11-01T00:00:00.000Z'", query);
         Assert.DoesNotContain("Application Error", query);
     }

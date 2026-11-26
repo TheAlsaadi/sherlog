@@ -151,6 +151,15 @@ public class DiagnoserTests
     }
 
     [Fact]
+    public void What_we_know_leaves_out_placeholder_module_and_zero_code()
+    {
+        // Windows writes "unknown" and 0x00000000 when it couldn't tell; saying "failed in unknown" helps nobody.
+        var diagnosis = For().Diagnose(Group(AppCrash(T0, module: "unknown", code: "0x00000000")));
+
+        Assert.Equal("SherlogTestGame.exe closed unexpectedly once on Nov 20.", diagnosis.WhatWeKnow);
+    }
+
+    [Fact]
     public void What_we_know_describes_each_kind_of_crash()
     {
         var reset = new CrashEvent("sys-1", T0, EvidenceSources.DisplayReset, "Display", 4101, null, null, "nvlddmkm", null, null, null, null, null);
@@ -164,6 +173,11 @@ public class DiagnoserTests
         Assert.Contains("0x00000116", diagnoser.Diagnose(Group(blue)).WhatWeKnow);
         Assert.Contains("without a blue screen", diagnoser.Diagnose(Group(power)).WhatWeKnow);
         Assert.Contains("stopped responding", diagnoser.Diagnose(Group(hang)).WhatWeKnow);
+
+        var popup = new CrashEvent("sys-4", T0, EvidenceSources.AppPopup, "Application Popup", 26,
+            "Game.exe", null, "VCRUNTIME140.dll", null, null, null, null, null);
+        Assert.Contains("Game.exe couldn't start because VCRUNTIME140.dll is missing", diagnoser.Diagnose(Group(popup)).WhatWeKnow);
+        Assert.Contains("Game.exe", diagnoser.Diagnose(Group(popup)).Summary);
     }
 
     [Fact]

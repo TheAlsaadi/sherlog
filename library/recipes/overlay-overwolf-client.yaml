@@ -1,0 +1,51 @@
+id: overlay-overwolf-client
+version: 1
+title: Game crashed inside the Overwolf overlay
+category: crash
+references:
+  # Overwolf: per-game "Overlay & Hotkeys" switch - "Disable it to prevent the overlay and apps from launching for
+  # that specific game".
+  - https://support.overwolf.com/support/solutions/articles/9000178795-overwolf-game-settings
+  # Diablo IV team post: more crashes with DLSS Frame Generation while using Overwolf overlays; disable the overlay.
+  - https://us.forums.blizzard.com/en/d4/t/season-8-stability-issues-with-3rd-party-software/221463/1
+  # Windows crash log with "Faulting module name: OWClient.dll" from the Overwolf folder; Overwolf support replied it
+  # may be "a coexistence problem between Overwolf and another software".
+  - https://us.forums.blizzard.com/en/wow/t/crashing-at-login-screen/263963
+
+# Unclear: the file name comes from user crash logs, not Overwolf docs, and Overwolf itself says such crashes can
+# come from clashing with other software. The wildcard allows for a 64-bit variant of the name.
+match:
+  any:
+    - source: application-error
+      faulting_module: "OWClient*.dll"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Your game crashed inside Overwolf, an app that adds overlays to games. Overwolf may be the cause, but that isn't certain."
+  details: "Overwolf loads part of itself into games to show its in-game apps. A crash there can come from Overwolf itself or from it clashing with another overlay or graphics feature. Turning Overwolf's overlay off for this game shows which."
+
+fixes:
+  - id: turn-off-overwolf-overlay-for-game
+    risk: safe
+    explain: "In Overwolf's Game Settings, switch off Overlay & Hotkeys for this game. Overwolf's apps will no longer appear in this game."
+    actions:
+      - action: show_guidance
+        params: { guide: overwolf-overlay-off-for-game }
+      - action: open_url
+        params: { url: "https://support.overwolf.com/support/solutions/articles/9000178795-overwolf-game-settings" }
+    verify:
+      no_recurrence_days: 7
+  - id: test-without-other-overlays
+    risk: safe
+    explain: "Close other overlays and tools that draw on the game (RivaTuner, ReShade, Discord, Steam). Overwolf can clash with them, and closing them one at a time shows which one is involved."
+    actions:
+      - action: show_guidance
+        params: { guide: test-without-overlays }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: OWClient.dll
+    exception_code: "0xc0000005"

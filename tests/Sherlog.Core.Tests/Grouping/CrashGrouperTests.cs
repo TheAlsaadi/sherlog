@@ -82,6 +82,17 @@ public class CrashGrouperTests
     }
 
     [Fact]
+    public void Missing_dll_popups_group_by_app_and_dll()
+    {
+        var popup = new CrashEvent("sys-1", T0, EvidenceSources.AppPopup, "Application Popup", 26,
+            "Game.exe", null, "VCRUNTIME140.dll", null, null, null, null, null);
+
+        var group = Assert.Single(CrashGrouper.Group([popup, popup with { Id = "sys-2" }]));
+
+        Assert.Equal("popup|game.exe|vcruntime140.dll", group.Signature);
+    }
+
+    [Fact]
     public void Groups_sorted_by_latest_crash()
     {
         var groups = CrashGrouper.Group(

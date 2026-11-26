@@ -1,0 +1,59 @@
+id: runtime-vcredist-module-crash
+version: 1
+title: App crashed inside a Microsoft Visual C++ runtime file
+category: crash
+priority: 600
+references:
+  - https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+  - https://learn.microsoft.com/en-us/cpp/windows/determining-which-dlls-to-redistribute
+
+# Broad fallback. Thousands of apps run their own code through these shared files, so a crash "in" them is
+# usually the app's own bug passing through, not a broken runtime. Microsoft's download page itself tells
+# people fixing an app to ask the app vendor first. More specific runtime recipes (msvcp140 access violation,
+# fail-fast in ucrtbase) beat this one on field count.
+match:
+  any:
+    - source: application-error
+      faulting_module: "vcruntime140*.dll"
+    - source: application-error
+      faulting_module: "msvcp140*.dll"
+    - source: application-error
+      faulting_module: ucrtbase.dll
+    - source: application-error
+      faulting_module: "msvcr1*.dll"
+    - source: application-error
+      faulting_module: "msvcp1*.dll"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This app crashed while using a shared Microsoft Visual C++ file. Most often the problem is in the app itself, not in that file."
+  details: "Many programs run their own code through these shared Microsoft files, so the file gets named even when the app made the mistake. Less often, an outdated or damaged copy of the files is the cause."
+
+fixes:
+  - id: update-or-verify-app
+    risk: safe
+    explain: "Update the app or game to its latest version, or ask its launcher to check its files. This fixes the most common cause: a bug or a broken file in the app itself."
+    actions:
+      - action: verify_game_files
+  - id: reinstall-vc-redist
+    risk: safe
+    explain: "Install the latest Microsoft Visual C++ Redistributable (x64 and x86) from Microsoft. It replaces outdated or damaged copies of these shared files and doesn't remove anything."
+    actions:
+      - action: open_url
+        params: { url: "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: VCRUNTIME140.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: ucrtbase.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: MSVCR120.dll
+    exception_code: "0xc0000005"

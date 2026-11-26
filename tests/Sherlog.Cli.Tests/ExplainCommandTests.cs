@@ -19,7 +19,7 @@ public class ExplainCommandTests
         Assert.Contains("nvlddmkm", text);
         Assert.Contains("1. ", text);
         Assert.Contains("2. ", text);
-        Assert.Contains("Sherlog doesn't change anything on your PC in this version.", text);
+        Assert.Contains("Sherlog only explains. It hasn't changed anything on your PC.", text);
     }
 
     [Fact]

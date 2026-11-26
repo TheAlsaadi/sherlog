@@ -1,0 +1,50 @@
+id: bsod-clock-watchdog-timeout
+version: 1
+title: Blue screen 0x101 (CLOCK_WATCHDOG_TIMEOUT)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x101---clock-watchdog-timeout
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft only says a processor core stopped handling interrupts (non-responsive or deadlocked). Processor
+# instability (overclock/undervolt, BIOS/microcode) is a frequent explanation, but drivers can deadlock a core
+# too, and the source doesn't rank them. Unclear.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000101"
+    - source: kernel-power
+      bugcheck_code: "0x00000101"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because part of your processor stopped responding. Processor or BIOS settings, heat and drivers are common causes."
+  details: "Code 0x101 means one processor core stopped answering the others. An unstable overclock or undervolt, an outdated BIOS, overheating or a stuck driver can all cause it, and the blue screen record doesn't say which."
+
+fixes:
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your processor cooler works and the processor isn't overheating under load."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: reset-overclock
+    risk: advanced
+    explain: "If you overclocked or undervolted your processor, set it back to default in the BIOS. Slightly unstable processor settings are a common reason a core stops responding."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: update-bios
+    risk: advanced
+    explain: "Install the latest BIOS from your PC or motherboard maker. BIOS updates often include processor stability fixes."
+    actions:
+      - action: show_guidance
+        params: { guide: update-bios }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000101"
+  - source: kernel-power
+    bugcheck_code: "0x00000101"

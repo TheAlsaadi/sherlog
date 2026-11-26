@@ -50,13 +50,13 @@ examples:
 | `id` | yes | Lowercase words joined by `-`. Unique across the library. Labels and reports refer to it. |
 | `version` | yes | Whole number, starting at 1. Raise it when you change what the recipe matches or says. |
 | `title` | yes | Short name for maintainers. Users see `diagnosis.summary` instead. |
-| `category` | yes | `crash`, `hang`, `driver-reset`, `bluescreen` or `shutdown`. |
+| `category` | yes | `crash`, `hang`, `driver-reset`, `bluescreen`, `shutdown` or `missing-file`. |
 | `references` | yes | At least one `https://` link supporting the cause and the fixes: vendor docs, Microsoft Learn, or a widely cited bug report. |
 | `priority` | no | 1–1000, default 100. Lower wins a tie (see "Which recipe wins"). Broad fallback recipes use a high number. |
 | `match.any` | yes | One or more conditions. The recipe matches a crash when **any one** condition holds. |
 | `confidence.default` | yes | `likely` or `unclear`. Never `confirmed`: confirmation has to be earned. |
 | `confidence.confirmed_when` | no | Rules that raise the diagnosis to Confirmed (see below). |
-| `diagnosis.summary` | yes | One plain sentence a non-technical person understands. |
+| `diagnosis.summary` | yes | What happened, in one plain sentence a non-technical person understands. A short second sentence may say how sure we are or name the common causes ("Windows doesn't record which driver."). Under 200 characters. Use "app" for programs in general and "game" only in game-specific recipes; say "blue screen", "graphics driver", "processor" and "memory" rather than technical names. |
 | `diagnosis.details` | no | Why this happens, in plain words. |
 | `fixes` | no | Suggested fixes, best first. |
 | `examples` | yes | At least one crash this recipe must explain (see "Examples"). |
@@ -67,9 +67,9 @@ A condition names an evidence `source` and at least one other field. **Every fie
 
 | Field | Compared with |
 |---|---|
-| `source` | `application-error` (Application Error 1000), `application-hang` (1002), `wer` (Windows Error Reporting 1001, live kernel events), `display-reset` (Display 4101), `bugcheck` (blue screen), `kernel-power` (unexpected shutdown, 41), `reliability` (Reliability Monitor) |
+| `source` | `application-error` (Application Error 1000), `application-hang` (1002), `wer` (Windows Error Reporting 1001, live kernel events), `display-reset` (Display 4101), `bugcheck` (blue screen), `kernel-power` (unexpected shutdown, 41), `app-popup` (an app couldn't start because a DLL is missing: Application Popup 26), `reliability` (Reliability Monitor) |
 | `app_name` | The app's file name, for example `Game.exe`. `*` matches any run of characters. |
-| `faulting_module` | The file that failed, for example `nvwgf2umx.dll`, or the driver name for display resets (`nvlddmkm`). `*` allowed. |
+| `faulting_module` | The file that failed, for example `nvwgf2umx.dll`; the driver name for display resets (`nvlddmkm`); the missing DLL for `app-popup` (`VCRUNTIME140.dll`). `*` allowed. |
 | `exception_code` | `0x` plus 8 lowercase hex digits, for example `"0xc0000005"`. Quote it. |
 | `bugcheck_code` | Same format, for example `"0x00000116"`. |
 | `event_name` | The Windows Error Reporting event name, for example `LiveKernelEvent`. |

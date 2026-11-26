@@ -1,0 +1,58 @@
+id: runtime-vcredist-legacy-missing
+version: 1
+title: An older Microsoft Visual C++ Redistributable (2010-2013) is missing
+category: missing-file
+references:
+  - https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+  - https://learn.microsoft.com/en-us/cpp/windows/determining-which-dlls-to-redistribute
+
+# Before Visual Studio 2015 each version had its own runtime files, named after the version: 120 = Visual C++ 2013
+# (12.0), 110 = 2012 (11.0), 100 = 2010 (10.0). They install side by side and the 2015+ package does not replace them.
+# The 140 files belong to runtime-vcredist-missing. msvcr90/80 (2008/2005) use a different loading scheme and are left out.
+match:
+  any:
+    - source: app-popup
+      faulting_module: msvcr120.dll
+    - source: app-popup
+      faulting_module: msvcp120.dll
+    - source: app-popup
+      faulting_module: msvcr110.dll
+    - source: app-popup
+      faulting_module: msvcp110.dll
+    - source: app-popup
+      faulting_module: msvcr100.dll
+    - source: app-popup
+      faulting_module: msvcp100.dll
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 30 }
+
+diagnosis:
+  summary: "This app couldn't start because it needs an older Microsoft Visual C++ package that isn't installed."
+  details: "Older apps and games were built with Visual C++ 2010, 2012 or 2013, and each needs its own free package from Microsoft. The newer 2015-2022 package doesn't include these older files."
+
+fixes:
+  - id: install-legacy-vc-redist
+    risk: safe
+    explain: "Install the matching package from Microsoft: files ending in 120 need Visual C++ 2013, 110 need 2012, and 100 need 2010. Install both the x86 and x64 versions, because many older games are 32-bit."
+    actions:
+      - action: open_url
+        params: { url: "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" }
+  - id: verify-game-files
+    risk: safe
+    explain: "If it still won't start, ask your game launcher to check the game's files. Some games install this package themselves the first time they run."
+    actions:
+      - action: verify_game_files
+
+examples:
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: MSVCR120.dll
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: MSVCP120.dll
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: MSVCR100.dll

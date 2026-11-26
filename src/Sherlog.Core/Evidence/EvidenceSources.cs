@@ -21,11 +21,14 @@ public static class EvidenceSources
     /// <summary>System log, "Microsoft-Windows-Kernel-Power", event 41 (unexpected shutdown).</summary>
     public const string UnexpectedShutdown = "kernel-power";
 
+    /// <summary>System log, "Application Popup", event 26, when it names an app that couldn't start because a DLL is missing.</summary>
+    public const string AppPopup = "app-popup";
+
     /// <summary>Reliability Monitor records (WMI <c>Win32_ReliabilityRecords</c>).</summary>
     public const string Reliability = "reliability";
 
     public static IReadOnlyList<string> All { get; } =
     [
-        ApplicationError, ApplicationHang, ErrorReport, DisplayReset, BugCheck, UnexpectedShutdown, Reliability,
+        ApplicationError, ApplicationHang, ErrorReport, DisplayReset, BugCheck, UnexpectedShutdown, AppPopup, Reliability,
     ];
 }

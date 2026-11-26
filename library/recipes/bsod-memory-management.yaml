@@ -1,0 +1,50 @@
+id: bsod-memory-management
+version: 1
+title: Blue screen 0x1A (MEMORY_MANAGEMENT)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x1a--memory-management
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Sherlog sees only the code. Microsoft says several 0x1A sub-types are "probably a hardware error" and
+# suggests Windows Memory Diagnostic, but other sub-types are driver bugs. No single cause dominates.
+# Kernel-Power 41 carries the same code when the BugCheck event is missing (Sherlog drops the twin otherwise).
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x0000001a"
+    - source: kernel-power
+      bugcheck_code: "0x0000001a"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because of a memory problem. Unstable memory or memory settings are a common cause, but not the only one."
+  details: "Code 0x1A means Windows found its own memory records damaged. Faulty RAM, memory overclocking (XMP or EXPO) and buggy drivers can all cause it, and the blue screen record alone doesn't say which."
+
+fixes:
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic. It restarts your PC and tests your RAM; if it finds errors, a memory stick or its settings is the likely cause."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates, so known driver bugs are fixed."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: reset-overclock-and-xmp
+    risk: advanced
+    explain: "If you turned on XMP or EXPO, or overclocked your memory or processor, set them back to default in the BIOS and see whether the blue screens stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x0000001a"
+  - source: kernel-power
+    bugcheck_code: "0x0000001a"

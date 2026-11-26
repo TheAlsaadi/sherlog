@@ -1,0 +1,49 @@
+id: windows-heap-corruption
+version: 1
+title: App closed by Windows after its memory was damaged (heap corruption, 0xc0000374)
+category: crash
+priority: 800
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior
+  - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
+
+# 0xc0000374 is STATUS_HEAP_CORRUPTION. Windows (ntdll.dll) raises it when it finds the app's memory
+# bookkeeping damaged, so the faulting module is almost always ntdll.dll: the place it was noticed, not
+# the cause. Matching on the code alone (not code + ntdll.dll) keeps this broad fallback at two fields,
+# so any recipe that names a specific app or module wins on priority instead of being outranked.
+match:
+  any:
+    - source: application-error
+      exception_code: "0xc0000374"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app's memory got damaged, so Windows closed it to keep things safe. This is usually a bug in the app or in an add-on loaded into it."
+  details: "Windows noticed that the app had written over memory it should not have touched, and stopped it. The file named in the crash report is where Windows noticed the damage, not what caused it. Common causes are a bug in the app, a mod or add-on, or software that loads itself into other programs; faulty memory (RAM) is a rarer cause."
+
+fixes:
+  - id: update-app-remove-mods
+    risk: safe
+    explain: "Update the app or game, and try it without mods, add-ons or overlays. Most memory damage like this comes from the app or something loaded into it."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app-remove-mods }
+  - id: verify-game-files
+    risk: safe
+    explain: "If this is a game, have its launcher check and repair the game files, in case a damaged file is involved."
+    actions:
+      - action: verify_game_files
+  - id: guide-memory-test
+    risk: safe
+    explain: "If many different apps crash like this, test your computer's memory (RAM) with Windows Memory Diagnostic, since faulty memory can cause the same error."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000374"

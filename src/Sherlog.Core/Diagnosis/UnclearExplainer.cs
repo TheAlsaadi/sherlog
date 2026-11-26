@@ -30,6 +30,9 @@ public static class UnclearExplainer
             CrashKind.BugCheck => (
                 "We don't know yet what caused the blue screen.",
                 "Make sure Windows and your drivers are up to date. If blue screens keep happening, the stop code below helps find the cause."),
+            CrashKind.Popup => (
+                $"{app} couldn't start because a file it needs is missing.",
+                $"The missing file is listed below. Reinstalling {app}, or the package that provides that file, usually fixes this."),
             CrashKind.Shutdown => (
                 "We don't know yet why your PC shut down unexpectedly.",
                 "Check that the power cable and power strip are secure. If it happens under load, such as while gaming, the power supply or overheating may be the cause."),

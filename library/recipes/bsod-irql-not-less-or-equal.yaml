@@ -1,0 +1,49 @@
+id: bsod-irql-not-less-or-equal
+version: 1
+title: Blue screen 0xA (IRQL_NOT_LESS_OR_EQUAL)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xa--irql-not-less-or-equal
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft: usually a faulty driver, system service or BIOS; also antivirus, faulty hardware, and bad pointers
+# from use-after-free or bit-flipping (unstable RAM). Unclear.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x0000000a"
+    - source: kernel-power
+      bugcheck_code: "0x0000000a"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because memory was used the wrong way. A faulty or outdated driver is the most common cause; unstable memory settings are another."
+  details: "Code 0xA means a driver or part of Windows reached for memory it wasn't allowed to use at that moment. Microsoft says it usually follows a faulty driver, service or BIOS; antivirus software and faulty or unstable memory can also cause it."
+
+fixes:
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates. If a driver, antivirus or other tool was installed just before the blue screens began, update or remove it."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to rule out faulty RAM."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: reset-overclock-and-xmp
+    risk: advanced
+    explain: "If you turned on XMP or EXPO, or overclocked your memory or processor, set them back to default in the BIOS and see whether the blue screens stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: kernel-power
+    bugcheck_code: "0x0000000a"

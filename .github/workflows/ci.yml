@@ -52,3 +52,27 @@ jobs:
           }
           pipx run check-jsonschema --schemafile $schema $recipes.FullName
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  # Build the seeded-crash programs (tests/seeded) and keep them as an artifact. GitHub's runner images never log
+  # crash events (checked: zero Application Error 1000 / WER 1001 events), so the crashes themselves run in Windows
+  # Sandbox instead: sandbox/README.md, ADR 0007.
+  seeded-programs:
+    name: seeded programs
+    runs-on: windows-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Build the seeded programs
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
+          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          call tests\seeded\build.cmd
+
+      - name: Keep the seeded programs
+        uses: actions/upload-artifact@v4
+        with:
+          name: seeded-programs
+          path: tests/seeded/bin/
+          if-no-files-found: error

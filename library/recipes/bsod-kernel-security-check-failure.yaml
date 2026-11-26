@@ -1,0 +1,49 @@
+id: bsod-kernel-security-check-failure
+version: 1
+title: Blue screen 0x139 (KERNEL_SECURITY_CHECK_FAILURE)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x139--kernel-security-check-failure
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft: the kernel detected corruption of a data structure; its listed causes are driver bugs. Unstable
+# memory can corrupt data the same way. Not a security attack in normal cases, so don't suggest one.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000139"
+    - source: kernel-power
+      bugcheck_code: "0x00000139"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because it found some of its own data damaged. A driver is the most common cause; unstable memory or damaged files are others."
+  details: "Code 0x139 means a safety check inside Windows found data that had been changed when it shouldn't have been. Microsoft lists driver bugs as the usual cause; unstable RAM and damaged system files can do the same, and the record doesn't say which."
+
+fixes:
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates. If a driver or program was added just before the blue screens began, update or remove it."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to rule out faulty RAM."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: repair-system-files
+    risk: moderate
+    explain: "Run System File Checker. It finds damaged Windows files and replaces them with good copies."
+    actions:
+      - action: run_system_check
+        params: { check: sfc }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000139"
+  - source: kernel-power
+    bugcheck_code: "0x00000139"

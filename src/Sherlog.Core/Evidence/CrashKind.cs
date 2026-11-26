@@ -12,6 +12,7 @@ public static class CrashKind
     public const string BugCheck = "bugcheck";
     public const string Shutdown = "shutdown";
     public const string Report = "wer";
+    public const string Popup = "popup";
 
     public static string Of(CrashEvent c) => c.Source == EvidenceSources.Reliability
         ? c.EventId switch
@@ -32,6 +33,7 @@ public static class CrashKind
         EvidenceSources.BugCheck => BugCheck,
         EvidenceSources.UnexpectedShutdown => Shutdown,
         EvidenceSources.ErrorReport => Report,
+        EvidenceSources.AppPopup => Popup,
         _ => source,
     };
 }

@@ -1,0 +1,50 @@
+id: security-avast-avg-aswhook
+version: 1
+title: Crash inside the Avast or AVG antivirus add-in (aswhook.dll)
+category: crash
+references:
+  - https://bugzilla.mozilla.org/show_bug.cgi?id=1794064
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior
+  - https://support.avast.com/en-us/article/antivirus-scan-exclusions
+
+# aswhook.dll is the module Avast (and AVG, which shares Avast's engine) loads into running programs.
+# Mozilla's crash data tied Firefox crashes to Avast modules including aswhook, fixed by an Avast update.
+# The module being where the crash happened makes Avast a strong suspect, but the program can also
+# have damaged its own memory first, so this stays Unclear.
+match:
+  any:
+    - source: application-error
+      faulting_module: aswhook.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside a file that Avast or AVG antivirus adds to running apps. The antivirus may be the cause, but this isn't certain."
+  details: "Avast and AVG load a small helper file into other programs so they can watch what those programs do. If that helper and the app don't get along, the app can crash. The app may also have hit a problem of its own that only showed up inside the helper."
+
+fixes:
+  - id: update-avast-avg
+    risk: safe
+    explain: "Update Avast or AVG to the newest version from inside the app. Past crashes like this were fixed by antivirus updates."
+    actions:
+      - action: show_guidance
+        params: { guide: update-avast-avg }
+  - id: add-avast-avg-exception
+    risk: safe
+    explain: "Add the game or app as an exception in Avast or AVG, so it checks that one program less closely. Keep the rest of your protection turned on."
+    actions:
+      - action: open_url
+        params: { url: "https://support.avast.com/en-us/article/antivirus-scan-exclusions" }
+  - id: update-crashing-app
+    risk: safe
+    explain: "Update the game or app too. A newer version may no longer clash with the antivirus."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: aswhook.dll
+    exception_code: "0xc0000005"

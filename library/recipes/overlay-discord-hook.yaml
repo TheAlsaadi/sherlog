@@ -1,0 +1,48 @@
+id: overlay-discord-hook
+version: 1
+title: Game crashed inside the Discord overlay
+category: crash
+references:
+  # Discord: "If you experience lag, game crashes, or other issues while the Game Overlay is enabled, we recommend
+  # disabling the Game Overlay for that specific game." The FAQ also points crash logs at modules\discord_hook.
+  - https://support.discord.com/hc/en-us/articles/217659737-Game-Overlay-101
+  # A Windows crash log naming DiscordHook64.dll as the module that failed (confirms the file name).
+  - https://us.forums.blizzard.com/en/wow/t/discord-overlay-causing-fatal-error-in-world-of-warcraft/597832
+
+# DiscordHook64.dll (64-bit games) is only loaded into a game while the Discord overlay is on for it. The wildcard
+# also covers a 32-bit DiscordHook.dll. Likely, not Confirmed: the overlay can also clash with other overlays.
+match:
+  any:
+    - source: application-error
+      faulting_module: "DiscordHook*.dll"
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your game crashed inside the Discord overlay, the chat window Discord shows on top of games."
+  details: "To show its overlay, Discord loads part of itself into the game. When that part fails, the game closes with it. Discord itself recommends turning the overlay off for a game that crashes while it is on."
+
+fixes:
+  - id: turn-off-discord-overlay-for-game
+    risk: safe
+    explain: "Turn the Discord overlay off for this game only. Discord's chat and voice keep working; you just won't see the overlay in this game."
+    actions:
+      - action: show_guidance
+        params: { guide: discord-overlay-off-for-game }
+      - action: open_url
+        params: { url: "https://support.discord.com/hc/en-us/articles/217659737-Game-Overlay-101" }
+    verify:
+      no_recurrence_days: 7
+  - id: test-without-other-overlays
+    risk: safe
+    explain: "If the game still crashes, close other overlays too (Steam, NVIDIA, RivaTuner, recording apps). Overlays can clash with each other, and closing them one at a time shows which one is involved."
+    actions:
+      - action: show_guidance
+        params: { guide: test-without-overlays }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: DiscordHook64.dll
+    exception_code: "0xc0000005"

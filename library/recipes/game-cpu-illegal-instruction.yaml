@@ -1,0 +1,45 @@
+id: game-cpu-illegal-instruction
+version: 1
+title: Illegal instruction (0xc000001d), often a CPU missing a feature the game needs
+category: crash
+priority: 500
+references:
+  - https://support.riotgames.com/en-us/riot/performance/unable-to-launch-game-error-0xC000001D
+  - https://www.intel.com/content/www/us/en/support/articles/000088240/graphics.html
+  - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
+
+# STATUS_ILLEGAL_INSTRUCTION. Riot documents it as "the CPU is missing an instruction set the game now requires"
+# (SSE4.2 for their games); Intel documents games that require AVX. But compilers also emit deliberate trap
+# instructions that raise the same code, and an unstable overclock can too, so it stays unclear.
+# Priority 500: beats broad fallbacks, loses to recipes that name the module or app.
+match:
+  any:
+    - source: application-error
+      exception_code: "0xc000001d"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This often means the app needs a processor feature that your processor doesn't have. An overclock can cause the same error."
+  details: "Many recent games, and some game updates, need processor features that older CPUs don't have. In that case reinstalling or updating drivers won't help. Less often, a bug in the program or an unstable overclock causes the same error."
+
+fixes:
+  - id: guide-check-cpu-requirements
+    risk: safe
+    explain: "Shows how to compare your processor with the game's minimum requirements and check whether it supports features such as SSE4.2, AVX or AVX2. If it doesn't, the game can't run on this PC."
+    actions:
+      - action: show_guidance
+        params: { guide: check-cpu-instruction-support }
+  - id: guide-reset-cpu-overclock
+    risk: advanced
+    explain: "If your processor meets the requirements and you have overclocked it, set it back to default speeds in the BIOS and test again."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-cpu-overclock }
+
+examples:
+  - source: application-error
+    app_name: SherlogTestGame.exe
+    faulting_module: SherlogTestGame.exe
+    exception_code: "0xc000001d"

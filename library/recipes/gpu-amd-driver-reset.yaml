@@ -1,0 +1,63 @@
+id: gpu-amd-driver-reset
+version: 1
+title: AMD graphics driver stopped responding
+category: driver-reset
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+  - https://www.amd.com/en/resources/support-articles/faqs/TS-Tips.html
+
+# Display 4101 names the driver service. Current AMD drivers use amdkmdag; older Windows 8/10-era packages
+# used amdkmdap, and Catalyst-era drivers logged atikmpag/atikmdag. The event itself says the driver
+# stopped responding, so "likely" mirrors gpu-nvidia-driver-reset. AMD's own list of causes for TDRs:
+# unstable overclock/overheating, outdated or corrupted drivers, BIOS, memory settings, PSU, faulty parts.
+match:
+  any:
+    - source: display-reset
+      faulting_module: amdkmd*
+    - source: display-reset
+      faulting_module: atikm*
+    - source: display-reset
+      faulting_module: amduw*
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 7 }
+
+diagnosis:
+  summary: "Your AMD graphics driver stopped responding, and Windows had to restart it."
+  details: "Windows restarts the graphics driver when the graphics card takes too long to answer. AMD lists a recent or damaged driver, an unstable overclock or undervolt, overheating and power supply problems as common reasons."
+
+fixes:
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "If your graphics driver was updated just before these resets started, going back to the previous version often stops them."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 7
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your graphics card in AMD Software or another tool, set it back to default. Unstable tuning is a common reason for these resets."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: guide-amd-clean-install
+    risk: advanced
+    explain: "Reinstall the AMD graphics driver with the Factory Reset option, which removes the old driver files first."
+    actions:
+      - action: show_guidance
+        params: { guide: amd-clean-install }
+
+examples:
+  - source: display-reset
+    faulting_module: amdkmdag
+  - source: display-reset
+    faulting_module: amdkmdap
+  - source: display-reset
+    faulting_module: atikmpag
+  - source: display-reset
+    faulting_module: amduw23g

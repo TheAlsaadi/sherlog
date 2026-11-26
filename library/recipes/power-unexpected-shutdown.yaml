@@ -1,0 +1,47 @@
+id: power-unexpected-shutdown
+version: 1
+title: Unexpected shutdown with no blue screen (Kernel-Power 41, code 0)
+category: shutdown
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart
+
+# Kernel-Power 41 with BugcheckCode 0: Windows didn't get to record an error. Microsoft lists power loss,
+# an unplugged or drained laptop, a weak or faulty power supply, holding the power button on a frozen PC,
+# and says these symptoms "typically" point to hardware (overclock, memory, PSU, heat). Sherlog can't see
+# PowerButtonTimestamp, so it can't tell a deliberate power-off from a fault. Unclear.
+# Kernel-Power 41 events with a non-zero code are blue screens and go to the bsod-* recipes.
+match:
+  any:
+    - source: kernel-power
+      bugcheck_code: "0x00000000"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Your PC turned off without shutting down properly, and no blue screen was recorded. A power cut, holding the power button or a power supply problem can all do this."
+  details: "Windows logs this when power is lost before it can record an error. A power outage, an unplugged or drained laptop, or holding the power button on a frozen PC all cause it; if none of those happened, a weak power supply, overheating or an unstable overclock are the usual suspects."
+
+fixes:
+  - id: check-power-supply
+    risk: safe
+    explain: "If the PC turns off on its own, especially in games, check the power cable, wall socket and power strip, and whether your power supply is strong enough for your graphics card and processor."
+    actions:
+      - action: show_guidance
+        params: { guide: check-power-supply }
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your fans spin and that nothing overheats under load. Many PCs switch off instantly to protect themselves when they get too hot."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: reset-overclock-and-xmp
+    risk: advanced
+    explain: "If you overclocked your processor, graphics card or memory, set them back to default and see whether the shutdowns stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+
+examples:
+  - source: kernel-power
+    bugcheck_code: "0x00000000"

@@ -1,0 +1,50 @@
+id: bsod-critical-process-died
+version: 1
+title: Blue screen 0xEF (CRITICAL_PROCESS_DIED)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0xef--critical-process-died
+  - https://support.microsoft.com/topic/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files-79aa86cb-ca52-166a-92a3-966e85d4094e
+
+# Microsoft: a Windows process the system can't run without (csrss, wininit, smss, services...) ended. Its
+# advice lists recent drivers/hardware, BIOS, hardware diagnostics, viruses and System File Checker. No single
+# cause dominates, so unclear. Avoid the word "critical" in user text.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x000000ef"
+    - source: kernel-power
+      bugcheck_code: "0x000000ef"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because a part of Windows it can't run without stopped. Damaged system files, a driver or a drive problem are common causes."
+  details: "Code 0xEF means one of the core processes that keep Windows running ended unexpectedly. Damaged Windows files, a recently added driver or device, and errors on the drive are the most common reasons."
+
+fixes:
+  - id: repair-windows-image
+    risk: moderate
+    explain: "Run the Windows image repair (DISM). It fixes the store of Windows files that System File Checker uses to make repairs."
+    actions:
+      - action: run_system_check
+        params: { check: dism }
+  - id: repair-system-files
+    risk: moderate
+    explain: "Then run System File Checker. It finds damaged Windows files and replaces them with good copies."
+    actions:
+      - action: run_system_check
+        params: { check: sfc }
+  - id: check-drive-health
+    risk: safe
+    explain: "Check your drive for errors. A drive that can't read Windows files reliably can make core processes stop."
+    actions:
+      - action: show_guidance
+        params: { guide: check-drive-health }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x000000ef"
+  - source: kernel-power
+    bugcheck_code: "0x000000ef"

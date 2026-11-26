@@ -1,0 +1,48 @@
+id: gpu-live-kernel-black-screen
+version: 1
+title: Black-screen report saved (LiveKernelEvent 1a8 / 1b8)
+category: hang
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x1a8--video-dxgkrnl-black-screen-livedump
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x1b8--video-miniport-black-screen-livedump
+
+# Microsoft: a black-screen live dump triggered by a black-screen hotkey, a volume key combo, a long
+# power-button hold, an internal trigger, or (0x1a8 only) a connected monitor that could not be turned
+# on. The trigger (parameter 1) is not available, and none of these names a cause, so UNCLEAR.
+match:
+  any:
+    - source: wer
+      event_name: LiveKernelEvent
+      bugcheck_code: "0x000001a8"
+    - source: wer
+      event_name: LiveKernelEvent
+      bugcheck_code: "0x000001b8"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows saved a report because your screen stayed black, for example when the power button was held down or a monitor didn't turn on."
+  details: "This report only says the screen was black, not why. It can come from the graphics driver or from a monitor or cable problem. Look for other graphics errors around the same time."
+
+fixes:
+  - id: check-display-cable
+    risk: safe
+    explain: "Check that your monitor cable is firmly plugged in at both ends, and try another cable or port if the screen often stays black."
+    actions:
+      - action: show_guidance
+        params: { guide: check-display-connection }
+  - id: update-graphics-driver
+    risk: safe
+    explain: "Install the newest driver for your graphics card from NVIDIA, AMD, Intel or your PC maker."
+    actions:
+      - action: show_guidance
+        params: { guide: update-graphics-driver }
+
+examples:
+  - source: wer
+    event_name: LiveKernelEvent
+    bugcheck_code: "0x000001a8"
+  - source: wer
+    event_name: LiveKernelEvent
+    bugcheck_code: "0x000001b8"

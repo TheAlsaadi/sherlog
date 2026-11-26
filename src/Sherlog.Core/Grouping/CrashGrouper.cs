@@ -30,6 +30,7 @@ public static class CrashGrouper
             CrashKind.BugCheck => ["bugcheck", Part(c.BugCheckCode)],
             CrashKind.Shutdown => ["shutdown", Part(c.BugCheckCode)],
             CrashKind.Report => ["wer", Part(c.EventName), Part(c.BugCheckCode)],
+            CrashKind.Popup => ["popup", Part(c.AppName), Part(c.FaultingModule)],
             var other => [other, Part(c.AppName), Part(c.FaultingModule), Part(c.ExceptionCode), Part(c.BugCheckCode)],
         };
         return string.Join('|', parts);

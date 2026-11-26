@@ -1,0 +1,44 @@
+id: runtime-msvcp140-access-violation
+version: 1
+title: Access violation in msvcp140.dll (possibly an outdated Visual C++ runtime)
+category: crash
+references:
+  - https://github.com/microsoft/STL/wiki/VS-2022-Changelog
+  - https://github.com/microsoft/STL/issues/4730
+  - https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
+
+# Since Visual Studio 2022 17.10 (2024), apps built with newer tools crash with a null dereference in the
+# std::mutex code of msvcp140.dll when an older msvcp140.dll is loaded (Microsoft STL changelog; issue 4730
+# closed "by design": the Redistributable must be at least as new as the build tools). It is only one of
+# several reasons for an access violation in this file, so it stays unclear.
+match:
+  any:
+    - source: application-error
+      faulting_module: msvcp140.dll
+      exception_code: "0xc0000005"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "This app crashed in a shared Microsoft Visual C++ file. An outdated copy of that file is one known cause, but not the only one."
+  details: "Apps built with recent Microsoft tools need an equally recent Visual C++ runtime; with an older copy they can crash in exactly this file. The app's own bugs can cause the same crash."
+
+fixes:
+  - id: update-vc-redist
+    risk: safe
+    explain: "Install the latest Microsoft Visual C++ Redistributable (x64 and x86). If the app was built with newer tools than your installed copy, this stops the crash."
+    actions:
+      - action: open_url
+        params: { url: "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" }
+  - id: update-or-verify-app
+    risk: safe
+    explain: "Update the app or ask its launcher to check its files. Some apps carry their own old copy of this file in their folder, and an update replaces it."
+    actions:
+      - action: verify_game_files
+
+examples:
+  - source: application-error
+    app_name: SherlogTestApp.exe
+    faulting_module: MSVCP140.dll
+    exception_code: "0xc0000005"

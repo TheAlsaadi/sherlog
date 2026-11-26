@@ -1,0 +1,42 @@
+id: windows-unhandled-cpp-exception
+version: 1
+title: App stopped on an error it did not handle (C++ exception, 0xe06d7363)
+category: crash
+priority: 800
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/specific-exceptions
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior
+
+# 0xe06d7363 is STATUS_CPP_EH_EXCEPTION: the app's own C++ code reported an error and nothing in the
+# app handled it. It is raised through KERNELBASE.dll, so that is almost always the faulting module;
+# matching on the code alone keeps this fallback at two fields so specific app/module recipes win.
+match:
+  any:
+    - source: application-error
+      exception_code: "0xe06d7363"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app ran into an error of its own that it could not recover from, so it closed. The crash report doesn't say what the error was."
+  details: "Programs written in C++ report problems by raising an error that some part of the program is meant to handle. Here nothing handled it, so the app closed. The Windows file named in the report (usually KERNELBASE.dll) only passed the error along; it is not the cause. Missing or damaged app files, bad settings or a bug in the app are common reasons."
+
+fixes:
+  - id: verify-game-files
+    risk: safe
+    explain: "If this is a game, have its launcher check and repair the game files. A missing or damaged file is a common reason for this kind of error."
+    actions:
+      - action: verify_game_files
+  - id: update-app
+    risk: safe
+    explain: "Update the app or game. If it keeps happening, check the app's own error log or support page, which may name the actual error."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xe06d7363"

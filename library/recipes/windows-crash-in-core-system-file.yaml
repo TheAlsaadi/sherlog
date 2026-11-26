@@ -1,0 +1,56 @@
+id: windows-crash-in-core-system-file
+version: 1
+title: Crash that surfaced in a core Windows file (ntdll.dll / KERNELBASE.dll)
+category: crash
+priority: 900
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-application-service-crashing-behavior
+  - https://support.microsoft.com/en-us/topic/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files-79aa86cb-ca52-166a-92a3-966e85d4094e
+
+# Catch-all for any app crash whose faulting module is ntdll.dll or KERNELBASE.dll (most often 0xc0000005).
+# Microsoft: these modules are "caught as victims" of corruption done earlier by other modules, so the file
+# name says almost nothing about the cause. Deliberately no exception_code: two fields, priority 900, so
+# windows-heap-corruption, windows-unhandled-cpp-exception and every specific recipe win over this one.
+match:
+  any:
+    - source: application-error
+      faulting_module: ntdll.dll
+    - source: application-error
+      faulting_module: KERNELBASE.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside a core Windows file. That file is almost never the cause: it's just where a problem in the app showed up."
+  details: "Almost every program constantly uses these Windows files, so when something goes wrong in the app, an add-on or a driver, the crash is often recorded there. Microsoft's own guidance is to first make sure Windows, the app and any antivirus are up to date."
+
+fixes:
+  - id: update-app-remove-mods
+    risk: safe
+    explain: "Update the app or game, and try it without mods, add-ons or overlays. These are the most common causes of this kind of crash."
+    actions:
+      - action: show_guidance
+        params: { guide: update-app-remove-mods }
+  - id: windows-update
+    risk: safe
+    explain: "Install any waiting Windows updates, which include fixes for these system files."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate" }
+  - id: check-system-files
+    risk: moderate
+    explain: "If several apps crash in the same Windows file, check Windows system files for damage and repair them. This is uncommon but rules out a damaged Windows file."
+    actions:
+      - action: run_system_check
+        params: { check: sfc }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Editor.exe
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xc0000005"

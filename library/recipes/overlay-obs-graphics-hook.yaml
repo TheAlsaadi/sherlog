@@ -1,0 +1,51 @@
+id: overlay-obs-graphics-hook
+version: 1
+title: Game crashed inside OBS Game Capture
+category: crash
+references:
+  # OBS: some games (e.g. DX12) "may cause the game to crash if run with OBS"; use Window Capture for games that
+  # don't work with Game Capture; overlays/RTSS are known conflicts.
+  - https://obsproject.com/kb/game-capture-troubleshooting
+  # OBS source: the Game Capture hook is built as graphics-hook64 / graphics-hook32 / graphics-hook-arm64.
+  - https://github.com/obsproject/obs-studio/blob/master/plugins/win-capture/graphics-hook/CMakeLists.txt
+
+# graphics-hook*.dll is only inside a game while an OBS Game Capture source (or an app built on OBS) is capturing it.
+match:
+  any:
+    - source: application-error
+      faulting_module: "graphics-hook*.dll"
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your game crashed inside OBS's Game Capture, the part of OBS that records or streams the game."
+  details: "Game Capture loads a small OBS file into the game to copy each frame. OBS notes that some games, especially in DirectX 12 mode, can crash with it. Capturing the game's window instead doesn't load anything into the game."
+
+fixes:
+  - id: use-obs-window-capture
+    risk: safe
+    explain: "In OBS, capture this game with Window Capture (game in windowed or borderless mode) instead of Game Capture. Nothing is loaded into the game that way."
+    actions:
+      - action: show_guidance
+        params: { guide: obs-use-window-capture }
+      - action: open_url
+        params: { url: "https://obsproject.com/kb/game-capture-troubleshooting" }
+    verify:
+      no_recurrence_days: 7
+  - id: test-without-other-overlays
+    risk: safe
+    explain: "Close other overlays and FPS counters (RivaTuner, Discord, Steam, NVIDIA) while OBS captures the game. OBS lists these as common conflicts."
+    actions:
+      - action: show_guidance
+        params: { guide: test-without-overlays }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: graphics-hook64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: OldGame.exe
+    faulting_module: graphics-hook32.dll
+    exception_code: "0xc0000005"

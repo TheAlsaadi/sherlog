@@ -1,0 +1,60 @@
+id: gpu-live-kernel-video-timeout
+version: 1
+title: Graphics timeout recovered without a blue screen (LiveKernelEvent 141 / 117)
+category: driver-reset
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x141---video-engine-timeout-detected
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+
+# Both are live-dump codes, never real blue screens: 0x141 = one graphics engine stopped responding,
+# 0x117 = the display driver as a whole did not respond in time; Windows reset it (TDR). The event says
+# a graphics timeout happened, so LIKELY. Vendor is not in the record. No confirmed_when: the root
+# cause (driver, game, overclock, heat, power) is not made more certain by repeats.
+match:
+  any:
+    - source: wer
+      event_name: LiveKernelEvent
+      bugcheck_code: "0x00000141"
+    - source: wer
+      event_name: LiveKernelEvent
+      bugcheck_code: "0x00000117"
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your graphics card stopped responding for a moment, and Windows reset its driver without a blue screen."
+  details: "Windows restarts the graphics driver when the graphics card takes more than about two seconds to answer, usually during games. Microsoft lists a driver problem, an overclock, overheating, a weak power supply or a faulty part as common reasons."
+
+fixes:
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "If your graphics driver was updated just before these resets started, going back to the previous version often stops them."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 7
+  - id: update-graphics-driver
+    risk: safe
+    explain: "Install the newest driver for your graphics card from NVIDIA, AMD, Intel or your PC maker."
+    actions:
+      - action: show_guidance
+        params: { guide: update-graphics-driver }
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your graphics card isn't overheating while you play. Cleaning dust out of the PC can help."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+
+examples:
+  - source: wer
+    event_name: LiveKernelEvent
+    bugcheck_code: "0x00000141"
+  - source: wer
+    event_name: LiveKernelEvent
+    bugcheck_code: "0x00000117"

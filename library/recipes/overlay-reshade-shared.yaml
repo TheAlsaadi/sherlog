@@ -1,0 +1,51 @@
+id: overlay-reshade-shared
+version: 1
+title: Game crashed inside ReShade (shared install, e.g. Vulkan games)
+category: crash
+references:
+  # ReShade's own forum: Windows crash record with Module Name ReShade64.dll, Module Path
+  # C:\ProgramData\ReShade\ReShade64.dll, exception c0000005.
+  - https://reshade.me/forum/troubleshooting/9611-no-mans-sky-and-reshade-ctd
+  - https://reshade.me/
+
+# Only the named ReShade64.dll / ReShade32.dll files (used by ReShade's shared install, e.g. for Vulkan games).
+# Deliberately NOT matched: ReShade installed in a game folder as dxgi.dll, d3d11.dll, d3d9.dll or opengl32.dll.
+# Sherlog only sees the file name, which is the same as Windows' own system files, so that can't be told apart.
+# Unclear: the crash can come from ReShade, one of its effects or add-ons, or a clash with an overlay.
+match:
+  any:
+    - source: application-error
+      faulting_module: ReShade64.dll
+    - source: application-error
+      faulting_module: ReShade32.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Your game crashed inside ReShade, a tool that adds graphics effects to games. ReShade, one of its effects, or a clash with an overlay may be the cause."
+  details: "ReShade loads into the game to draw its effects. A crash there can come from ReShade itself, from a particular effect or add-on, or from another overlay working on the same game. Removing ReShade from this game, or trying it without effects, shows which."
+
+fixes:
+  - id: remove-reshade-from-game
+    risk: safe
+    explain: "Run ReShade's setup program again and choose to uninstall it from this game, or turn its effects off. If the crashes stop, ReShade or one of its effects was involved."
+    actions:
+      - action: show_guidance
+        params: { guide: reshade-remove-from-game }
+      - action: open_url
+        params: { url: "https://reshade.me/" }
+    verify:
+      no_recurrence_days: 7
+  - id: test-without-other-overlays
+    risk: safe
+    explain: "Close other overlays (Overwolf, Discord, Steam, RivaTuner) while using ReShade. Several tools drawing on one game can clash."
+    actions:
+      - action: show_guidance
+        params: { guide: test-without-overlays }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: ReShade64.dll
+    exception_code: "0xc0000005"

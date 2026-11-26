@@ -1,0 +1,40 @@
+id: overlay-mirillis-action-vulkan-layer
+version: 1
+title: Game crashed inside the Mirillis Action! Vulkan recording layer
+category: crash
+references:
+  # Egosoft (X4 developer) list of third-party DLLs known to cause problems: MirillisActionVulkanLayer.dll, "Known
+  # to causes crashes directly on starting X4 on AMD (deleting or reinstalling Mirillis Action! application fixes
+  # the issue)".
+  - https://wiki.egosoft.com/X4%20Foundations%20Wiki/Troubleshooting/Exit%20Code%20Table/Exitcode_3rdpartydll/
+
+# Unclear: the only good source is one game developer's report. The file name is specific to Action!.
+match:
+  any:
+    - source: application-error
+      faulting_module: MirillisActionVulkanLayer.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Your game crashed inside a part of Mirillis Action!, a screen recorder, that loads into Vulkan games."
+  details: "Action! adds a small piece to Vulkan games so it can record them. At least one game maker reports that this piece can crash games at start-up on AMD graphics cards, and that reinstalling or removing Action! fixed it."
+
+fixes:
+  - id: reinstall-or-remove-mirillis-action
+    risk: safe
+    explain: "Reinstall Action! with its latest version, or uninstall it if you don't use it, from Windows' installed apps list. That replaces or removes the piece that loads into the game."
+    actions:
+      - action: show_guidance
+        params: { guide: mirillis-action-reinstall }
+      - action: open_settings_page
+        params: { uri: "ms-settings:appsfeatures" }
+    verify:
+      no_recurrence_days: 7
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: MirillisActionVulkanLayer.dll
+    exception_code: "0xc0000005"

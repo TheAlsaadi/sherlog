@@ -1,0 +1,83 @@
+id: runtime-directx-legacy-missing
+version: 1
+title: Older DirectX add-on files are missing
+category: missing-file
+references:
+  - https://www.microsoft.com/en-us/download/details.aspx?id=35
+  - https://learn.microsoft.com/en-us/windows/win32/xaudio2/xaudio2-versions
+
+# Application Popup 26 names the missing DLL. These files come only from the legacy DirectX End-User Runtime
+# (D3DX9/10/11, XInput 1.3 and earlier, XAudio 2.7 and earlier with X3DAudio/XAPOFX, XACT, old HLSL compiler).
+# Not listed on purpose: xinput1_4.dll, xinput9_1_0.dll, xaudio2_8.dll, xaudio2_9.dll and d3dcompiler_47.dll ship
+# with Windows, and xaudio2_9redist.dll ships with the game, so the DirectX runtime would not bring them back.
+match:
+  any:
+    - source: app-popup
+      faulting_module: "d3dx9*.dll"
+    - source: app-popup
+      faulting_module: "d3dx10*.dll"
+    - source: app-popup
+      faulting_module: "d3dx11*.dll"
+    - source: app-popup
+      faulting_module: xinput1_1.dll
+    - source: app-popup
+      faulting_module: xinput1_2.dll
+    - source: app-popup
+      faulting_module: xinput1_3.dll
+    - source: app-popup
+      faulting_module: xaudio2_0.dll
+    - source: app-popup
+      faulting_module: xaudio2_1.dll
+    - source: app-popup
+      faulting_module: xaudio2_2.dll
+    - source: app-popup
+      faulting_module: xaudio2_3.dll
+    - source: app-popup
+      faulting_module: xaudio2_4.dll
+    - source: app-popup
+      faulting_module: xaudio2_5.dll
+    - source: app-popup
+      faulting_module: xaudio2_6.dll
+    - source: app-popup
+      faulting_module: xaudio2_7.dll
+    - source: app-popup
+      faulting_module: "x3daudio1_*.dll"
+    - source: app-popup
+      faulting_module: "xapofx1_*.dll"
+    - source: app-popup
+      faulting_module: "xactengine*.dll"
+    - source: app-popup
+      faulting_module: d3dcompiler_43.dll
+
+confidence:
+  default: likely
+  confirmed_when:
+    - occurrences_within_days: { count: 3, days: 30 }
+
+diagnosis:
+  summary: "This game couldn't start because a file from an older DirectX add-on isn't installed."
+  details: "Many older games use extra DirectX files that Windows doesn't include. They come from Microsoft's free DirectX End-User Runtime, which works alongside the DirectX already in Windows and doesn't replace it."
+
+fixes:
+  - id: install-directx-end-user-runtime
+    risk: safe
+    explain: "Download and run Microsoft's DirectX End-User Runtime, then start the game again. It only adds the older DirectX files that games like this need."
+    actions:
+      - action: open_url
+        params: { url: "https://www.microsoft.com/en-us/download/details.aspx?id=35" }
+  - id: verify-game-files
+    risk: safe
+    explain: "If the error stays, ask your game launcher to check the game's files. Some games install these files themselves from their own folder."
+    actions:
+      - action: verify_game_files
+
+examples:
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: d3dx9_43.dll
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: XINPUT1_3.dll
+  - source: app-popup
+    app_name: SherlogTestGame.exe
+    faulting_module: XAPOFX1_5.dll

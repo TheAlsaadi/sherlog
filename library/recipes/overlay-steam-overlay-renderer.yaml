@@ -1,0 +1,58 @@
+id: overlay-steam-overlay-renderer
+version: 1
+title: Game crashed inside the Steam overlay
+category: crash
+references:
+  # Valve: the overlay "automatically hooks into any game launched from Steam" and "because of the way it injects
+  # itself into the game, it does often expose memory leaks or memory corruption" (FAQ).
+  - https://partner.steamgames.com/doc/features/overlay
+  # Steam Support article on the Steam Community Overlay (global and per-game switch).
+  - https://help.steampowered.com/en/faqs/view/3978-072C-18DF-FBF9
+
+# Unclear on purpose: GameOverlayRenderer64.dll (and the 32-bit GameOverlayRenderer.dll) is loaded into almost every
+# Steam game, often even with the overlay switched off, and Valve says its hooks expose memory bugs in the game
+# itself. So a crash in this file is often, but not always, Steam's fault.
+match:
+  any:
+    - source: application-error
+      faulting_module: "GameOverlayRenderer*.dll"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Your game crashed inside the Steam overlay. The overlay is often, but not always, the cause."
+  details: "Steam loads its overlay into the games it starts. Valve notes that this can bring out memory problems in the game itself, so the game may be at fault even though the crash shows up in Steam's file. Turning the overlay off for this game is a quick way to tell."
+
+fixes:
+  - id: turn-off-steam-overlay-for-game
+    risk: safe
+    explain: "Turn the Steam overlay off for this game only, in the game's Properties in your Steam Library. If the crashes stop, the overlay was involved."
+    actions:
+      - action: show_guidance
+        params: { guide: steam-overlay-off-for-game }
+      - action: open_url
+        params: { url: "https://help.steampowered.com/en/faqs/view/3978-072C-18DF-FBF9" }
+    verify:
+      no_recurrence_days: 7
+  - id: verify-steam-game-files
+    risk: safe
+    explain: "Ask Steam to check the game's files and replace any that are damaged. This helps if the problem is really in the game rather than in the overlay."
+    actions:
+      - action: verify_game_files
+  - id: test-without-other-overlays
+    risk: safe
+    explain: "Close other overlays too (Discord, NVIDIA, RivaTuner, recording apps). Several overlays in one game can clash, and closing them one at a time shows which one is involved."
+    actions:
+      - action: show_guidance
+        params: { guide: test-without-overlays }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: GameOverlayRenderer64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: OldGame.exe
+    faulting_module: GameOverlayRenderer.dll
+    exception_code: "0xc0000005"

@@ -1,0 +1,48 @@
+id: bsod-page-fault-in-nonpaged-area
+version: 1
+title: Blue screen 0x50 (PAGE_FAULT_IN_NONPAGED_AREA)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x50--page-fault-in-nonpaged-area
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-code-error-troubleshooting
+
+# Microsoft lists a faulty driver or system service, antivirus, a corrupted NTFS volume and faulty RAM.
+match:
+  any:
+    - source: bugcheck
+      bugcheck_code: "0x00000050"
+    - source: kernel-power
+      bugcheck_code: "0x00000050"
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "Windows stopped with a blue screen because something used memory that wasn't there. A faulty driver or memory is the most common cause."
+  details: "Code 0x50 can come from a buggy driver or system service, antivirus software, errors on your drive, or faulty memory. The blue screen record doesn't say which, so check the common causes one at a time."
+
+fixes:
+  - id: install-driver-updates
+    risk: safe
+    explain: "Install Windows updates, including optional driver updates. If the blue screens started after you installed a new program or driver, try updating or removing it."
+    actions:
+      - action: open_settings_page
+        params: { uri: "ms-settings:windowsupdate-optionalupdates" }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to test your RAM. If it finds errors, a memory stick or its settings is the likely cause."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: check-drive-health
+    risk: safe
+    explain: "Check your drive for errors. A damaged file system on the Windows drive can also cause this blue screen."
+    actions:
+      - action: show_guidance
+        params: { guide: check-drive-health }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+  - source: kernel-power
+    bugcheck_code: "0x00000050"
