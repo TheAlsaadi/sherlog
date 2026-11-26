@@ -1,0 +1,76 @@
+id: gpu-nvidia-driver-dll-crash
+version: 1
+title: App or game crashed inside an NVIDIA graphics driver file
+category: crash
+references:
+  - https://issuetracker.unity.com/issues/24370/recurring-crash-related-to-nvidia-drivers-nvwgf2umx-nvoglv64
+  - https://www.nvidia.com/en-us/drivers/
+
+# User-mode NVIDIA driver files: nvwgf2umx.dll / nvwgf2um.dll (Direct3D 10-12, 64/32-bit),
+# nvd3dumx.dll / nvd3dum.dll (Direct3D 9), nvoglv64.dll / nvoglv32.dll (OpenGL and Vulkan),
+# nvldumdx.dll / nvldumd.dll (driver loader), nvgpucomp64.dll (shader compiler in recent drivers).
+# UNCLEAR on purpose: the faulting module only says where the crash happened. A game sending bad
+# commands, an unstable GPU/CPU overclock or undervolt, overheating, overlays and running out of
+# video memory all end up crashing inside these files, as well as real driver bugs. Unity closed its
+# issue as an NVIDIA driver problem, but its workarounds (overlays, laptop power) show the spread.
+match:
+  any:
+    - source: application-error
+      faulting_module: nvwgf2um*.dll
+    - source: application-error
+      faulting_module: nvd3dum*.dll
+    - source: application-error
+      faulting_module: nvoglv*.dll
+    - source: application-error
+      faulting_module: nvldumd*.dll
+    - source: application-error
+      faulting_module: nvgpucomp*.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside your NVIDIA graphics driver. This is often, but not always, a driver problem: the game itself or an unstable overclock can cause it too."
+  details: "The graphics driver runs inside every game, so it is where many graphics crashes end up. A driver bug, a game bug, an overclock or undervolt, overheating, or an overlay can all cause it. If only one game crashes, the game is more likely; if many do, the driver or hardware is."
+
+fixes:
+  - id: update-nvidia-driver
+    risk: safe
+    explain: "Install the newest NVIDIA driver. New drivers often fix crashes in specific games."
+    actions:
+      - action: open_url
+        params: { url: "https://www.nvidia.com/en-us/drivers/" }
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "Your graphics driver was updated recently. If the crashes started after that, going back to the previous version may stop them."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 7
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your graphics card or processor, set them back to default and see whether the crashes stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+
+examples:
+  - source: application-error
+    app_name: Game-Win64-Shipping.exe
+    faulting_module: nvwgf2umx.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: OldGame.exe
+    faulting_module: nvd3dum.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Editor.exe
+    faulting_module: nvoglv64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: nvgpucomp64.dll
+    exception_code: "0xc0000005"

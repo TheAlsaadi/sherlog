@@ -1,0 +1,83 @@
+id: gpu-amd-driver-dll-crash
+version: 1
+title: App or game crashed inside an AMD graphics driver file
+category: crash
+references:
+  - https://www.amd.com/en/resources/support-articles/faqs/TS-Tips.html
+  - https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-10-1.html
+
+# User-mode AMD driver files: atidxx64.dll / atidxx32.dll (Direct3D 11/12), amdxx64.dll / amdxx32.dll
+# (newer Direct3D 11 driver), amdxc64.dll / amdxc32.dll (Direct3D 12 shader compiler), atio6axx.dll /
+# atioglxx.dll (OpenGL 64/32-bit), amdvlk64.dll / amdvlk32.dll (Vulkan), atiumd64.dll / atiumdag.dll
+# (Direct3D 9). UNCLEAR: AMD's release notes list game-specific "application crash" bugs fixed in the
+# driver, but AMD's stability guide also blames overclocking, overheating, BIOS, memory settings,
+# PSU and conflicting software. The faulting module alone can't tell these apart.
+match:
+  any:
+    - source: application-error
+      faulting_module: atidxx*.dll
+    - source: application-error
+      faulting_module: amdxx*.dll
+    - source: application-error
+      faulting_module: amdxc*.dll
+    - source: application-error
+      faulting_module: atio6axx.dll
+    - source: application-error
+      faulting_module: atioglxx.dll
+    - source: application-error
+      faulting_module: amdvlk*.dll
+    - source: application-error
+      faulting_module: atiumd*.dll
+
+confidence:
+  default: unclear
+
+diagnosis:
+  summary: "The app crashed inside your AMD graphics driver. This is often, but not always, a driver problem: the game itself or an unstable overclock can cause it too."
+  details: "The graphics driver runs inside every game, so it is where many graphics crashes end up. AMD fixes some game crashes in new drivers, but unstable tuning, overheating, memory settings and other software can cause the same crash. If only one game crashes, the game or driver is more likely; if many do, check your settings and hardware."
+
+fixes:
+  - id: update-amd-driver
+    risk: safe
+    explain: "Install the newest AMD driver. AMD's release notes often list fixes for crashes in specific games."
+    actions:
+      - action: open_url
+        params: { url: "https://www.amd.com/en/support/download/drivers.html" }
+  - id: rollback-recent-display-driver
+    risk: moderate
+    when:
+      change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
+    explain: "Your graphics driver was updated recently. If the crashes started after that, going back to the previous version may stop them."
+    actions:
+      - action: rollback_driver
+        params: { device_class: Display }
+    verify:
+      no_recurrence_days: 7
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your graphics card in AMD Software, or tuned your processor or memory, set them back to default and see whether the crashes stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: atidxx64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Game-Win64-Shipping.exe
+    faulting_module: amdxx64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: amdxc64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Editor.exe
+    faulting_module: atio6axx.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: amdvlk64.dll
+    exception_code: "0xc0000005"
