@@ -39,6 +39,16 @@ public sealed class EvalCommandTests : IDisposable
     }
 
     [Fact]
+    public void Eval_says_1_bundle_not_1_bundles()
+    {
+        Bundle("field.zip", new FakeRecordSource().AddAppError(1, CliHarness.Now.AddDays(-1)), seeded: false);
+        var cli = new CliHarness();
+
+        Assert.Equal(0, cli.Run("eval", _dir, "--library", CliHarness.ValidRecipes));
+        Assert.Contains("Evaluated 1 bundle.", cli.Out.ToString());
+    }
+
+    [Fact]
     public void Eval_json_has_scores()
     {
         Bundle("field.zip", new FakeRecordSource().AddAppError(1, CliHarness.Now.AddDays(-1)), seeded: false);

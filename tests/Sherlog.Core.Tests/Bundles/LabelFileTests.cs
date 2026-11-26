@@ -104,7 +104,7 @@ public class LabelFileTests
         var input = new Queue<string?>(["1", "1", "1, 2 9", "", "x", "4", "Happens in big fights"]);
         var output = new StringWriter();
 
-        var answers = OwnerQuestions.Ask(output, () => input.Dequeue(), groups);
+        var answers = OwnerQuestions.Ask(output, () => input.Dequeue(), groups, TimeZoneInfo.Utc);
 
         Assert.StartsWith("Graphics driver nvlddmkm", answers.WhatCrashed);
         Assert.Equal("Playing a game", answers.Doing);
@@ -117,9 +117,34 @@ public class LabelFileTests
     }
 
     [Fact]
+    public void Crash_choices_say_when_each_one_last_happened()
+    {
+        // One app, two different crashes: the choices must be told apart by more than the group id.
+        var day = new DateTimeOffset(2026, 9, 22, 10, 0, 0, TimeSpan.Zero);
+        static CrashEvent Crash(string id, DateTimeOffset time, string module) =>
+            new(id, time, EvidenceSources.ApplicationError, "Application Error", 1000,
+                "SherlogTestChat.exe", null, module, null, "0xc0000005", null, null, null);
+        var groups = CrashGrouper.Group(
+        [
+            Crash("app-1", day, "coreclr.dll"),
+            Crash("app-2", day.AddDays(50), "KERNELBASE.dll"),
+            Crash("app-3", day.AddDays(51), "KERNELBASE.dll"),
+        ]);
+        var input = new Queue<string?>(["2"]);
+        var output = new StringWriter();
+
+        var answers = OwnerQuestions.Ask(output, () => input.Count > 0 ? input.Dequeue() : null, groups, TimeZoneInfo.Utc);
+
+        var text = output.ToString();
+        Assert.Contains("SherlogTestChat.exe, 2 times, last on Nov 12", text);
+        Assert.Contains("SherlogTestChat.exe, once on Sep 22", text);
+        Assert.StartsWith("SherlogTestChat.exe, once on Sep 22", answers.WhatCrashed);
+    }
+
+    [Fact]
     public void Owner_questions_stop_cleanly_at_end_of_input()
     {
-        var answers = OwnerQuestions.Ask(new StringWriter(), () => null, []);
+        var answers = OwnerQuestions.Ask(new StringWriter(), () => null, [], TimeZoneInfo.Utc);
 
         Assert.Equal(OwnerAnswers.Empty, answers);
     }

@@ -57,7 +57,7 @@ internal static class EvalCommand
 
     private static void Print(TextWriter w, EvalReport r)
     {
-        w.WriteLine($"Evaluated {r.BundleCount} bundles.");
+        w.WriteLine(r.BundleCount == 1 ? "Evaluated 1 bundle." : $"Evaluated {r.BundleCount} bundles.");
         w.WriteLine();
         w.WriteLine(r.Seeded.Labeled == 0
             ? "Seeded crashes: none labeled."
