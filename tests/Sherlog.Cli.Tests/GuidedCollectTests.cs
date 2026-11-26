@@ -40,6 +40,7 @@ public sealed class GuidedCollectTests : IDisposable
         var text = cli.Out.ToString();
         Assert.Contains("doesn't change anything on your PC", text);
         Assert.Contains(bundle, text);
+        Assert.Contains("Send this file to the person who sent you Sherlog", text);
     }
 
     [Fact]
@@ -72,6 +73,7 @@ public sealed class GuidedCollectTests : IDisposable
 
         Assert.Equal(1, exit);
         Assert.Contains("missing", cli.Error.ToString());
+        Assert.Contains("send a photo of this window to the person who sent you Sherlog", cli.Out.ToString());
         Assert.EndsWith("Press Enter to close.", cli.Out.ToString().TrimEnd());
     }
 

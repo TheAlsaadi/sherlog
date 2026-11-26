@@ -14,13 +14,20 @@ internal static class GuidedCollect
     {
         var exit = CliApp.Guard(env, () =>
         {
-            env.Out.WriteLine("Sherlog looks at your PC's crash records from the last 90 days and saves them in one file");
-            env.Out.WriteLine("you can send to the person who asked you to try it. It doesn't change anything on your PC.");
+            env.Out.WriteLine("Sherlog reads your PC's crash records from the last 90 days and saves them in one file");
+            env.Out.WriteLine("for the person who sent you Sherlog. It doesn't change anything on your PC.");
             env.Out.WriteLine();
             CollectCommand.Collect(env, FreePath(env), Days, askQuestions: true);
-            env.Out.WriteLine("Send that file to the person who gave you Sherlog. Thank you!");
+            env.Out.WriteLine();
+            env.Out.WriteLine("Send this file to the person who sent you Sherlog. Thank you!");
             return 0;
         });
+
+        if (exit != 0)
+        {
+            env.Out.WriteLine();
+            env.Out.WriteLine("Sherlog couldn't save the file. Please send a photo of this window to the person who sent you Sherlog.");
+        }
 
         // A double-clicked console window closes as soon as the program ends, so wait even after an error.
         env.Out.WriteLine();

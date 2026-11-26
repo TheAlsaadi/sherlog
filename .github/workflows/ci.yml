@@ -76,3 +76,38 @@ jobs:
           name: seeded-programs
           path: tests/seeded/bin/
           if-no-files-found: error
+
+  # The field-test kit (docs/field-test.md): one self-contained sherlog.exe with the recipe library next to it,
+  # so a friend can unzip it and double-click without installing .NET. Not trimmed. Unsigned until Phase 5.
+  package:
+    name: package
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up .NET (LTS)
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish sherlog.exe
+        run: dotnet publish src/Sherlog.Cli -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o publish
+
+      - name: Check the published exe finds its library
+        shell: pwsh
+        run: |
+          ./publish/sherlog.exe recipes check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Keep the field-test kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: sherlog-field-test
+          path: |
+            publish/sherlog.exe
+            publish/library/
+          if-no-files-found: error
