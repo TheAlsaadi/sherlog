@@ -300,11 +300,11 @@ sherlog/
 - [x] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
 
 ### Gate 1
-- [ ] **100%** of seeded crashes are read and matched correctly
+- [x] **100%** of seeded crashes are read and matched correctly
 - [ ] At least **80%** of Confirmed and Likely diagnoses are correct on field bundles labeled `confirmed-by-fix` or `owner-reported`, with at least 10 such bundles
 - [ ] **No more than 1** Confirmed diagnosis is wrong
 - [ ] No more than **40%** of crashes end up Unclear
-- [ ] `sherlog explain` answers in under 5 seconds on a typical PC
+- [x] `sherlog explain` answers in under 5 seconds on a typical PC
 - [ ] Results and the list of misses written to `docs/gates/phase-1.md`. **If the gate fails, improve the recipes and repeat. Do not start Phase 2.**
 
 ---
