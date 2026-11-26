@@ -14,7 +14,7 @@ internal static class GuidedCollect
     {
         var exit = CliApp.Guard(env, () =>
         {
-            env.Out.WriteLine("Sherlog reads your PC's crash records from the last 90 days and saves them in one file");
+            env.Out.WriteLine($"Sherlog reads your PC's crash records from the last {Days} days and saves them in one file");
             env.Out.WriteLine("for the person who sent you Sherlog. It doesn't change anything on your PC.");
             env.Out.WriteLine();
             CollectCommand.Collect(env, FreePath(env), Days, askQuestions: true);
@@ -26,7 +26,7 @@ internal static class GuidedCollect
         if (exit != 0)
         {
             env.Out.WriteLine();
-            env.Out.WriteLine("Sherlog couldn't save the file. Please send a photo of this window to the person who sent you Sherlog.");
+            env.Out.WriteLine("Something went wrong, so Sherlog didn't save a file. Please send a photo of this window to the person who sent you Sherlog.");
         }
 
         // A double-clicked console window closes as soon as the program ends, so wait even after an error.
