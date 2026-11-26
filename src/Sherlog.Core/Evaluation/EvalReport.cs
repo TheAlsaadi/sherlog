@@ -2,15 +2,20 @@ using Sherlog.Core.Diagnosis;
 
 namespace Sherlog.Core.Evaluation;
 
-/// <summary>How well diagnoses match labels across a set of bundles (Gate 1, plan.md).</summary>
+/// <summary>How well diagnoses match labels across a set of bundles and public cases (Gate 1, plan.md).</summary>
+/// <param name="PublicCases">Solved public cases (ADR 0010), scored like field bundles but kept apart from them.
+/// <see cref="FieldScore.QualifyingBundles"/> is the number of cases with a counted label.</param>
+/// <param name="CaseCount">Public case files read.</param>
 public sealed record EvalReport(
     SeededScore Seeded,
     FieldScore Field,
     IReadOnlyList<EvalMiss> Misses,
     int BundleCount,
-    IReadOnlyList<UnreadableBundle> UnreadableBundles);
+    IReadOnlyList<UnreadableBundle> UnreadableBundles,
+    FieldScore PublicCases,
+    int CaseCount);
 
-/// <summary>A bundle that was left out, and why (for example a hand-edited label.yaml with a mistake).</summary>
+/// <summary>A bundle or case file that was left out, and why (for example a hand-edited label.yaml with a mistake).</summary>
 public sealed record UnreadableBundle(string Path, string Reason);
 
 /// <summary>Seeded crashes: <see cref="Correct"/> = the matched recipe is the true cause.</summary>

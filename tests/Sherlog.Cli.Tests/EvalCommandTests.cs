@@ -67,6 +67,34 @@ public sealed class EvalCommandTests : IDisposable
         var cli = new CliHarness();
 
         Assert.Equal(1, cli.Run("eval", _dir, "--library", CliHarness.ValidRecipes));
-        Assert.Contains("No .zip", cli.Error.ToString());
+        Assert.Contains("No evidence bundles (.zip) or public cases (.yaml)", cli.Error.ToString());
+    }
+
+    [Fact]
+    public void Eval_scores_public_cases_in_the_folder()
+    {
+        File.WriteAllText(Path.Combine(_dir, "pc-0001.yaml"), """
+            format: 1
+            id: pc-0001
+            source_url: https://example.invalid/thread/1
+            crashes:
+              - source: display-reset
+                faulting_module: nvlddmkm
+                count: 3
+                days: 2
+            truth:
+              true_cause: gpu-nvidia-driver-reset
+              label_strength: owner-reported
+            """);
+        File.WriteAllText(Path.Combine(_dir, "README.md"), "Not a case.");
+        var cli = new CliHarness();
+
+        Assert.Equal(0, cli.Run("eval", _dir, "--library", CliHarness.ValidRecipes));
+
+        var text = cli.Out.ToString();
+        Assert.Contains("Evaluated 0 bundles and 1 public case.", text);
+        Assert.Contains("Public cases that count toward the gate: 1 (gate needs 30).", text);
+        Assert.Contains("Correct: 1 of 1 Confirmed or Likely diagnoses (100%; gate needs 80%).", text);
+        Assert.Contains("Field bundles: none.", text);
     }
 }
