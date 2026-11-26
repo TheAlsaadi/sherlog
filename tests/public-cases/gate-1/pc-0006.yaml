@@ -1,0 +1,15 @@
+format: 1
+id: pc-0006
+source_url: https://github.com/microsoft/terminal/issues/6746
+retrieved: 2026-11-27
+query: q05
+windows: Windows 10 2004
+crashes:
+  - source: application-error
+    app_name: WindowsTerminal.exe
+    faulting_module: RTSSHooks64.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: overlay-rtss-hooks
+  label_strength: owner-reported
+  evidence: "Issue author traced the crash to RivaTuner's hook; stopping RTSS from hooking the app (and updating both) ended it for a long time."

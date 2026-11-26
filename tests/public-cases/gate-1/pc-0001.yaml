@@ -1,0 +1,13 @@
+format: 1
+id: pc-0001
+source_url: https://learn.microsoft.com/en-us/answers/questions/4155833/fixed-nvlddmkm-gaming-video-crash-error-bad-ram
+retrieved: 2026-11-27
+query: q06
+windows: Windows 10
+crashes:
+  - source: display-reset
+    faulting_module: nvlddmkm
+truth:
+  true_cause: none:faulty-ram
+  label_strength: confirmed-by-fix
+  evidence: "Poster found one of two RAM sticks faulty; running on the good stick stopped the resets, the bad one brought them back. No recurrence in about 6 months."

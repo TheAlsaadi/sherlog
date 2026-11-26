@@ -1,0 +1,13 @@
+format: 1
+id: pc-0012
+source_url: https://learn.microsoft.com/en-us/answers/questions/2662188/the-computer-has-rebooted-from-a-bugcheck-the-bugc
+retrieved: 2026-11-27
+query: q08
+windows: Windows 7
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000116"
+truth:
+  true_cause: none:gpu-unstable-clocks
+  label_strength: owner-reported
+  evidence: "Reboots with 0x116 while gaming; the poster underclocked the NVIDIA card and said that seemed to fix it."

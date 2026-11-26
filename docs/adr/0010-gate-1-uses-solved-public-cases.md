@@ -66,6 +66,14 @@ A thread is used only when all of these hold:
   gate run needs a new frozen set of fresh cases (`gate-1b`, and so on). Otherwise the recipes would just be tuned to
   the test.
 
+### Amendment, 2026-11-27: solved-tag searches
+
+The first 14 searches, each run in standard and extended mode, gave 14 qualifying threads out of about 230 read. Most
+threads end with a helper's suggestion and no word from the poster. Eight more searches were added, aimed at threads
+a site marks solved (Tom's Hardware, Ten Forums, Eleven Forum, r/techsupport). They were written into
+`tests/public-cases/README.md` before any of them was run. The rules didn't change: a solved tag only finds the
+thread, and the poster must still confirm the fix in the thread.
+
 ## Gate 1, as changed
 
 - 100% of seeded crashes read and matched (unchanged).

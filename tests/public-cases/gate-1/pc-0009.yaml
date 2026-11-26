@@ -1,0 +1,14 @@
+format: 1
+id: pc-0009
+source_url: https://learn.microsoft.com/en-us/answers/questions/1457291/kernelbase-dll-exception-code-0xe0434352-fault-off
+retrieved: 2026-11-27
+query: q04
+windows: Windows 10
+crashes:
+  - source: application-error
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xe0434352"
+truth:
+  true_cause: runtime-dotnet-unhandled-exception
+  label_strength: owner-reported
+  evidence: "A .NET desktop app crashed on start; the poster found it loaded a file its installer didn't ship and removed that code, which stopped the crash."

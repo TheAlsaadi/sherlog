@@ -1,16 +1,18 @@
 # Gate 1: Prove it (draft)
 
-- **Status:** In progress. Seeded crashes and timing are done; the field test has started (1 bundle).
-- **Waiting on:** the field test (issue #10, [field-test.md](../field-test.md)).
+- **Status:** In progress. Seeded crashes and timing pass. The first set of public cases is scored and **fails** the
+  accuracy line (56%, and only 17 of the 30 cases needed).
+- **Waiting on:** an owner decision on the case count, recipe work, then a fresh case set (ADR 0010), and a second
+  real PC's bundle for the Unclear share.
 
 ## Gate checks
 
-| Gate 1 line (`plan.md` §7) | Result | Status |
+| Gate 1 line (`plan.md` §7, as changed by ADR 0010) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 80% of Confirmed and Likely correct on ≥ 10 labeled field bundles | 0 qualifying bundles so far (1 received) | Pending |
-| No more than 1 wrong Confirmed | 0 so far | Pending |
-| No more than 40% of crashes Unclear | 100% so far (24 of 24, 1 bundle); counted over every crash (ADR 0009) | Pending |
+| ≥ 80% of Confirmed and Likely correct on ≥ 30 solved public cases | 5 of 9 correct (56%) on 17 cases | **Failing** |
+| No more than 1 wrong Confirmed | 0 (public cases and field bundles) | Passing so far |
+| No more than 40% of crashes Unclear, on ≥ 2 real PCs | 100% (24 of 24) on 1 PC; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
 | Results and misses written here | This file | In progress |
 
@@ -45,7 +47,52 @@ read once each).
 A second PC (the owner's laptop: Windows 11 Home, build 26300, Intel Core Ultra 7, 15 GB) ran the field-test kit on
 2026-11-27: 3.96, 3.70, 3.10, 3.10, 3.12 s, **median 3.12 s**, all exit 0. Also under 5 s.
 
-## 3. Field bundles: 1 received, 0 counting
+## 3. Solved public cases (`gate-1`): 17 cases, 56%
+
+Collected 2026-11-27 under ADR 0010 and its amendment (`tests/public-cases/README.md`). The 14 fixed searches
+(standard and extended) gave 14 cases from about 230 threads. The 8 solved-tag searches gave 3 more from about
+75 threads; Ten Forums and Eleven Forum refused automated reading, and no Reddit threads came up. About 1 thread in
+18 qualified. Most threads end with a helper's suggestion and no word from the poster, or with the poster still
+crashing. All labels were written before Sherlog was run on them.
+
+`sherlog eval tests/public-cases/gate-1` (2026-11-27):
+
+| Measure | Result |
+|---|---|
+| Cases | 17 (gate needs 30) |
+| Confirmed or Likely correct | **5 of 9 (56%)**, gate needs 80% |
+| By label strength | confirmed-by-fix 1 of 2; owner-reported 4 of 7 |
+| Wrong Confirmed | 0 |
+| Unclear (not a gate line here) | 13 of 22 problems |
+
+### Misses
+
+Confident and wrong (4):
+
+| Case | What Sherlog said | What fixed it |
+|---|---|---|
+| pc-0001 | NVIDIA driver reset (`gpu-nvidia-driver-reset`, Likely) | A faulty RAM stick |
+| pc-0012 | Graphics timeout blue screen (`gpu-video-tdr-failure`, Likely) | Underclocking the graphics card |
+| pc-0013 | Hardware error blue screen (`bsod-whea-uncorrectable-error`, Likely) | Lowering the AMD card's clock |
+| pc-0016 | Hardware error blue screen (`bsod-whea-uncorrectable-error`, Likely), one of four groups | Replacing the power supply |
+
+Unclear (Sherlog didn't claim a cause): pc-0003 and pc-0015 (RAM), pc-0004 (an AMD driver version), pc-0005 (Explorer's
+Quick Access cache), pc-0008 (a network driver), pc-0011 (Media Feature Pack missing on an N edition), pc-0016's other
+three groups (power supply), and pc-0017 (Norton).
+
+### What it shows
+
+- **Sherlog's "Likely" graphics answers are too sure.** Half of its confident misses blame the graphics driver when
+  the real cause was unstable hardware (RAM or clocks). A driver reset or timeout is the symptom; the driver is often
+  not the cause.
+- **A labeling question to settle before the next set.** pc-0013 and pc-0016 were labeled with the specific cause
+  (GPU clocks, power supply), not with `bsod-whea-uncorrectable-error`, whose summary says only "a hardware problem".
+  The labels are left as written, because changing them after scoring would bias the result. The next set's README
+  should say whether a broad recipe counts as correct when the fix found the specific part.
+- **Recipe changes made from these misses turn `gate-1` into a development set** (ADR 0010). The gate then needs a
+  fresh set.
+
+## 4. Field bundles: 1 received, 0 counting
 
 To fill in as bundles are labeled: precision by label strength, wrong Confirmed, Unclear share (over crashes and over
 groups), number of qualifying bundles, and every miss. Bundles stay outside the repo (`docs/field-test.md`); this file

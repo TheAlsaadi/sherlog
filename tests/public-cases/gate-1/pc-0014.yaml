@@ -1,0 +1,15 @@
+format: 1
+id: pc-0014
+source_url: https://community.adobe.com/questions-617/creative-cloud-installation-troubles-msvcp140-dll-vcruntime140-dll-not-found-and-my-fix-451851
+retrieved: 2026-11-27
+query: q12
+windows: Windows 10 Pro
+crashes:
+  - source: app-popup
+    faulting_module: MSVCP140.dll
+  - source: app-popup
+    faulting_module: VCRUNTIME140.dll
+truth:
+  true_cause: runtime-vcredist-missing
+  label_strength: owner-reported
+  evidence: "Installer couldn't start because MSVCP140.dll and VCRUNTIME140.dll were missing; a newer VC++ package was blocking the 2015 one, and installing it in the right order fixed it."

@@ -1,0 +1,19 @@
+format: 1
+id: pc-0016
+source_url: https://forums.tomshardware.com/threads/random-bsods-with-bug-check-0x0000003b.3897515/
+retrieved: 2026-11-27
+query: q16
+windows: Windows 11 Pro
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000003b"
+  - source: bugcheck
+    bugcheck_code: "0x0000001a"
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+  - source: bugcheck
+    bugcheck_code: "0x00000124"
+truth:
+  true_cause: none:failing-power-supply
+  label_strength: owner-reported
+  evidence: "Random blue screens with many different stop codes; RAM, BIOS, motherboard and cable changes didn't help, replacing the power supply did."
