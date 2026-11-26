@@ -1,7 +1,7 @@
 # Gate 1: Prove it (draft)
 
 - **Status:** In progress. Seeded crashes and timing are done; the field test hasn't started.
-- **Waiting on:** the field test (issue #10, [field-test.md](../field-test.md)) and one owner decision (below).
+- **Waiting on:** the field test (issue #10, [field-test.md](../field-test.md)).
 
 ## Gate checks
 
@@ -10,7 +10,7 @@
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
 | ≥ 80% of Confirmed and Likely correct on ≥ 10 labeled field bundles | Field test not started | Pending |
 | No more than 1 wrong Confirmed | Field test not started | Pending |
-| No more than 40% of crashes Unclear | Field test not started; see the open decision | Pending |
+| No more than 40% of crashes Unclear | Field test not started; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s | Passed |
 | Results and misses written here | This file | In progress |
 
@@ -48,21 +48,16 @@ Not started. The kit (`sherlog-field-test` CI artifact) and both guides are read
 labeled: precision by label strength, wrong Confirmed, Unclear share (over crashes and over groups), number of
 qualifying bundles, and every miss.
 
-## Open owner decision: how Gate 1 counts Unclear
+## How Gate 1 counts Unclear (decided)
 
-On the dev PC, **41 of 44 crashes** in the last 90 days came out Unclear. About half of them are Windows background
-"live kernel" reports (codes 0x1a8 and 0x1b8): Windows records these for short display or driver hiccups, often with
-no crash the person saw. Counted this way, the 40% Unclear limit is very hard to meet on any PC that logs them.
+The owner decided on 2026-11-26 to **count every crash Sherlog shows**, background live-kernel reports included
+(ADR 0009). The gate line uses `sherlog eval`'s Unclear share over crashes; the share over groups is shown for context
+only.
 
-| Option | What counts toward the Unclear share |
-|---|---|
-| A. Everything Sherlog shows (current rule) | Every crash in the list, including background live-kernel reports |
-| B. Only crashes a person would notice (recommended) | App crashes and hangs, blue screens, unexpected shutdowns, graphics resets, missing-runtime errors; background live-kernel reports are still listed but left out of the share |
-
-Option B measures what the gate is for: whether Sherlog can explain the crashes people actually ask about. Option A
-stays stricter, but it would mostly measure how chatty Windows' background reporting is.
-
-**The gate stays at option A until the owner decides.**
+This is strict. On the dev PC, **41 of 44 crashes** in the last 90 days came out Unclear, and about half of them are
+Windows background "live kernel" reports (codes 0x1a8 and 0x1b8) left by short display or driver hiccups. If the field
+test fails this line for that reason, the next step is recipes that explain those reports honestly, or grouping that
+stops one hiccup from counting as several crashes. Hiding records is not a fix.
 
 ## Misses
 
