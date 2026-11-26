@@ -7,41 +7,43 @@ Recipes never contain code or commands. In Phase 1 Sherlog only *explains* crash
 ## A complete example
 
 ```yaml
-id: gpu-nvidia-driver-reset
+id: runtime-vcredist-missing
 version: 1
-title: NVIDIA graphics driver stopped responding
-category: driver-reset
+title: Microsoft Visual C++ Redistributable is missing
+category: missing-file
 references:
-  - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+  - https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
 
-# Only the display-reset event names the driver. A blue screen with stop code 0x116 can come from any
-# graphics driver, so it belongs in a separate, vendor-neutral recipe.
+# LIKELY: the record names the missing file, and a missing runtime file is the cause (ADR 0011).
 match:
   any:
-    - source: display-reset
-      faulting_module: nvlddmkm
+    - source: app-popup
+      faulting_module: "vcruntime140*.dll"
+    - source: app-popup
+      faulting_module: "msvcp140*.dll"
 
 confidence:
   default: likely
   confirmed_when:
-    - occurrences_within_days: { count: 3, days: 7 }
+    - occurrences_within_days: { count: 3, days: 30 }
 
 diagnosis:
-  summary: "Your NVIDIA graphics driver stopped responding, and Windows had to restart it."
-  details: "This usually comes from a recent driver update, an unstable overclock, or overheating."
+  summary: "This app couldn't start because a Microsoft Visual C++ file it needs isn't installed."
 
 fixes:
-  - id: guide-clean-driver-install
-    risk: advanced
-    explain: "Reinstall the graphics driver cleanly from NVIDIA's website."
+  - id: install-vc-redist
+    risk: safe
+    explain: "Download and install the latest Microsoft Visual C++ Redistributable, then start the app again."
     actions:
-      - action: show_guidance
-        params: { guide: nvidia-clean-install }
+      - action: open_url
+        params: { url: "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist" }
 
 examples:
-  - source: display-reset
-    faulting_module: nvlddmkm
+  - source: app-popup
+    faulting_module: VCRUNTIME140.dll
 ```
+
+This is a shortened version of the real recipe in `library/recipes/`.
 
 ## Fields
 
@@ -93,6 +95,9 @@ A field with a wildcard counts the same as an exact one, so `nv*.dll` and `nvwgf
 ### Confidence
 
 - A matched recipe gives its `confidence.default` (Likely or Unclear).
+- **Choose Likely only when the record narrows the cause to what the summary names** (ADR 0011). Say in the recipe's
+  comment what in the record does that. A record that shows what happened but leaves the cause open (a graphics
+  timeout can be the driver, an overclock, heat, power or memory) is Unclear.
 - A **Likely** recipe becomes **Confirmed** when any `confirmed_when` rule holds. `occurrences_within_days: {count: 3, days: 7}` means at least 3 crashes in the group within the 7 days ending at the most recent one (`count` 3–100, `days` 1–365). The window ends at the latest crash, not today, so a bundle diagnosed later gets the same answer.
 - An **Unclear** recipe stays Unclear however often the crash repeats: repeats make a problem more certain, not its cause.
 - A crash group no recipe matches is **Unclear**. Sherlog still says what it knows: the app, the file that failed, the error code and how often it happened.

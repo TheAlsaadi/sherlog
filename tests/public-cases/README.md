@@ -11,7 +11,13 @@ dotnet run --project src/Sherlog.Cli -- eval tests/public-cases/gate-1
 
 | Folder | Status | Use |
 |---|---|---|
-| `gate-1/` | Frozen when merged; 17 cases, scored 2026-11-27 (56%, see `docs/gates/phase-1.md`) | Scored for Gate 1. Don't tune recipes to its misses; if you do, it becomes a development set and the next run needs a fresh set |
+| `gate-1/` | **Development set** since 2026-11-27: scored at 56%, then recipes were changed from its misses (ADR 0011) | For checking recipe changes only. Gate 1's accuracy line needs a fresh set |
+
+## Labeling convention (from the next set on, ADR 0011)
+
+`true_cause` is the recipe whose **summary** names the cause the fix addressed, even if broadly. For example, the
+0x124 recipe's "an overclock, overheating, or a faulty part" covers a fix that replaced the power supply. Use
+`none:<short-name>` only when no recipe's summary covers the cause. `gate-1` keeps its original labels.
 
 ## Case format
 

@@ -1,5 +1,5 @@
 id: gpu-amd-driver-reset
-version: 1
+version: 2
 title: AMD graphics driver stopped responding
 category: driver-reset
 references:
@@ -7,9 +7,10 @@ references:
   - https://www.amd.com/en/resources/support-articles/faqs/TS-Tips.html
 
 # Display 4101 names the driver service. Current AMD drivers use amdkmdag; older Windows 8/10-era packages
-# used amdkmdap, and Catalyst-era drivers logged atikmpag/atikmdag. The event itself says the driver
-# stopped responding, so "likely" mirrors gpu-nvidia-driver-reset. AMD's own list of causes for TDRs:
+# used amdkmdap, and Catalyst-era drivers logged atikmpag/atikmdag.
+# UNCLEAR (ADR 0011): the event says the AMD card didn't answer in time, not why. AMD's own list of causes:
 # unstable overclock/overheating, outdated or corrupted drivers, BIOS, memory settings, PSU, faulty parts.
+# No confirmed_when: repeats make the problem more certain, not its cause.
 match:
   any:
     - source: display-reset
@@ -20,13 +21,11 @@ match:
       faulting_module: amduw*
 
 confidence:
-  default: likely
-  confirmed_when:
-    - occurrences_within_days: { count: 3, days: 7 }
+  default: unclear
 
 diagnosis:
-  summary: "Your AMD graphics driver stopped responding, and Windows had to restart it."
-  details: "Windows restarts the graphics driver when the graphics card takes too long to answer. AMD lists a recent or damaged driver, an unstable overclock or undervolt, overheating and power supply problems as common reasons."
+  summary: "Your AMD graphics card stopped responding for a moment, and Windows restarted its driver. Windows doesn't record why."
+  details: "Windows restarts the graphics driver when the graphics card takes too long to answer. AMD lists a recent or damaged driver, an unstable overclock or undervolt, overheating, memory settings and power supply problems as common reasons."
 
 fixes:
   - id: rollback-recent-display-driver
@@ -41,7 +40,7 @@ fixes:
       no_recurrence_days: 7
   - id: reset-gpu-tuning
     risk: advanced
-    explain: "If you overclocked or undervolted your graphics card in AMD Software or another tool, set it back to default. Unstable tuning is a common reason for these resets."
+    explain: "If you overclocked or undervolted your graphics card in AMD Software or another tool, or turned on XMP or EXPO for your memory, set it back to default. Unstable tuning is a common reason for these resets."
     actions:
       - action: show_guidance
         params: { guide: reset-overclock-and-xmp }
@@ -51,6 +50,18 @@ fixes:
     actions:
       - action: show_guidance
         params: { guide: amd-clean-install }
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your graphics card's fans spin and that it isn't overheating while you play. Cleaning dust out of the PC can help."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: test-memory
+    risk: safe
+    explain: "If the resets keep happening with a clean driver, run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
 
 examples:
   - source: display-reset

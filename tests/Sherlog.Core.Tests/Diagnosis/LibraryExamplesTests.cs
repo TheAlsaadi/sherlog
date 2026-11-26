@@ -35,6 +35,38 @@ public class LibraryExamplesTests
         Assert.Empty(wrong);
     }
 
+    // ADR 0011: a graphics timeout only says the card didn't answer in time. The driver, an overclock, heat, power or
+    // memory can all cause it, so these recipes can't name a cause, and repeats don't make one more certain.
+    [Theory]
+    [InlineData("gpu-nvidia-driver-reset")]
+    [InlineData("gpu-amd-driver-reset")]
+    [InlineData("gpu-intel-driver-reset")]
+    [InlineData("gpu-live-kernel-video-timeout")]
+    [InlineData("gpu-video-tdr-failure")]
+    public void Graphics_timeout_recipes_do_not_claim_a_cause(string id)
+    {
+        var recipe = Library.Recipes.Single(r => r.Id == id);
+
+        Assert.Equal(ConfidenceLevel.Unclear, recipe.Confidence.Default);
+        Assert.Empty(recipe.Confidence.ConfirmedWhen);
+    }
+
+    // ADR 0011: their fixes must cover the hardware causes too, not only the driver.
+    [Theory]
+    [InlineData("gpu-nvidia-driver-reset")]
+    [InlineData("gpu-amd-driver-reset")]
+    [InlineData("gpu-intel-driver-reset")]
+    [InlineData("gpu-live-kernel-video-timeout")]
+    [InlineData("gpu-video-tdr-failure")]
+    public void Graphics_timeout_recipes_suggest_the_hardware_checks(string id)
+    {
+        var fixes = Library.Recipes.Single(r => r.Id == id).Fixes.Select(f => f.Id).ToHashSet(StringComparer.Ordinal);
+
+        Assert.Contains("reset-gpu-tuning", fixes);
+        Assert.Contains("check-temperatures", fixes);
+        Assert.Contains("test-memory", fixes);
+    }
+
     private static CrashEvent ToCrash(MatchCondition e, DateTimeOffset time) => new(
         Id: "example",
         Time: time,

@@ -2,8 +2,8 @@
 
 - **Status:** In progress. Seeded crashes and timing pass. The first set of public cases is scored and **fails** the
   accuracy line (56%, and only 17 of the 30 cases needed).
-- **Waiting on:** an owner decision on the case count, recipe work, then a fresh case set (ADR 0010), and a second
-  real PC's bundle for the Unclear share.
+- **Waiting on:** a fresh case set (`gate-1` became a development set when ADR 0011 changed recipes from its misses),
+  an owner decision on whether 30 cases stays the target, and a second real PC's bundle for the Unclear share.
 
 ## Gate checks
 
@@ -91,6 +91,19 @@ three groups (power supply), and pc-0017 (Norton).
   should say whether a broad recipe counts as correct when the fix found the specific part.
 - **Recipe changes made from these misses turn `gate-1` into a development set** (ADR 0010). The gate then needs a
   fresh set.
+
+### After ADR 0011 (development set, not a gate result)
+
+The five graphics-timeout recipes (NVIDIA, AMD and Intel resets, LiveKernelEvent 141/117 and 0x116) changed from Likely
+to Unclear, and their fixes now cover overclocks, heat and memory. Re-running `eval` on `gate-1` gives **4 of 6 (67%)**,
+0 wrong Confirmed, and 16 of 22 problems Unclear:
+
+- **Now Unclear instead of wrong:** pc-0001 (RAM) and pc-0012 (GPU clocks).
+- **Now Unclear instead of right:** pc-0002 (a real AMD driver fix). The record can't tell it apart from the others.
+- **Still counted as wrong:** pc-0013 and pc-0016 on 0x124. Under ADR 0011's labeling convention they'd count as right,
+  because that recipe's summary names their causes. The labels here stay as written.
+
+`gate-1` is a development set from here on (`tests/public-cases/README.md`), so this isn't a gate result.
 
 ## 4. Field bundles: 1 received, 0 counting
 

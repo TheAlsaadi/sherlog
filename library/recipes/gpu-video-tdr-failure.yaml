@@ -1,5 +1,5 @@
 id: gpu-video-tdr-failure
-version: 1
+version: 2
 title: Blue screen 0x116 (VIDEO_TDR_FAILURE)
 category: bluescreen
 references:
@@ -8,10 +8,10 @@ references:
 
 # 0x116 is only raised by the graphics timeout-and-recovery system: the driver stopped responding and
 # could not be reset in time, or more than five resets happened within a minute. So "the graphics
-# driver or card stopped responding" is near-certain. LIKELY rather than more because the stop code
-# does not name the vendor (dumps are not read) and does not say WHY: Microsoft lists outdated drivers,
-# overclocking, wrong memory settings, cooling, power supply and faulty parts. No confirmed_when:
-# repeats make the problem more certain, not its root cause.
+# card or driver stopped responding" is near-certain, but that is what happened, not why.
+# UNCLEAR (ADR 0011): the stop code doesn't name the vendor (dumps are not read) or the cause. Microsoft
+# lists outdated drivers, overclocking, wrong memory settings, cooling, power supply and faulty parts.
+# No confirmed_when: repeats make the problem more certain, not its root cause.
 match:
   any:
     - source: bugcheck
@@ -20,10 +20,10 @@ match:
       bugcheck_code: "0x00000116"
 
 confidence:
-  default: likely
+  default: unclear
 
 diagnosis:
-  summary: "Your graphics driver stopped responding and Windows couldn't restart it, so your PC showed a blue screen."
+  summary: "Your graphics card stopped responding and Windows couldn't restart its driver, so your PC showed a blue screen. Windows doesn't record why."
   details: "Windows tries to restart a graphics driver that freezes. When that fails, or it happens many times in a minute, Windows stops with this code. Microsoft lists an outdated driver, an overclock, overheating, a weak power supply or a faulty part as common reasons."
 
 fixes:
@@ -49,6 +49,12 @@ fixes:
     actions:
       - action: show_guidance
         params: { guide: reset-overclock-and-xmp }
+  - id: test-memory
+    risk: safe
+    explain: "If the blue screens keep happening, run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
 
 examples:
   - source: bugcheck
