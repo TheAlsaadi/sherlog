@@ -1,32 +1,35 @@
 id: gpu-nvidia-driver-reset
-version: 1
+version: 2
 title: NVIDIA graphics driver stopped responding
 category: driver-reset
 references:
   - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x116---video-tdr-failure
 
 # Only the display-reset event names the driver. A blue screen with stop code 0x116 can come from any
 # graphics driver, so it belongs to a separate, vendor-neutral recipe.
+# UNCLEAR (ADR 0011): the event says the NVIDIA card didn't answer within about two seconds, not why.
+# Microsoft lists driver problems, overclocking, memory settings, cooling, the power supply and faulty
+# parts. Solved public cases show resets that a faulty RAM stick caused. No confirmed_when: repeats make
+# the problem more certain, not its cause.
 match:
   any:
     - source: display-reset
       faulting_module: nvlddmkm
 
 confidence:
-  default: likely
-  confirmed_when:
-    - occurrences_within_days: { count: 3, days: 7 }
+  default: unclear
 
 diagnosis:
-  summary: "Your NVIDIA graphics driver stopped responding, and Windows had to restart it."
-  details: "This usually comes from a recent driver update, an unstable overclock, or overheating."
+  summary: "Your NVIDIA graphics card stopped responding for a moment, and Windows restarted its driver. Windows doesn't record why."
+  details: "Windows restarts the graphics driver when the graphics card takes more than about two seconds to answer. A driver problem is common, but an overclock, overheating, a weak power supply or unstable memory can cause the same reset."
 
 fixes:
   - id: rollback-recent-display-driver
     risk: moderate
     when:
       change_timeline: { kind: driver_update, device_class: Display, within_days: 14 }
-    explain: "If your graphics driver was updated just before these crashes started, going back to the previous version often stops them."
+    explain: "If your graphics driver was updated just before these resets started, going back to the previous version often stops them."
     actions:
       - action: rollback_driver
         params: { device_class: Display }
@@ -38,6 +41,24 @@ fixes:
     actions:
       - action: show_guidance
         params: { guide: nvidia-clean-install }
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your graphics card, processor or memory, or turned on XMP or EXPO, set them back to default and see whether the resets stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your graphics card's fans spin and that it isn't overheating while you play. Cleaning dust out of the PC can help."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: test-memory
+    risk: safe
+    explain: "If the resets keep happening with a clean driver, run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
 
 examples:
   - source: display-reset

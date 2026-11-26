@@ -1,5 +1,5 @@
 id: gpu-live-kernel-video-timeout
-version: 1
+version: 2
 title: Graphics timeout recovered without a blue screen (LiveKernelEvent 141 / 117)
 category: driver-reset
 references:
@@ -8,9 +8,10 @@ references:
   - https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery
 
 # Both are live-dump codes, never real blue screens: 0x141 = one graphics engine stopped responding,
-# 0x117 = the display driver as a whole did not respond in time; Windows reset it (TDR). The event says
-# a graphics timeout happened, so LIKELY. Vendor is not in the record. No confirmed_when: the root
-# cause (driver, game, overclock, heat, power) is not made more certain by repeats.
+# 0x117 = the display driver as a whole did not respond in time; Windows reset it (TDR). Vendor is not in
+# the record.
+# UNCLEAR (ADR 0011): the record says a graphics timeout happened, not why (driver, game, overclock, heat,
+# power, memory). No confirmed_when: repeats make the problem more certain, not its cause.
 match:
   any:
     - source: wer
@@ -21,10 +22,10 @@ match:
       bugcheck_code: "0x00000117"
 
 confidence:
-  default: likely
+  default: unclear
 
 diagnosis:
-  summary: "Your graphics card stopped responding for a moment, and Windows reset its driver without a blue screen."
+  summary: "Your graphics card stopped responding for a moment, and Windows reset its driver without a blue screen. Windows doesn't record why."
   details: "Windows restarts the graphics driver when the graphics card takes more than about two seconds to answer, usually during games. Microsoft lists a driver problem, an overclock, overheating, a weak power supply or a faulty part as common reasons."
 
 fixes:
@@ -44,12 +45,24 @@ fixes:
     actions:
       - action: show_guidance
         params: { guide: update-graphics-driver }
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your graphics card, processor or memory, or turned on XMP or EXPO, set them back to default and see whether the resets stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
   - id: check-temperatures
     risk: safe
     explain: "Check that your graphics card isn't overheating while you play. Cleaning dust out of the PC can help."
     actions:
       - action: show_guidance
         params: { guide: check-pc-temperatures }
+  - id: test-memory
+    risk: safe
+    explain: "If the resets keep happening with an up-to-date driver, run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
 
 examples:
   - source: wer

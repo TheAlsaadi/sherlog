@@ -25,7 +25,7 @@ Sherlog's plain-language explanation of what caused a crash group, with a confid
 _Avoid_: Verdict (that word is for the health check), result
 
 **Confidence**:
-How sure a diagnosis is: **Confirmed** (clear evidence and a known fix), **Likely** (a strong pattern, worth trying the fix) or **Unclear** (here is what we know and what to try next).
+How sure a diagnosis is: **Confirmed** (clear evidence and a known fix), **Likely** (a strong pattern, worth trying the fix) or **Unclear** (here is what we know and what to try next). A recipe may say Likely only when the recorded evidence narrows the cause to what its summary names (ADR 0011).
 _Avoid_: Score, probability
 
 ## Recipes and fixes

@@ -1,5 +1,5 @@
 id: gpu-intel-driver-reset
-version: 1
+version: 2
 title: Intel graphics driver stopped responding
 category: driver-reset
 references:
@@ -9,7 +9,9 @@ references:
 # Display 4101 service names seen for Intel: igfx (older drivers, quoted in Intel article 000005482),
 # igfxn (DCH drivers for UHD/Iris Xe) and igfxnd (Arc / newer Xe drivers). igfx* covers all three.
 # igdkmd* (the kernel file names igdkmd64/igdkmdn64/igdkmdnd64) is kept in case a record carries the
-# file name instead of the service name. Same reasoning and confidence as gpu-nvidia-driver-reset.
+# file name instead of the service name.
+# UNCLEAR (ADR 0011), same reasoning as gpu-nvidia-driver-reset: the event doesn't say why the graphics
+# chip didn't answer. No confirmed_when.
 match:
   any:
     - source: display-reset
@@ -18,13 +20,11 @@ match:
       faulting_module: igdkmd*
 
 confidence:
-  default: likely
-  confirmed_when:
-    - occurrences_within_days: { count: 3, days: 7 }
+  default: unclear
 
 diagnosis:
-  summary: "Your Intel graphics driver stopped responding, and Windows had to restart it."
-  details: "Windows restarts the graphics driver when the graphics chip takes too long to answer. This often follows a driver update, an older driver from your PC maker, or overheating, especially on laptops."
+  summary: "Your Intel graphics stopped responding for a moment, and Windows restarted its driver. Windows doesn't record why."
+  details: "Windows restarts the graphics driver when the graphics chip takes too long to answer. This often follows a driver update, an older driver from your PC maker, or overheating, especially on laptops. Unstable memory settings can cause it too."
 
 fixes:
   - id: rollback-recent-display-driver
@@ -49,6 +49,18 @@ fixes:
     actions:
       - action: show_guidance
         params: { guide: check-pc-temperatures }
+  - id: reset-gpu-tuning
+    risk: advanced
+    explain: "If you overclocked or undervolted your processor or graphics, or turned on XMP or EXPO for your memory, set them back to default and see whether the resets stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: test-memory
+    risk: safe
+    explain: "If the resets keep happening with an up-to-date driver, run Windows Memory Diagnostic to check whether your RAM is faulty. Intel graphics use your PC's main memory."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
 
 examples:
   - source: display-reset
