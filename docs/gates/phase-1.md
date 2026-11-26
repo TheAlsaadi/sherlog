@@ -1,6 +1,6 @@
 # Gate 1: Prove it (draft)
 
-- **Status:** In progress. Seeded crashes and timing are done; the field test hasn't started.
+- **Status:** In progress. Seeded crashes and timing are done; the field test has started (1 bundle).
 - **Waiting on:** the field test (issue #10, [field-test.md](../field-test.md)).
 
 ## Gate checks
@@ -8,10 +8,10 @@
 | Gate 1 line (`plan.md` §7) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 80% of Confirmed and Likely correct on ≥ 10 labeled field bundles | Field test not started | Pending |
-| No more than 1 wrong Confirmed | Field test not started | Pending |
-| No more than 40% of crashes Unclear | Field test not started; counted over every crash (ADR 0009) | Pending |
-| `sherlog explain` under 5 s on a typical PC | Median 2.40 s | Passed |
+| ≥ 80% of Confirmed and Likely correct on ≥ 10 labeled field bundles | 0 qualifying bundles so far (1 received) | Pending |
+| No more than 1 wrong Confirmed | 0 so far | Pending |
+| No more than 40% of crashes Unclear | 100% so far (24 of 24, 1 bundle); counted over every crash (ADR 0009) | Pending |
+| `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
 | Results and misses written here | This file | In progress |
 
 ## 1. Seeded crashes: 4 of 4
@@ -42,11 +42,46 @@ on every run.
 Both are under the 5 s limit. Earlier runs were 3.57 s (Task 8) and 2.24 s (Task 10, after error-report retries were
 read once each).
 
-## 3. Field bundles: pending
+A second PC (the owner's laptop: Windows 11 Home, build 26300, Intel Core Ultra 7, 15 GB) ran the field-test kit on
+2026-11-27: 3.96, 3.70, 3.10, 3.10, 3.12 s, **median 3.12 s**, all exit 0. Also under 5 s.
 
-Not started. The kit (`sherlog-field-test` CI artifact) and both guides are ready. To fill in when bundles are
-labeled: precision by label strength, wrong Confirmed, Unclear share (over crashes and over groups), number of
-qualifying bundles, and every miss.
+## 3. Field bundles: 1 received, 0 counting
+
+To fill in as bundles are labeled: precision by label strength, wrong Confirmed, Unclear share (over crashes and over
+groups), number of qualifying bundles, and every miss. Bundles stay outside the repo (`docs/field-test.md`); this file
+describes them by category only.
+
+`sherlog eval` so far: 1 bundle, **0 qualifying** (gate needs 10), 0 of 0 Confirmed or Likely, 0 wrong Confirmed,
+**Unclear 24 of 24 crashes (100%)**, 14 of 14 groups.
+
+### own-01: the owner's laptop, 2026-11-27
+
+- **Collected by** double-clicking the kit. 24 crashes in 14 groups over 90 days; the bundle is 14.5 KB.
+- **Name removal, checked on that PC:** the PC name, user name, profile path (`\`, `\\` and `/` forms), account SID and
+  Microsoft account email were all **not found** anywhere in the bundle. The domain check was skipped (it was
+  `WORKGROUP` or the PC name).
+- **Owner answers:** a chat app crashes sometimes while working or browsing; nothing changed; nothing tried yet.
+- **Labels:** all 14 groups are `unknown`. The answers don't name a cause, and no fix has been tried, so nothing counts
+  toward accuracy yet. If the owner updates or reinstalls the chat app, a follow-up a week later could make its label
+  `confirmed-by-fix`.
+- **What was Unclear:**
+
+  | What crashed | Groups | Crashes | Notes |
+  |---|---|---|---|
+  | PC-maker and Intel background helpers (power and thermal tuning, networking, device service, audio add-in) | 8 | 15 | Most crash in their own vendor DLL. One service alone has 3 groups and 10 crashes |
+  | A .NET chat app | 2 | 2 | One unhandled .NET exception, one crash inside the .NET runtime |
+  | Microsoft Store and Windows services | 3 | 6 | Store crashed in a module that had already been unloaded (`…dll_unloaded`); one Windows helper hung twice |
+  | A virtual-machine app | 1 | 1 | A hang |
+
+  6 groups matched a recipe, all of them Unclear by design: `runtime-dotnet-unhandled-exception` ×2,
+  `windows-app-not-responding` ×2, `runtime-app-fail-fast` and `game-own-code-access-violation`. The other 8 matched none.
+
+- **What it suggests (one bundle, so not acted on yet):** on laptops, the maker's background helpers can be most of
+  the list. A recipe for "a background helper crashed in its own files" could explain them honestly, and
+  `game-own-code-access-violation` talks about games even when the app is a background service. Wait for more bundles
+  before writing recipes from this.
+- **Fixed from this bundle:** question 1 listed the chat app twice with no way to tell the two apart. The choices now
+  show when each one last happened.
 
 ## How Gate 1 counts Unclear (decided)
 
