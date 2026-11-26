@@ -11,16 +11,19 @@ Friends get a one-page guide: [field-test-friend.md](field-test-friend.md).
 Every CI run on `main` builds the kit as the artifact `sherlog-field-test`: one self-contained `sherlog.exe` (no .NET
 install needed) with the recipe `library` folder next to it. GitHub keeps artifacts for 90 days.
 
-Find the latest green run on `main`:
+On the website: open the repo's **Actions** tab, open the latest green **CI** run on `main`, and download
+`sherlog-field-test` from **Artifacts** at the bottom of the page.
+
+Or in PowerShell, in one window. Get the ID of the latest green run on `main`:
 
 ```powershell
-gh run list --repo TheAlsaadi/sherlog --workflow CI --branch main --status success --limit 1
+$id = gh run list --repo TheAlsaadi/sherlog --workflow CI --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId'
 ```
 
-Download it into an empty folder **outside the repo** (use the run ID from the first column):
+Download the kit into an empty folder **outside the repo**:
 
 ```powershell
-gh run download <run-id> --repo TheAlsaadi/sherlog --name sherlog-field-test --dir C:\SherlogField\kit
+gh run download $id --repo TheAlsaadi/sherlog --name sherlog-field-test --dir C:\SherlogField\kit
 ```
 
 Zip it for sending:
