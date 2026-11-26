@@ -15,6 +15,9 @@ var env = new CliEnvironment(
     TimeZone: TimeZoneInfo.Local,
     SystemInfo: SystemSummary.ForThisPc,
     Redaction: RedactionTargets.ForThisPc,
-    Version: version);
+    Version: version,
+    DefaultBundleFolder: () => Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) is { Length: > 0 } desktop
+        ? desktop
+        : Environment.CurrentDirectory);
 
 return CliApp.Run(args, env);

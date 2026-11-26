@@ -22,6 +22,9 @@ internal sealed class CliHarness
 
     public static readonly SystemSummary System = new("Windows 11 Pro", "26100", "Test CPU", 32, [new GpuInfo("Test GPU", "1.0", "2026-11-01")]);
 
+    /// <summary>Where the guided collect (no command) saves its bundle; the real program uses the Desktop.</summary>
+    public string DefaultFolder { get; set; } = Path.Combine(Path.GetTempPath(), "sherlog-tests-default-folder-unused");
+
     public int Run(params string[] args)
     {
         var env = new CliEnvironment(
@@ -39,7 +42,8 @@ internal sealed class CliHarness
             TimeZone: TimeZoneInfo.Utc,
             SystemInfo: () => System,
             Redaction: () => new RedactionTargets("TESTPC", null, ["TESTUSER"]),
-            Version: "0.1.0-test");
+            Version: "0.1.0-test",
+            DefaultBundleFolder: () => DefaultFolder);
         return CliApp.Run(args, env);
     }
 

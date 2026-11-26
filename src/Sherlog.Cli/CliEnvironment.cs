@@ -11,6 +11,7 @@ namespace Sherlog.Cli;
 /// <param name="SystemInfo">This PC's system summary, for evidence bundles.</param>
 /// <param name="Redaction">The names to remove from evidence bundles.</param>
 /// <param name="Version">Sherlog's version, recorded in evidence bundles.</param>
+/// <param name="DefaultBundleFolder">Where <c>sherlog</c> with no command saves its bundle: the Desktop in the real program.</param>
 public sealed record CliEnvironment(
     Func<string?, IRecordSource> OpenSource,
     TextWriter Out,
@@ -21,7 +22,8 @@ public sealed record CliEnvironment(
     TimeZoneInfo TimeZone,
     Func<SystemSummary> SystemInfo,
     Func<RedactionTargets> Redaction,
-    string Version);
+    string Version,
+    Func<string> DefaultBundleFolder);
 
 /// <summary>A problem with what the person asked for. Its message is shown as is, and the exit code is 1.</summary>
 public sealed class UserErrorException(string message) : Exception(message);

@@ -352,8 +352,8 @@ Use `design:ux-copy` on every recipe `summary`/`details`/fix `explain`, `Unclear
 
 **Files:** Create `docs/field-test.md` (for the owner: how to send `sherlog.exe` to friends, what friends do, how bundles come back, privacy promise in plain words), `docs/field-test-friend.md` (one page for friends); modify `ci.yml` to upload a self-contained single-file `sherlog.exe` artifact (`dotnet publish src/Sherlog.Cli -c Release -r win-x64 --self-contained -p:PublishSingleFile=true`).
 
-- [ ] **Step 1:** Measure `sherlog explain --latest` on the dev PC 5 times (`Measure-Command`), record median (Gate: < 5 s). Record only timings.
-- [ ] **Step 2:** Commit `docs: field-test kit` and ask the owner (👤) to start the field test. The build is unsigned; the friend guide says so and explains the SmartScreen prompt.
+- [x] **Step 1:** Measure `sherlog explain --latest` on the dev PC 5 times (`Measure-Command`), record median (Gate: < 5 s). Record only timings.
+- [x] **Step 2:** Commit `docs: field-test kit` and ask the owner (👤) to start the field test. The build is unsigned; the friend guide says so and explains the SmartScreen prompt.
 
 ### Task 16: Investigation and gate (👤 owner-paced)
 
