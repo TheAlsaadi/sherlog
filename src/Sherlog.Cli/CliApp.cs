@@ -6,8 +6,11 @@ namespace Sherlog.Cli;
 /// <summary>Builds and runs the <c>sherlog</c> command line. Exit codes: 0 done, 1 bad input, 2 unexpected error.</summary>
 public static class CliApp
 {
-    public static RootCommand Build(CliEnvironment env) =>
-        new("Sherlog explains why your PC crashed, in plain language. It doesn't change anything on your PC.")
+    public static RootCommand Build(CliEnvironment env)
+    {
+        var root = new RootCommand(
+            "Sherlog explains why your PC crashed, in plain language. It doesn't change anything on your PC. " +
+            "Run it with no command (or double-click sherlog.exe) to answer a few questions and save a file to share on your Desktop.")
         {
             CrashesCommand.Create(env),
             ExplainCommand.Create(env),
@@ -15,6 +18,9 @@ public static class CliApp
             EvalCommand.Create(env),
             RecipesCommand.Create(env),
         };
+        root.SetAction(_ => GuidedCollect.Run(env));
+        return root;
+    }
 
     public static int Run(string[] args, CliEnvironment env) =>
         Build(env).Parse(args).Invoke(new InvocationConfiguration { Output = env.Out, Error = env.Error });

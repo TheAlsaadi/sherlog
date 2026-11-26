@@ -34,54 +34,59 @@ internal static class CollectCommand
                 throw new UserErrorException("--days must be 1 or more.");
             }
 
-            // Check where the file will go before reading anything or asking questions, so answers are never lost.
-            var path = Path.GetFullPath(result.GetValue(output)!);
-            var folder = Path.GetDirectoryName(path)!;
-            if (!Directory.Exists(folder))
-            {
-                throw new UserErrorException($"There's no such folder: {folder}");
-            }
-
-            if (Directory.Exists(path))
-            {
-                throw new UserErrorException($"{path} is a folder. Give a file name, for example {Path.Combine(path, "sherlog-evidence.zip")}");
-            }
-
-            var now = env.Clock.GetUtcNow();
-            var since = now.AddDays(-dayCount);
-
-            // Read once, so the questions, the labels and the bundle all see the same records.
-            var live = env.OpenSource(null);
-            var snapshot = new BundleRecordSource(live.ReadEvents(since).ToList(), live.ReadReliability(since).ToList(), now);
-            foreach (var warning in live.Warnings.Distinct())
-            {
-                env.Error.WriteLine(warning);
-            }
-
-            var groups = CrashGrouper.Group(new EvidenceReader(snapshot).ReadCrashes(since));
-            var answers = result.GetValue(noQuestions) ? OwnerAnswers.Empty : OwnerQuestions.Ask(env.Out, env.ReadLine, groups);
-            var labels = groups
-                .Select(g => new CrashLabel(g.Id, g.Latest.AppName, "unknown", null, "unknown"))
-                .ToList();
-            var label = new LabelFile(answers, new InvestigatorSection(false, labels));
-
-            try
-            {
-                BundleWriter.Write(path, snapshot, since, env.SystemInfo(), label, new Redactor(env.Redaction()), env.Version, now);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-            {
-                throw new UserErrorException($"Couldn't save {path}: {ex.Message}");
-            }
-
-            var problems = groups.Count == 1 ? "1 problem" : $"{groups.Count} problems";
-            env.Out.WriteLine();
-            env.Out.WriteLine($"Saved {problems} from the last {dayCount} days to:");
-            env.Out.WriteLine($"  {path}");
-            env.Out.WriteLine("Sherlog replaced your user name, your PC's name and your account ID with placeholders.");
-            env.Out.WriteLine("Open the file if you'd like to check it before you send it.");
+            Collect(env, Path.GetFullPath(result.GetValue(output)!), dayCount, askQuestions: !result.GetValue(noQuestions));
             return 0;
         }));
         return command;
+    }
+
+    /// <summary>Reads this PC's records, asks the questions if wanted, and saves the redacted bundle at <paramref name="path"/>.</summary>
+    internal static void Collect(CliEnvironment env, string path, int dayCount, bool askQuestions)
+    {
+        // Check where the file will go before reading anything or asking questions, so answers are never lost.
+        var folder = Path.GetDirectoryName(path)!;
+        if (!Directory.Exists(folder))
+        {
+            throw new UserErrorException($"There's no such folder: {folder}");
+        }
+
+        if (Directory.Exists(path))
+        {
+            throw new UserErrorException($"{path} is a folder. Give a file name, for example {Path.Combine(path, "sherlog-evidence.zip")}");
+        }
+
+        var now = env.Clock.GetUtcNow();
+        var since = now.AddDays(-dayCount);
+
+        // Read once, so the questions, the labels and the bundle all see the same records.
+        var live = env.OpenSource(null);
+        var snapshot = new BundleRecordSource(live.ReadEvents(since).ToList(), live.ReadReliability(since).ToList(), now);
+        foreach (var warning in live.Warnings.Distinct())
+        {
+            env.Error.WriteLine(warning);
+        }
+
+        var groups = CrashGrouper.Group(new EvidenceReader(snapshot).ReadCrashes(since));
+        var answers = askQuestions ? OwnerQuestions.Ask(env.Out, env.ReadLine, groups) : OwnerAnswers.Empty;
+        var labels = groups
+            .Select(g => new CrashLabel(g.Id, g.Latest.AppName, "unknown", null, "unknown"))
+            .ToList();
+        var label = new LabelFile(answers, new InvestigatorSection(false, labels));
+
+        try
+        {
+            BundleWriter.Write(path, snapshot, since, env.SystemInfo(), label, new Redactor(env.Redaction()), env.Version, now);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new UserErrorException($"Couldn't save {path}: {ex.Message}");
+        }
+
+        var problems = groups.Count == 1 ? "1 problem" : $"{groups.Count} problems";
+        env.Out.WriteLine();
+        env.Out.WriteLine($"Saved {problems} from the last {dayCount} days to:");
+        env.Out.WriteLine($"  {path}");
+        env.Out.WriteLine("Sherlog replaced your user name, your PC's name and your account ID with placeholders.");
+        env.Out.WriteLine("Open the file if you'd like to check it before you send it.");
     }
 }
