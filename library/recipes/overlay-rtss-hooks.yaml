@@ -1,0 +1,56 @@
+id: overlay-rtss-hooks
+version: 1
+title: Game crashed inside RivaTuner Statistics Server (MSI Afterburner overlay)
+category: crash
+references:
+  # Official RTSS download page and changelog (names the 64-bit hook library RTSSHooks64.dll).
+  - https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/
+  # OBS: "Rivatuner/MSI Afterburner are especially prevalent conflicts"; turn them off before hooking a game.
+  - https://obsproject.com/kb/game-capture-troubleshooting
+  # Overwolf: adding the game's .exe with Application detection level "None" "effectively prevents RivaTuner from
+  # hooking into those processes".
+  - https://support.overwolf.com/support/solutions/articles/9000177860-overwolf-and-conflicts-with-rivatuner
+
+# RTSSHooks64.dll / RTSSHooks.dll are RivaTuner's in-game hook. The trailing * also covers
+# "RTSSHooks64.dll_unloaded", which Windows records when the game touches the hook after RivaTuner was closed.
+match:
+  any:
+    - source: application-error
+      faulting_module: "RTSSHooks*.dll*"
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your game crashed inside RivaTuner, the on-screen stats tool that comes with MSI Afterburner."
+  details: "RivaTuner loads a small part of itself into each game to draw its frame-rate counter. Some games don't get along with it, and closing RivaTuner or Afterburner while a game is running can also crash the game. Telling RivaTuner to leave this game alone usually stops it."
+
+fixes:
+  - id: exclude-game-in-rivatuner
+    risk: safe
+    explain: "In RivaTuner, add this game and set its Application detection level to None, so RivaTuner stops loading into it. Also avoid closing Afterburner or RivaTuner while the game is running."
+    actions:
+      - action: show_guidance
+        params: { guide: rtss-exclude-game }
+    verify:
+      no_recurrence_days: 7
+  - id: update-rivatuner
+    risk: safe
+    explain: "Install the latest RivaTuner Statistics Server from its official page. Newer versions fix compatibility problems with many games and with other overlays."
+    actions:
+      - action: open_url
+        params: { url: "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" }
+
+examples:
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: RTSSHooks64.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: Game.exe
+    faulting_module: RTSSHooks64.dll_unloaded
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: OldGame.exe
+    faulting_module: RTSSHooks.dll
+    exception_code: "0xc0000005"
