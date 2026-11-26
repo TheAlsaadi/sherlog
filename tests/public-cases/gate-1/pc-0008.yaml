@@ -1,0 +1,13 @@
+format: 1
+id: pc-0008
+source_url: https://learn.microsoft.com/en-us/answers/questions/3749503/pc-randomly-restarting-and-bugcheck-0x0000001e
+retrieved: 2026-11-27
+query: q09
+windows: Windows 10
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000001e"
+truth:
+  true_cause: none:network-adapter-driver
+  label_strength: owner-reported
+  evidence: "Repeated restarts on a new build; dumps pointed at the network card driver, and disabling it stopped the crashes over two days of the same work."

@@ -1,0 +1,14 @@
+format: 1
+id: pc-0007
+source_url: https://steamcommunity.com/app/1245620/discussions/0/3177859358963516900/
+retrieved: 2026-11-27
+query: q05
+crashes:
+  - source: application-error
+    app_name: eldenring.exe
+    faulting_module: RTSSHooks64.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: overlay-rtss-hooks
+  label_strength: owner-reported
+  evidence: "Game crashed in RTSSHooks64.dll; closing RivaTuner, which was running in the background, solved it."

@@ -1,0 +1,13 @@
+format: 1
+id: pc-0013
+source_url: https://learn.microsoft.com/en-us/answers/questions/5648964/bsod-kernel-error-41-bugcheckcode-292
+retrieved: 2026-11-27
+query: q11
+windows: Windows 11 Pro
+crashes:
+  - source: kernel-power
+    bugcheck_code: "0x00000124"
+truth:
+  true_cause: none:gpu-unstable-clocks
+  label_strength: owner-reported
+  evidence: "Restarts logged as Kernel-Power 41 with code 292 (0x124); lowering the AMD card's maximum clock in Adrenalin stopped them for about two weeks ('seems to be working')."

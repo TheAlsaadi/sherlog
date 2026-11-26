@@ -1,0 +1,15 @@
+format: 1
+id: pc-0002
+source_url: https://www.dell.com/community/Laptops-General-Read-Only/Display-driver-amdkmdap-for-Dell-Precision-M6700-stops/m-p/4498231
+retrieved: 2026-11-27
+query: q07
+windows: Windows 8.1
+crashes:
+  - source: display-reset
+    faulting_module: amdkmdap
+    count: 3
+    days: 1
+truth:
+  true_cause: gpu-amd-driver-reset
+  label_strength: confirmed-by-fix
+  evidence: "Several resets a day; installing a specific AMD Catalyst driver package stopped them for months, and reinstalling it fixed them again after a big Windows update."

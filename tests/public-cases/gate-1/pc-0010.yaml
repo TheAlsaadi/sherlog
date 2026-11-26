@@ -1,0 +1,14 @@
+format: 1
+id: pc-0010
+source_url: https://github.com/dotnet/runtime/issues/91447
+retrieved: 2026-11-27
+query: q04
+windows: Windows Server 2019
+crashes:
+  - source: application-error
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xe0434352"
+truth:
+  true_cause: runtime-dotnet-unhandled-exception
+  label_strength: owner-reported
+  evidence: "A .NET 7 service crashed on stop with an unhandled exception; the issue author updated outdated packages, which fixed it."

@@ -1,0 +1,15 @@
+format: 1
+id: pc-0015
+source_url: https://forums.tomshardware.com/threads/solved-gaming-pc-games-crashing-and-crashing-pc.3771679/
+retrieved: 2026-11-27
+query: q15
+windows: Windows 10
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x000000d1"
+    count: 3
+    days: 1
+truth:
+  true_cause: none:faulty-ram
+  label_strength: owner-reported
+  evidence: "Blue screens about every 15 minutes in a game for a long time; removing the oldest pair of RAM sticks stopped them, and the poster confirmed it was the RAM."

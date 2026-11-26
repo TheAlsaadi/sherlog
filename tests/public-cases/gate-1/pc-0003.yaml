@@ -1,0 +1,13 @@
+format: 1
+id: pc-0003
+source_url: https://learn.microsoft.com/en-us/answers/a/7384950
+retrieved: 2026-11-27
+query: q07
+windows: Windows 11 22H2
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x000000d1"
+truth:
+  true_cause: none:faulty-or-incompatible-ram
+  label_strength: owner-reported
+  evidence: "Blue screens (0xD1, dumps pointed at amdkmdag.sys) began after a RAM upgrade; removing the new modules stopped them."

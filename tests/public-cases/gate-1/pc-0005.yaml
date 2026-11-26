@@ -1,0 +1,15 @@
+format: 1
+id: pc-0005
+source_url: https://learn.microsoft.com/en-us/answers/a/4493717
+retrieved: 2026-11-27
+query: q03
+windows: Windows 10 1709
+crashes:
+  - source: application-error
+    app_name: explorer.exe
+    faulting_module: ucrtbase.dll
+    exception_code: "0xc0000409"
+truth:
+  true_cause: none:explorer-quick-access-cache
+  label_strength: owner-reported
+  evidence: "File Explorer kept crashing in ucrtbase.dll; poster said clearing the Quick Access (AutomaticDestinations) cache solved it."

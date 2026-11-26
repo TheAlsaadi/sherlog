@@ -1,0 +1,12 @@
+format: 1
+id: pc-0004
+source_url: https://learn.microsoft.com/en-us/answers/a/8165377
+retrieved: 2026-11-27
+query: q07
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+truth:
+  true_cause: none:amd-graphics-driver-version
+  label_strength: owner-reported
+  evidence: "Blue screens (0x50, dumps pointed at amdkmdag.sys) when leaving fullscreen or playing video; removing the AMD driver with DDU and installing an older one stopped them."

@@ -1,0 +1,15 @@
+format: 1
+id: pc-0011
+source_url: https://learn.microsoft.com/en-ca/answers/questions/2084553/issue-with-whatsapp-generating-faulting-module-nam
+retrieved: 2026-11-27
+query: q04
+windows: Windows 10 Enterprise N 22H2
+crashes:
+  - source: application-error
+    app_name: WhatsApp.exe
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xc000027b"
+truth:
+  true_cause: none:windows-media-feature-pack-missing
+  label_strength: owner-reported
+  evidence: "Store app crashed on launch on an N edition of Windows; installing the Media Feature Pack made it start."

@@ -11,7 +11,7 @@ dotnet run --project src/Sherlog.Cli -- eval tests/public-cases/gate-1
 
 | Folder | Status | Use |
 |---|---|---|
-| `gate-1/` | Frozen when merged | Scored for Gate 1. Don't tune recipes to its misses; if you do, it becomes a development set and the next run needs a fresh set |
+| `gate-1/` | Frozen when merged; 17 cases, scored 2026-11-27 (56%, see `docs/gates/phase-1.md`) | Scored for Gate 1. Don't tune recipes to its misses; if you do, it becomes a development set and the next run needs a fresh set |
 
 ## Case format
 
@@ -73,3 +73,23 @@ Written before collecting started (2026-11-27). Each is run as a web search; res
 | q12 | `"VCRUNTIME140.dll was not found" OR "MSVCP140.dll was not found" fixed` | Missing runtime |
 | q13 | `"LiveKernelEvent" 141 solved` | Live-kernel graphics reports |
 | q14 | `"Application Hang" "event 1002" solved` | App hangs |
+
+Each of q01–q14 was run twice on 2026-11-27, in standard and then extended mode, and the results of both were
+checked in order. About 230 threads were read; 14 met the rules.
+
+### Added 2026-11-27: solved-tag searches (ADR 0010 amendment)
+
+Added because q01–q14 yielded too few cases. Written before any of them was run. Same rules and same order-taking,
+up to 3 kept per search. A site's "solved" tag only finds the thread; the poster must still confirm the fix in the
+thread itself (rule 2).
+
+| Id | Search | Covers |
+|---|---|---|
+| q15 | `site:forums.tomshardware.com "[SOLVED]" "faulting module name"` | App crashes |
+| q16 | `site:forums.tomshardware.com "[SOLVED]" "rebooted from a bugcheck"` | Blue screens |
+| q17 | `site:forums.tomshardware.com "[SOLVED]" nvlddmkm "stopped responding"` | Graphics driver resets |
+| q18 | `site:tenforums.com "Solved" BSOD bugcheck` | Blue screens |
+| q19 | `site:elevenforum.com "Solved" BSOD` | Blue screens |
+| q20 | `site:reddit.com/r/techsupport solved "faulting module name"` | App crashes |
+| q21 | `site:reddit.com/r/techsupport solved LiveKernelEvent` | Live-kernel reports |
+| q22 | `site:tenforums.com "Solved" "faulting module"` | App crashes |

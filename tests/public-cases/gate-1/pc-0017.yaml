@@ -1,0 +1,14 @@
+format: 1
+id: pc-0017
+source_url: https://forums.tomshardware.com/threads/pc-waits-for-me-to-turn-away-and-then-restarts-cant-figure-it-out.3759461/
+retrieved: 2026-11-27
+query: q16
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000007f"
+  - source: bugcheck
+    bugcheck_code: "0x00000101"
+truth:
+  true_cause: none:norton-antivirus
+  label_strength: owner-reported
+  evidence: "Two blue screens within a couple of hours while gaming; dump analysis pointed at Norton, and uninstalling Norton seemed to stop them."
