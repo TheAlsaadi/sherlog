@@ -16,6 +16,23 @@ internal static class Make
 
     public static CrashGroup Group(params CrashEvent[] crashes) => Assert.Single(CrashGrouper.Group(crashes));
 
+    /// <summary>A blue screen: a BugCheck record, or a Kernel-Power 41 with <paramref name="code"/> as its stop code.</summary>
+    public static CrashEvent BlueScreen(DateTimeOffset time, string code, string source = EvidenceSources.BugCheck) =>
+        new($"{source}-{code}-{time.Ticks}", time, source,
+            source == EvidenceSources.UnexpectedShutdown ? "Microsoft-Windows-Kernel-Power" : "Microsoft-Windows-WER-SystemErrorReporting",
+            source == EvidenceSources.UnexpectedShutdown ? 41 : 1001, null, null, null, null, null, code, null, null);
+
+    /// <summary>A Windows Error Reporting live-kernel report (the PC kept running).</summary>
+    public static CrashEvent LiveKernel(DateTimeOffset time, string code = "0x00000141") =>
+        new($"wer-{code}-{time.Ticks}", time, EvidenceSources.ErrorReport, "Windows Error Reporting", 1001,
+            null, null, null, null, null, code, "LiveKernelEvent", null);
+
+    public static Recipe PatternRecipe(string id, int count = 3, int days = 30, int priority = 100,
+        ConfidenceLevel confidence = ConfidenceLevel.Likely) =>
+        new(id, 1, id, "bluescreen", ["https://example.org"], [], new ConfidenceRules(confidence, []),
+            $"Summary of {id}.", null, priority, [new FixSuggestion("fix-1", "safe", "Do the thing.", ["show_guidance"])],
+            [], $"{id}.yaml", new StopCodePattern(count, days));
+
     public static MatchCondition When(string source, string? app = null, string? module = null, string? code = null,
         string? bugcheck = null, string? message = null) =>
         new(source, null, null, app, module, code, bugcheck, null, message);

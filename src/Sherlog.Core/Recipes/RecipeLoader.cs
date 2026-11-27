@@ -106,7 +106,7 @@ public static class RecipeLoader
         Title: d.Title,
         Category: d.Category,
         References: d.References,
-        Match: d.Match.Any.Select(ToCondition).ToList(),
+        Match: (d.Match?.Any ?? []).Select(ToCondition).ToList(),
         Confidence: new ConfidenceRules(
             d.Confidence.Default == "likely" ? ConfidenceLevel.Likely : ConfidenceLevel.Unclear,
             (d.Confidence.ConfirmedWhen ?? [])
@@ -117,14 +117,17 @@ public static class RecipeLoader
         Priority: d.Priority ?? 100,
         Fixes: (d.Fixes ?? []).Select(f => new FixSuggestion(f.Id, f.Risk, f.Explain, f.Actions.Select(a => a.Action).ToList())).ToList(),
         Examples: d.Examples.Select(ToCondition).ToList(),
-        FilePath: file);
+        FilePath: file,
+        Pattern: d.Pattern is { DistinctStopCodes: var p } ? new StopCodePattern(p.Count, p.Days) : null);
 
     private static MatchCondition ToCondition(ConditionDto c) => new(
         c.Source, c.Provider, c.EventId, c.AppName, c.FaultingModule, c.ExceptionCode, c.BugCheckCode, c.EventName, c.MessageContains);
 
     private sealed record RecipeDto(
-        string Id, int Version, string Title, string Category, List<string> References, MatchDto Match,
+        string Id, int Version, string Title, string Category, List<string> References, MatchDto? Match, PatternDto? Pattern,
         ConfidenceDto Confidence, DiagnosisDto Diagnosis, int? Priority, List<FixDto>? Fixes, List<ConditionDto> Examples);
+
+    private sealed record PatternDto(CountDaysDto DistinctStopCodes);
 
     private sealed record MatchDto(List<ConditionDto> Any);
 

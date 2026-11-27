@@ -1,0 +1,31 @@
+id: test-mixed-bluescreens
+version: 1
+title: Blue screens with many different stop codes
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-error-or-blue-screen-error-troubleshooting
+
+pattern:
+  distinct_stop_codes: { count: 3, days: 30 }
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your PC had blue screens with several different stop codes, which usually points to unstable hardware."
+
+fixes:
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to check whether your RAM is faulty."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x0000003b"
+  - source: kernel-power
+    bugcheck_code: "0x00000050"
