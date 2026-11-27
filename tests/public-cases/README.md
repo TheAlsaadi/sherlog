@@ -203,3 +203,26 @@ These variations were written before any of them was run. Same rules.
 | q173 | `forums.tomshardware.com [SOLVED] application "not responding" freezing "event 1002" OR hang` | App hangs |
 | q174 | `forums.tomshardware.com [SOLVED] SYSTEM_THREAD_EXCEPTION_NOT_HANDLED OR KMODE_EXCEPTION_NOT_HANDLED` | Driver blue screens |
 | q175 | `forums.tomshardware.com [SOLVED] UNEXPECTED_STORE_EXCEPTION OR "INACCESSIBLE_BOOT_DEVICE" OR NTFS_FILE_SYSTEM` | Disk-related blue screens |
+
+### Added 2026-11-27 for `gate-1b`: posts where the poster writes up their own fix (q176–q190)
+
+q101–q175 gave about 18 cases from over 400 threads, and the best ones were threads where the poster came back to say
+what fixed it. These searches aim at that kind of post. Written before any of them was run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q176 | `"how I fixed" "Faulting module name" crash game Windows` | App crashes |
+| q177 | `"how I fixed" BSOD bugcheck "my fix"` | Blue screens |
+| q178 | `"[Fixed]" CTD "exception code" forum` | Game crashes |
+| q179 | `"what fixed it for me" "Faulting module name"` | App crashes |
+| q180 | `"my solution" "nvlddmkm" OR "amdkmdag" display driver stopped responding` | Graphics driver resets |
+| q181 | `"for anyone else" "faulting module" "the fix was"` | App crashes |
+| q182 | `"for anyone with this problem" bugcheck "the fix was" OR "what worked"` | Blue screens |
+| q183 | `"LiveKernelEvent" "for anyone" "what worked" OR "the fix was"` | Live-kernel reports |
+| q184 | `"Kernel-Power" 41 "for anyone" "the fix was" OR "what worked"` | Unexpected shutdowns |
+| q185 | `"was not found" "for anyone" "what worked" OR "the fix was" dll game launch` | Missing runtime |
+| q186 | `forums.flightsimulator.com "[Fixed]" OR "solved" CTD "exception code" OR "faulting module"` | Game crashes |
+| q187 | `forums.ageofempires.com OR forum.paradoxplaza.com crash "faulting module" "fixed it"` | Game crashes |
+| q188 | `github.com issues Windows crash "0xc0000005" "faulting module" "was caused by" OR "fixed by updating"` | App crashes, GitHub issues |
+| q189 | `community.adobe.com "faulting module" "solved" "I fixed" Photoshop OR Premiere OR Lightroom` | App crashes, Adobe |
+| q190 | `forums.unrealengine.com OR forum.unity.com "faulting module" crash "fixed by" Windows editor` | App crashes, game engines |
