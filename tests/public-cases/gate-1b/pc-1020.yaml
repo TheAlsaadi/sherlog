@@ -1,0 +1,13 @@
+format: 1
+id: pc-1020
+source_url: https://learn.microsoft.com/en-us/answers/questions/3964923/nvlddmkm-event-id-153-13-and-a-warning
+retrieved: 2026-11-27
+query: q177
+windows: Windows 11 Pro
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000012b"
+truth:
+  true_cause: bsod-memory-management
+  label_strength: owner-reported
+  evidence: "Blue screen 0x12B with NVIDIA driver warnings; the poster's own answer says turning off XMP and running the RAM at the fastest speed the CPU supports was the only change needed."

@@ -1,0 +1,18 @@
+format: 1
+id: pc-1005
+source_url: https://steamcommunity.com/discussions/forum/1/601900862720208522
+retrieved: 2026-11-27
+query: q111
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000013a"
+  - source: bugcheck
+    bugcheck_code: "0x0000007e"
+  - source: bugcheck
+    bugcheck_code: "0x0000004a"
+  - source: bugcheck
+    bugcheck_code: "0x00000139"
+truth:
+  true_cause: bsod-kernel-security-check-failure
+  label_strength: owner-reported
+  evidence: "Blue screens with several stop codes, only in Steam games that use Easy Anti-Cheat; going back to AMD graphics driver 22.1.2 stopped them (no duration given)."

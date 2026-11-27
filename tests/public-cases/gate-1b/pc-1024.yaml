@@ -1,0 +1,17 @@
+format: 1
+id: pc-1024
+source_url: https://forums.tomshardware.com/threads/im-getting-an-impossible-bsod.3780006/
+retrieved: 2026-11-27
+query: q216
+windows: Windows 11 22H2
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x00000139"
+  - source: bugcheck
+    bugcheck_code: "0x0000007f"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Blue screens of three kinds (IRQL, kernel security check, double fault); after many other steps, swapping only the motherboard stopped them (poster: none since)."

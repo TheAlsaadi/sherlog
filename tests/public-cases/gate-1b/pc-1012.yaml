@@ -1,0 +1,13 @@
+format: 1
+id: pc-1012
+source_url: https://community.adobe.com/t5/audition-discussions/a-cause-and-a-fix-for-crash-from-msvcr120-dll-fault/m-p/7751910
+retrieved: 2026-11-27
+query: q138
+windows: Windows 7
+crashes:
+  - source: application-error
+    faulting_module: MSVCR120.dll
+truth:
+  true_cause: none:unreachable-documents-folder
+  label_strength: owner-reported
+  evidence: "Audition crashed at start in MSVCR120.dll; the cause was a dead drive that held the Documents folder, and giving the drive letter to another drive plus a new Documents folder fixed it."

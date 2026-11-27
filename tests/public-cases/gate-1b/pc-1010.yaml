@@ -1,0 +1,15 @@
+format: 1
+id: pc-1010
+source_url: https://learn.microsoft.com/en-us/answers/a/7562494
+retrieved: 2026-11-27
+query: q106
+windows: Windows 11
+crashes:
+  - source: application-error
+    app_name: main.exe
+    faulting_module: KERNELBASE.dll
+    exception_code: "0xc0000409"
+truth:
+  true_cause: none:intel-softwarecomponent-driver
+  label_strength: owner-reported
+  evidence: "A game crashed in KERNELBASE.dll starting after an Intel SoftwareComponent driver update; installing the newer Intel driver version brought it back to normal (poster says it was the only change)."

@@ -1,0 +1,13 @@
+format: 1
+id: pc-1022
+source_url: https://forums.tomshardware.com/threads/solved-ntoskrnl-exe-bsod-windows-7-caused-by-psu.3247634/
+retrieved: 2026-11-27
+query: q193
+windows: Windows 7 SP1
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000124"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Blue screens with stop code 0x124; resetting the BIOS and removing the overclock did not help, replacing a cheap 500 W power supply with a 600 W one did (no crashes for about two weeks)."

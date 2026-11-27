@@ -1,0 +1,15 @@
+format: 1
+id: pc-1023
+source_url: https://forums.tomshardware.com/threads/event-id-1000-and-1005-application-error.2352555/
+retrieved: 2026-11-27
+query: q200
+windows: Windows 7
+crashes:
+  - source: application-error
+    app_name: vlc.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: none:missing-windows-service-pack
+  label_strength: owner-reported
+  evidence: "VLC crashed in ntdll.dll (Application Error 1000 and 1005); installing Windows 7 Service Pack 1 fixed it (a single reply from the poster, no follow-up)."

@@ -1,0 +1,12 @@
+format: 1
+id: pc-1028
+source_url: https://forums.tomshardware.com/threads/amd-radeon-pro-support-fail-wx9100-amd-drivers-cause-bsod.3512839
+retrieved: 2026-11-27
+query: q229
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x000000ea"
+truth:
+  true_cause: none:amd-workstation-card-driver
+  label_strength: owner-reported
+  evidence: "Blue screen 0xEA (stuck in the AMD display driver) on a Radeon Pro WX9100; replacing the card with an NVIDIA Quadro RTX 4000 ended it (poster: no issues since)."

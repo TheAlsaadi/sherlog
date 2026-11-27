@@ -1,0 +1,13 @@
+format: 1
+id: pc-1009
+source_url: https://forums.tomshardware.com/threads/intermittent-ntoskrnl-exe-bsod.3873934/
+retrieved: 2026-11-27
+query: q147
+windows: Windows 11 Pro 24H2
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+truth:
+  true_cause: bsod-page-fault-in-nonpaged-area
+  label_strength: owner-reported
+  evidence: "Blue screens (0x50); swapping RAM with a friend's PC pointed at the RAM, and the poster reports no blue screens since replacing it (a power supply was swapped in the same weeks)."
