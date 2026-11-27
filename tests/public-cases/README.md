@@ -262,3 +262,27 @@ Written before any of them was run. Same rules.
 | q208 | `forums.whirlpool.net.au BSOD OR "Kernel-Power" crash fixed "it was"` | Blue screens, shutdowns |
 | q209 | `forum.notebookreview.com OR community.acer.com OR forums.lenovo.com BSOD OR "stopped responding" fixed laptop` | Laptop crashes |
 | q210 | `windowscentral.com forums OR howtogeek.com BSOD crash fixed bugcheck` | Blue screens |
+
+### Added 2026-11-27 for `gate-1b`: Tom's Hardware solved threads by symptom (q211–q226)
+
+q201–q210 (other forums) gave no new cases, so these go back to Tom's Hardware solved threads with more symptom
+wording. Written before any of them was run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q211 | `forums.tomshardware.com [SOLVED] game crash to desktop nvidia driver fixed` | App crashes |
+| q212 | `forums.tomshardware.com [SOLVED] games crash AMD Radeon driver timeout fixed` | App crashes, graphics resets |
+| q213 | `forums.tomshardware.com [SOLVED] PC freezes random event viewer fixed` | Hangs |
+| q214 | `forums.tomshardware.com [SOLVED] BSOD 0x0000009f OR 0x0000001e OR 0x0000007e fixed` | Blue screens |
+| q215 | `forums.tomshardware.com [SOLVED] BSOD SSD OR HDD replaced fixed kernel data inpage` | Disk-related blue screens |
+| q216 | `forums.tomshardware.com [SOLVED] BSOD new build motherboard replaced fixed` | Blue screens |
+| q217 | `forums.tomshardware.com [SOLVED] BSOD after Windows update rolled back fixed` | Blue screens |
+| q218 | `forums.tomshardware.com [SOLVED] BSOD driver uninstalled fixed dump` | Driver blue screens |
+| q219 | `forums.tomshardware.com [SOLVED] application not responding hang fixed program` | App hangs |
+| q220 | `forums.tomshardware.com [SOLVED] BSOD overheating CPU cooler fixed` | Blue screens |
+| q221 | `forums.tomshardware.com [SOLVED] BSOD network OR wifi OR audio OR USB driver fixed` | Driver blue screens |
+| q222 | `forums.tomshardware.com [SOLVED] laptop random shutdown battery OR charger fixed Kernel-Power` | Unexpected shutdowns |
+| q223 | `forums.tomshardware.com [SOLVED] PC crash during gaming PSU replaced fixed` | Unexpected shutdowns, crashes |
+| q224 | `forums.tomshardware.com [SOLVED] BSOD Curve Optimizer OR undervolt Ryzen WHEA fixed` | Hardware-error blue screens |
+| q225 | `forums.tomshardware.com [SOLVED] MEMORY_MANAGEMENT OR PAGE_FAULT_IN_NONPAGED_AREA RAM replaced fixed` | Memory blue screens |
+| q226 | `forums.tomshardware.com [SOLVED] IRQL_NOT_LESS_OR_EQUAL RAM OR driver fixed` | Driver blue screens |
