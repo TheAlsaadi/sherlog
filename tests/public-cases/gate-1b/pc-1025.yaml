@@ -1,0 +1,13 @@
+format: 1
+id: pc-1025
+source_url: https://forums.tomshardware.com/threads/irql_not_less_or_equal-blue-screen-when-playing-games.3743848
+retrieved: 2026-11-27
+query: q226
+windows: Windows 11
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+truth:
+  true_cause: bsod-irql-not-less-or-equal
+  label_strength: owner-reported
+  evidence: "Blue screen 0xA while playing a game; uninstalling the NVIDIA driver and letting Windows install its own stopped the crashes for 5-6 days (the poster's last report)."

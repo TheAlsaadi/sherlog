@@ -1,0 +1,13 @@
+format: 1
+id: pc-1030
+source_url: https://www.dell.com/community/Inspiron/Random-Blue-screen-of-death-BSOD-FAULTY-HARDWARE-CORRUPTED-PAGE/td-p/7531500
+retrieved: 2026-11-27
+query: q238
+windows: Windows 10 Home
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000012b"
+truth:
+  true_cause: security-avast-avg-aswhook
+  label_strength: confirmed-by-fix
+  evidence: "Blue screens with stop code 0x12B; the poster uninstalled Avast free antivirus and reported no blue screen for about a month."

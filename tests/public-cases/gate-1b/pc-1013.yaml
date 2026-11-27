@@ -1,0 +1,19 @@
+format: 1
+id: pc-1013
+source_url: https://forums.tomshardware.com/threads/need-help-with-multiple-bsod-all-related-with-ntoskrnl-exe.3609096/
+retrieved: 2026-11-27
+query: q139
+windows: Windows 10
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+  - source: bugcheck
+    bugcheck_code: "0x0000001a"
+  - source: bugcheck
+    bugcheck_code: "0x0000003b"
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+truth:
+  true_cause: bsod-memory-management
+  label_strength: owner-reported
+  evidence: "Blue screens with four different stop codes; a clean reinstall, memory tests and other steps failed, and replacing the RAM ended them (poster: not one since)."

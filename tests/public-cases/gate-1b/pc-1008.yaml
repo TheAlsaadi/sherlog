@@ -1,0 +1,12 @@
+format: 1
+id: pc-1008
+source_url: https://forums.tomshardware.com/threads/bsod-page_fault_in_nonpaged_area-win32kfull-sys.3685172/
+retrieved: 2026-11-27
+query: q133
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+truth:
+  true_cause: bsod-page-fault-in-nonpaged-area
+  label_strength: owner-reported
+  evidence: "Blue screens (0x50); removing one of two mismatched RAM kits gave 4-5 days without a crash, and the poster thinks the RAM was the problem."

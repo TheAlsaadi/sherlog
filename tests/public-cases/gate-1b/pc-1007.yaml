@@ -1,0 +1,13 @@
+format: 1
+id: pc-1007
+source_url: https://forums.tomshardware.com/threads/blue-screen-page_fault_in_nonpaged_area-when-booting-from-sleep.3450809/
+retrieved: 2026-11-27
+query: q133
+windows: Windows 10 1809
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+truth:
+  true_cause: bsod-page-fault-in-nonpaged-area
+  label_strength: owner-reported
+  evidence: "Blue screens (0x50) after waking from sleep; the poster says the memory was the problem and new RAM has caused no trouble (a power supply swap was also mentioned)."

@@ -1,0 +1,19 @@
+format: 1
+id: pc-1027
+source_url: https://forums.tomshardware.com/threads/bsod-loop-so-bad-cant-even-move-around-in-bios.3705910/
+retrieved: 2026-11-27
+query: q227
+windows: Windows 10
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x0000007f"
+  - source: bugcheck
+    bugcheck_code: "0x00000139"
+  - source: bugcheck
+    bugcheck_code: "0x000000be"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Constant blue screens of several kinds; swapping RAM, power supply, motherboard and graphics card did not help, but Intel's warranty replacement of the processor did (works fine since)."

@@ -1,0 +1,19 @@
+format: 1
+id: pc-1019
+source_url: https://learn.microsoft.com/en-us/answers/a/8067418
+retrieved: 2026-11-27
+query: q176
+windows: Windows 11
+crashes:
+  - source: application-error
+    app_name: Warhammer3.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: stellaris.exe
+    faulting_module: ntdll.dll
+    exception_code: "0xc0000374"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Games crashed in ntdll.dll; lowering the performance-core multiplier to 50 in Intel Extreme Tuning Utility fixed all of it, the poster says."

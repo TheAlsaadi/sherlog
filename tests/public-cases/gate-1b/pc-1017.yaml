@@ -1,0 +1,14 @@
+format: 1
+id: pc-1017
+source_url: https://techcommunity.microsoft.com/discussions/outlookgeneral/microsoft-365--outlook-no-longer-opens-after-windows-update-7152020/1524559
+retrieved: 2026-11-27
+query: q152
+crashes:
+  - source: application-error
+    app_name: OUTLOOK.EXE
+    faulting_module: mso98win32client.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: none:office-build-regression
+  label_strength: owner-reported
+  evidence: "Outlook crashed on start in mso98win32client.dll the day a Windows update installed; rolling Office back to an older build fixed it (poster marked it solved)."

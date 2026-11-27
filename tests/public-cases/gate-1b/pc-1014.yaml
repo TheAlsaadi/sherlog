@@ -1,0 +1,21 @@
+format: 1
+id: pc-1014
+source_url: https://forums.tomshardware.com/threads/pc-is-riddled-with-different-bsods.3855494/
+retrieved: 2026-11-27
+query: q139
+windows: Windows 10 Pro 22H2
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x0000007e"
+  - source: bugcheck
+    bugcheck_code: "0x0000003b"
+  - source: bugcheck
+    bugcheck_code: "0x00000133"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: confirmed-by-fix
+  evidence: "Many different stop codes; a motherboard RMA, a RAM swap and reinstalls did not help, but turning off Precision Boost Overdrive and Core Performance Boost in the BIOS did (a few months without a blue screen)."

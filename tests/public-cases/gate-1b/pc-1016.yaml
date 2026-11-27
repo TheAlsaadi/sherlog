@@ -1,0 +1,12 @@
+format: 1
+id: pc-1016
+source_url: https://forums.tomshardware.com/threads/is-my-psu-dying-advice-wanted-over-random-shutdowns.3337379/
+retrieved: 2026-11-27
+query: q162
+windows: Windows 10
+crashes:
+  - source: kernel-power
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Random shutdowns (Kernel-Power 41, category 63) while playing Far Cry 3; swapping the power supply and the graphics card did not stop them, replacing the motherboard did."

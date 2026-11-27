@@ -1,0 +1,14 @@
+format: 1
+id: pc-1001
+source_url: https://techcommunity.microsoft.com/discussions/sql_server/ssms-20-1-constantly-crashing-suspecting-net-issue/4174091
+retrieved: 2026-11-27
+query: q107
+crashes:
+  - source: application-error
+    app_name: Ssms.exe
+    faulting_module: clrjit.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "SQL Server Management Studio kept crashing in clrjit.dll; the poster says it stopped after the Intel 13th-gen processor was replaced."

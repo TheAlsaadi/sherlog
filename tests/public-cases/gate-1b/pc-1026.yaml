@@ -1,0 +1,17 @@
+format: 1
+id: pc-1026
+source_url: https://forums.tomshardware.com/threads/bsod-daily-during-general-use-fine-in-games-i-suspect-driver.3677948/
+retrieved: 2026-11-27
+query: q221
+windows: Windows 10
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x0000009f"
+  - source: bugcheck
+    bugcheck_code: "0x0000001e"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Daily blue screens (IRQL, driver power state, kmode exception); after a BIOS workaround, AMD replaced the processor and the poster reports no more crashes."

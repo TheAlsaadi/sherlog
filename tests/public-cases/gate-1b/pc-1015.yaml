@@ -1,0 +1,14 @@
+format: 1
+id: pc-1015
+source_url: https://forums.tomshardware.com/threads/all-my-games-keep-crashing-without-error.3787690/
+retrieved: 2026-11-27
+query: q143
+windows: Windows 11
+crashes:
+  - source: application-error
+    app_name: VALORANT-Win64-Shipping.exe
+    exception_code: "0xc0000005"
+truth:
+  true_cause: bsod-memory-management
+  label_strength: owner-reported
+  evidence: "VALORANT and other games crashed with access violations; a BIOS update did not help, but turning off the XMP memory profile did (stable over 6 hours of play, and also at 3200 MHz)."

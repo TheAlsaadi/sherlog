@@ -1,0 +1,13 @@
+format: 1
+id: pc-1002
+source_url: https://learn.microsoft.com/en-us/answers/questions/5900497/ucrtbase-dll-faulty-module-stack-overflow-when-att
+retrieved: 2026-11-27
+query: q106
+windows: Windows 11
+crashes:
+  - source: application-error
+    faulting_module: ucrtbase.dll
+truth:
+  true_cause: none:outdated-bios
+  label_strength: confirmed-by-fix
+  evidence: "Minecraft Bedrock crashed in ucrtbase.dll with a stack overflow; the poster says a BIOS update fixed it and it still worked about 18 days later."

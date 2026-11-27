@@ -1,0 +1,14 @@
+format: 1
+id: pc-1003
+source_url: https://www.gog.com/forum/deus_ex_human_revolution_directors_cut/dxhr_dc_doesnt_start
+retrieved: 2026-11-27
+query: q112
+crashes:
+  - source: application-error
+    app_name: DXHRDC.exe
+    faulting_module: proxydx11_Win32_Release.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: none:gog-galaxy-overlay
+  label_strength: owner-reported
+  evidence: "The game crashed in the GOG Galaxy overlay's injected file; turning the overlay off in Galaxy's settings fixed it (single post, no later follow-up)."

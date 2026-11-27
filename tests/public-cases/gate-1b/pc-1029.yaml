@@ -1,0 +1,15 @@
+format: 1
+id: pc-1029
+source_url: https://forums.tomshardware.com/threads/msi-b450-tomahawk-max-struggling-to-post.3575868/
+retrieved: 2026-11-27
+query: q233
+windows: Windows 10 Home
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x0000007e"
+  - source: bugcheck
+    bugcheck_code: "0x00000139"
+truth:
+  true_cause: bsod-memory-management
+  label_strength: confirmed-by-fix
+  evidence: "Blue screens (0x7E and 0x139) and a memory test that crashed within seconds; BIOS flashes did not help, replacing both RAM sticks did, and the poster called it solved about seven weeks later."

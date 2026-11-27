@@ -1,0 +1,24 @@
+format: 1
+id: pc-1011
+source_url: https://steamcommunity.com/discussions/forum/0/4334229587331834174/
+retrieved: 2026-11-27
+query: q134
+windows: Windows 11
+crashes:
+  - source: application-error
+    app_name: helldivers2.exe
+    faulting_module: helldivers2.exe
+    exception_code: "0xc0000005"
+  - source: application-error
+    app_name: helldivers2.exe
+    exception_code: "0xc000001d"
+  - source: application-error
+    app_name: bg3_dx11.exe
+    exception_code: "0xc0000005"
+  - source: application-error
+    faulting_module: UnityPlayer.dll
+    exception_code: "0xc0000005"
+truth:
+  true_cause: none:uncapped-frame-rate
+  label_strength: owner-reported
+  evidence: "Several games crashed with access violations; capping the frame rate at 60 in the game and in the NVIDIA control panel stopped the crashes (poster reports none since)."

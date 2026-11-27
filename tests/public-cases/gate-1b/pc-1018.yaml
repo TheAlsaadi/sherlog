@@ -1,0 +1,12 @@
+format: 1
+id: pc-1018
+source_url: https://learn.microsoft.com/en-us/answers/questions/2284070/how-to-fix-kernel-power-41-(63)
+retrieved: 2026-11-27
+query: q156
+windows: Windows 11
+crashes:
+  - source: kernel-power
+truth:
+  true_cause: none:pcie-link-speed
+  label_strength: owner-reported
+  evidence: "Random restarts logged as Kernel-Power 41; the poster's own answer says setting the PCIe generation in the BIOS from Auto to Gen 3 fixed it."

@@ -1,0 +1,13 @@
+format: 1
+id: pc-1004
+source_url: https://learn.microsoft.com/en-us/answers/a/6975849
+retrieved: 2026-11-27
+query: q115
+windows: Windows 10
+crashes:
+  - source: display-reset
+    faulting_module: nvlddmkm
+truth:
+  true_cause: bsod-memory-management
+  label_strength: confirmed-by-fix
+  evidence: "NVIDIA display driver resets (Event 4101) in games; one of two memory sticks was bad, both were replaced, and the poster says it had not come back six months later."

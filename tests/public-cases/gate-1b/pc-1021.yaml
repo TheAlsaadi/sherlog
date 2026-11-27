@@ -1,0 +1,17 @@
+format: 1
+id: pc-1021
+source_url: https://forums.tomshardware.com/threads/bsods-every-10-seconds-replaced-almost-every-component.3556178/
+retrieved: 2026-11-27
+query: q191
+windows: Windows 10 1909
+crashes:
+  - source: bugcheck
+    bugcheck_code: "0x000000d1"
+  - source: bugcheck
+    bugcheck_code: "0x000000ef"
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+truth:
+  true_cause: bsod-whea-uncorrectable-error
+  label_strength: owner-reported
+  evidence: "Many blue screens (stop codes D1, EF, A); a RAM timing change held only 5 days, and the poster says the processor, swapped at a repair shop for an identical one, was the cause."

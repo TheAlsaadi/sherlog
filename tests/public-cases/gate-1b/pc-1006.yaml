@@ -1,0 +1,13 @@
+format: 1
+id: pc-1006
+source_url: https://learn.microsoft.com/en-us/answers/a/8010053
+retrieved: 2026-11-27
+query: q128
+windows: Windows 11
+crashes:
+  - source: app-popup
+    faulting_module: MSVCP140_1.dll
+truth:
+  true_cause: runtime-vcredist-missing
+  label_strength: owner-reported
+  evidence: "The Cyberpunk 2077 launcher would not start because MSVCP140_1.dll was missing; reinstalling the 32-bit Visual C++ 2015-2022 package fixed it (the 64-bit one had not helped)."
