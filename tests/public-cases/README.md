@@ -244,3 +244,21 @@ solved threads tend to contain. Same rules.
 | q198 | `forums.tomshardware.com [SOLVED] BSOD "Core Performance Boost" OR "Precision Boost" OR XMP disabled stable` | Overclock-related blue screens |
 | q199 | `forums.tomshardware.com [SOLVED] GPU undervolt OR underclock black screen crash fixed` | Graphics driver resets |
 | q200 | `forums.tomshardware.com [SOLVED] "Application Error" OR "Event ID 1000" crash fixed "it was"` | App crashes |
+
+### Added 2026-11-27 for `gate-1b`: other forums (q201–q210)
+
+q101–q200 gave 24 cases from about 550 threads, short of 30. These aim at other forums where posters report back.
+Written before any of them was run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q201 | `forums.tomsguide.com [SOLVED] BSOD bugcheck fixed replaced` | Blue screens |
+| q202 | `forums.tomsguide.com [SOLVED] "stopped responding" display driver OR LiveKernelEvent fixed` | Graphics driver resets |
+| q203 | `forums.tomsguide.com [SOLVED] random restart Kernel-Power 41 fixed` | Unexpected shutdowns |
+| q204 | `bleepingcomputer.com forums BSOD bugcheck "the problem was" OR "fixed it"` | Blue screens |
+| q205 | `forums.anandtech.com BSOD OR "Kernel-Power" fixed "it was the"` | Blue screens, shutdowns |
+| q206 | `overclock.net BSOD WHEA OR 0x124 OR LiveKernelEvent "it was the" fixed` | Hardware-error blue screens |
+| q207 | `techsupportforum.com OR geekstogo.com BSOD crash bugcheck "problem solved"` | Blue screens |
+| q208 | `forums.whirlpool.net.au BSOD OR "Kernel-Power" crash fixed "it was"` | Blue screens, shutdowns |
+| q209 | `forum.notebookreview.com OR community.acer.com OR forums.lenovo.com BSOD OR "stopped responding" fixed laptop` | Laptop crashes |
+| q210 | `windowscentral.com forums OR howtogeek.com BSOD crash fixed bugcheck` | Blue screens |
