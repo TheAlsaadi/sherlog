@@ -1,17 +1,17 @@
 # Gate 1: Prove it (draft)
 
-- **Status:** In progress. Seeded crashes and timing pass. The fresh public set `gate-1b` (30 cases) is scored: the
-  accuracy line **passes as written (2 of 2 confident answers correct), but that rests on only two answers**, because
-  Sherlog said Unclear for 52 of 54 problems. The first set (`gate-1`, 56%) is now a development set.
-- **Waiting on:** an owner decision on whether the accuracy line needs a minimum number of confident answers (see the
-  `gate-1b` section), and a second real PC's bundle for the Unclear share.
+- **Status:** In progress. Seeded crashes and timing pass. The fresh public set `gate-1b` (30 cases) is scored: 2 of 2
+  confident answers correct, but Sherlog said Unclear for 52 of 54 problems. ADR 0012 now requires at least 10
+  confident answers, so the accuracy line **does not pass yet**. The first set (`gate-1`, 56%) is a development set.
+- **Waiting on:** recipes that can answer confidently and correctly more often (without undoing ADR 0011), then a fresh
+  frozen set (`gate-1c`); and a second real PC's bundle for the Unclear share.
 
 ## Gate checks
 
 | Gate 1 line (`plan.md` §7, as changed by ADR 0010) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 80% of Confirmed and Likely correct on ≥ 30 solved public cases | `gate-1b` (frozen, 30 cases): **2 of 2 correct (100%)**. Only 2 of 54 problems got a confident answer. `gate-1` (development set): 56% before ADR 0011, 67% after | **Passed on paper, thin** (2 answers) |
+| ≥ 10 Confirmed or Likely answers, ≥ 80% of them correct, on ≥ 30 solved public cases (ADR 0012) | `gate-1b` (frozen, 30 cases): **2 answers, 2 correct (100%)**. Only 2 of 54 problems got a confident answer. `gate-1` (development set): 56% before ADR 0011, 67% after | **Failing** (2 of the 10 answers needed) |
 | No more than 1 wrong Confirmed | 0 (public cases and field bundles) | Passing so far |
 | No more than 40% of crashes Unclear, on ≥ 2 real PCs | 100% (24 of 24) on 1 PC; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
@@ -181,11 +181,10 @@ never say that recipe there; it doesn't affect the accuracy line, which only cou
 
 ### What it shows
 
-- **The accuracy line passes, and it tells us almost nothing.** Two confident answers, both right. After ADR 0011
-  Sherlog says Unclear for 96% of these problems, so the line mostly rewards staying quiet. On `gate-1` the same
-  rules gave 4 of 6. The owner should decide whether the line needs a minimum number of confident answers
-  (for example 10), or whether the Phase 1 "Likely only when the record narrows the cause" stance means this is the
-  expected cost.
+- **As first written, the accuracy line passed and told us almost nothing.** Two confident answers, both right. After
+  ADR 0011 Sherlog says Unclear for 96% of these problems, so the line mostly rewarded staying quiet. On `gate-1` the
+  same rules gave 4 of 6. The owner decided (ADR 0012) that the line needs at least 10 confident answers, so
+  `gate-1b` now **fails** it (2 of 10).
 - **Most fixes in solved threads are hardware or settings, not software.** 14 of 30 were a replaced part and 6 a
   BIOS or tuning setting. The records Windows keeps rarely tell those apart from a driver problem, which is why they
   come out Unclear.
