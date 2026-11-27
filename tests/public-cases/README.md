@@ -99,3 +99,53 @@ thread itself (rule 2).
 | q20 | `site:reddit.com/r/techsupport solved "faulting module name"` | App crashes |
 | q21 | `site:reddit.com/r/techsupport solved LiveKernelEvent` | Live-kernel reports |
 | q22 | `site:tenforums.com "Solved" "faulting module"` | App crashes |
+
+## Fixed searches for `gate-1b`
+
+`gate-1b` is the fresh set for Gate 1's accuracy line (ADR 0010: `gate-1` became a development set under ADR 0011).
+Labels follow the convention above. The list below was written on 2026-11-27 **before any search was run**, and it
+reuses none of the exact query texts of q01–q22. Same rules as for `gate-1`: each search is run in standard mode (and
+extended mode when standard gives few threads), results are taken in order, every thread that meets the three rules
+is kept up to 3 per search, and URLs already in `gate-1/` are excluded. If these run dry before 30 cases, more
+searches are added to this section, written down before they are run.
+
+| Id | Search | Covers |
+|---|---|---|
+| q101 | `"Faulting module name: nvwgf2umx.dll" game crashing fixed by` | App crash in the NVIDIA user-mode driver |
+| q102 | `"Faulting module name: atidxx64.dll" OR "amdxx64.dll" game crashes fixed` | App crash in the AMD user-mode driver |
+| q103 | `"Faulting module name: igd10iumd64.dll" OR "igdumdim64.dll" crash fixed` | App crash in the Intel user-mode driver |
+| q104 | `"Faulting module name: ntdll.dll" "0xc0000374" heap corruption fixed` | Heap-corruption crashes |
+| q105 | `"Faulting module name: KERNELBASE.dll" "0xc0000005" OR "0x80000003" fixed` | Crashes inside a Windows system file |
+| q106 | `"Faulting module name: ucrtbase.dll" "0xc0000409" game crash fixed by` | Fast-fail crashes in games |
+| q107 | `"Faulting module name: clr.dll" OR "coreclr.dll" crash fixed .NET` | .NET runtime crashes |
+| q108 | `"Faulting module name: d3d11.dll" OR "dxgi.dll" OR "d3d12.dll" crash fixed` | Direct3D crashes |
+| q109 | `"Faulting module name" "MSVCP140.dll" OR "VCRUNTIME140.dll" crash solved` | Crashes inside the C++ runtime |
+| q110 | `"Faulting module name" "0xc000001d" illegal instruction game crash solved` | Illegal-instruction crashes |
+| q111 | `"Faulting module name" BEClient OR EasyAntiCheat OR vgk crash solved` | Anti-cheat crashes |
+| q112 | `"Faulting module name" overlay OR hook dll crash disabled fixed game` | Overlay and injected-DLL crashes |
+| q113 | `"Faulting module name" avghookx OR aswhook OR atcuf64 OR sysfer crash fixed` | Security-software crashes |
+| q114 | `"Faulting application name" "Application Hang" "stopped interacting with Windows" fixed` | App hangs |
+| q115 | `"Display driver nvlddmkm stopped responding and has successfully recovered" fixed by` | NVIDIA driver resets |
+| q116 | `"Display driver amdkmdap stopped responding" OR "amdwddmg stopped responding" fixed by` | AMD driver resets |
+| q117 | `"Display driver igfx stopped responding" OR "igfxn stopped responding" fixed` | Intel driver resets |
+| q118 | `"VIDEO_TDR_FAILURE" bugcheck "0x00000116" fixed by` | Graphics timeout blue screens |
+| q119 | `"LiveKernelEvent" "WATCHDOG" OR "141" OR "117" "Hardware Error" fixed by` | Live-kernel graphics reports |
+| q120 | `"WHEA_UNCORRECTABLE_ERROR" "0x124" fixed by` | Hardware-error blue screens |
+| q121 | `"MEMORY_MANAGEMENT" OR "PAGE_FAULT_IN_NONPAGED_AREA" "0x0000001a" OR "0x00000050" fixed by` | Memory blue screens |
+| q122 | `"DRIVER_IRQL_NOT_LESS_OR_EQUAL" OR "IRQL_NOT_LESS_OR_EQUAL" "0x000000d1" OR "0x0000000a" fixed` | Driver blue screens |
+| q123 | `"SYSTEM_SERVICE_EXCEPTION" OR "KERNEL_SECURITY_CHECK_FAILURE" "0x0000003b" OR "0x00000139" fixed` | Blue screens in system services |
+| q124 | `"CRITICAL_PROCESS_DIED" OR "DPC_WATCHDOG_VIOLATION" OR "CLOCK_WATCHDOG_TIMEOUT" fixed by` | Watchdog and critical-process blue screens |
+| q125 | `"INACCESSIBLE_BOOT_DEVICE" OR "KERNEL_DATA_INPAGE_ERROR" OR "NTFS_FILE_SYSTEM" bugcheck fixed` | Disk-related blue screens |
+| q126 | `"Kernel-Power" "41" "BugcheckCode" "0" random restart fixed by` | Unexpected shutdowns |
+| q127 | `"The system has rebooted without cleanly shutting down" Kernel-Power 41 power supply OR RAM fixed` | Unexpected shutdowns |
+| q128 | `"was not found" "VCRUNTIME140_1.dll" OR "MSVCP140.dll" OR "api-ms-win-crt-runtime" fixed by installing` | Missing C++ runtime |
+| q129 | `"xinput1_3.dll" OR "d3dx9_43.dll" OR "MSVCR100.dll" "was not found" fixed by installing` | Missing DirectX or old runtime |
+| q130 | `"Application Popup" OR "System Error" "was not found" dll game won't start fixed` | Missing-file startup failures |
+| q131 | `".NET" "Application Error" "0xe0434352" "Exception info" fixed by` | .NET unhandled exceptions |
+| q132 | `site:answers.microsoft.com OR site:learn.microsoft.com/en-us/answers "bugcheck" "I fixed it by"` | Blue screens, Microsoft Q&A |
+| q133 | `site:forums.tomshardware.com "faulting module name" "fixed it" OR "problem solved"` | App crashes, Tom's Hardware |
+| q134 | `site:steamcommunity.com "Faulting module name" "fixed" crash discussion` | Game crashes, Steam |
+| q135 | `site:reddit.com "Faulting module name" "fixed it" OR "that fixed" crash` | App crashes, Reddit |
+| q136 | `site:reddit.com "rebooted from a bugcheck" "fixed" OR "solved"` | Blue screens, Reddit |
+| q137 | `site:github.com issues "Faulting module name" windows crash fixed by` | App crashes, GitHub issues |
+| q138 | `site:community.adobe.com OR site:dell.com/community "Faulting module name" fixed` | App crashes, vendor communities |
