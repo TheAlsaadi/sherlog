@@ -12,7 +12,7 @@
 | Gate 1 line (`plan.md` §7, as changed by ADR 0010) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 10 Confirmed or Likely answers, ≥ 80% of them correct, on ≥ 30 solved public cases (ADR 0012) | `gate-1b` (scored once, 30 cases): **2 answers, 2 correct (100%)**. Only 2 of 54 problems got a confident answer. Both `gate-1` and `gate-1b` are now development sets (ADR 0011, ADR 0013) | **Failing** (2 of the 10 answers needed); needs `gate-1c` |
+| ≥ 10 cases with a Confirmed or Likely answer, ≥ 80% of them correct, on ≥ 30 solved public cases (ADR 0012; counted per case since ADR 0014) | `gate-1b` (scored once, 30 cases): **2 answers, 2 correct (100%)**. Only 2 of 54 problems got a confident answer. Both `gate-1` and `gate-1b` are now development sets (ADR 0011, ADR 0013) | **Failing** (2 of the 10 answers needed); needs `gate-1c` |
 | No more than 1 wrong Confirmed | 0 (public cases and field bundles) | Passing so far |
 | No more than 40% of crashes Unclear, on ≥ 2 real PCs | 100% (24 of 24) on 1 PC; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
@@ -248,6 +248,8 @@ It was designed from `gate-1b`'s pattern, so `gate-1b` is now a **development se
   example by also reporting the result per PC.
 - **What it means for Gate 1.** Nothing yet. The rule has to be scored on `gate-1c`, a fresh set collected the same
   way, with no thread from `gate-1` or `gate-1b`.
+- **Decided: count per case** (ADR 0014). Scored that way, with labels as written, the development sets read `gate-1`
+  3 of 5 confident cases correct and `gate-1b` 2 of 9. Still development data, not a gate result.
 
 ## 4. Field bundles: 1 received, 0 counting
 

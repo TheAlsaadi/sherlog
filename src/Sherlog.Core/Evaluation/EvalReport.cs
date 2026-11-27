@@ -13,7 +13,18 @@ public sealed record EvalReport(
     int BundleCount,
     IReadOnlyList<UnreadableBundle> UnreadableBundles,
     FieldScore PublicCases,
-    int CaseCount);
+    int CaseCount,
+    CaseScore CaseLevel);
+
+/// <summary>
+/// Public cases scored once each, as one PC (ADR 0014): the figure Gate 1's accuracy line uses. A case is confident
+/// when any of its problems got Confirmed or Likely, and correct only when every one of those names its true cause.
+/// </summary>
+/// <param name="Cases">Cases with a counted label.</param>
+/// <param name="ConfidentCases">Of those, cases where Sherlog gave at least one Confirmed or Likely answer.</param>
+/// <param name="CorrectCases">Confident cases whose every Confirmed or Likely answer was right.</param>
+/// <param name="WrongConfirmedCases">Cases with at least one wrong Confirmed answer.</param>
+public sealed record CaseScore(int Cases, int ConfidentCases, int CorrectCases, int WrongConfirmedCases);
 
 /// <summary>A bundle or case file that was left out, and why (for example a hand-edited label.yaml with a mistake).</summary>
 public sealed record UnreadableBundle(string Path, string Reason);

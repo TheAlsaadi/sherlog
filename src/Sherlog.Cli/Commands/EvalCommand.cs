@@ -74,9 +74,17 @@ internal static class EvalCommand
         if (r.CaseCount > 0)
         {
             w.WriteLine();
-            w.WriteLine($"Public cases that count toward the gate: {r.PublicCases.QualifyingBundles} (gate needs 30).");
-            Accuracy(w, r.PublicCases, gateLine: true);
-            w.WriteLine($"  Wrong Confirmed: {r.PublicCases.WrongConfirmed}.");
+            // ADR 0014: the gate counts each case once, as one PC; per-problem figures are context.
+            var c = r.CaseLevel;
+            w.WriteLine($"Public cases that count toward the gate: {c.Cases} (gate needs 30).");
+            w.WriteLine($"  Correct: {c.CorrectCases} of {c.ConfidentCases} cases with a Confirmed or Likely answer ({Percent(c.CorrectCases, c.ConfidentCases)}; gate needs 80%, from at least 10 cases).");
+            w.WriteLine($"  Wrong Confirmed: {c.WrongConfirmedCases} cases.");
+            var g = r.PublicCases.GatePrecision;
+            w.WriteLine($"  By problem: {g.ConfidentCorrect} of {g.ConfidentDiagnoses} Confirmed or Likely diagnoses correct.");
+            foreach (var (strength, s) in r.PublicCases.ByStrength.OrderBy(kv => kv.Key, StringComparer.Ordinal))
+            {
+                w.WriteLine($"    {strength}: {s.ConfidentCorrect} of {s.ConfidentDiagnoses} correct; {s.Labeled} labeled.");
+            }
             w.WriteLine($"  Unclear: {r.PublicCases.UnclearGroups} of {r.PublicCases.Groups} problems (not a gate line for public cases).");
         }
 
@@ -95,7 +103,7 @@ internal static class EvalCommand
         }
 
         w.WriteLine();
-        w.WriteLine($"Wrong Confirmed in total: {r.PublicCases.WrongConfirmed + r.Field.WrongConfirmed} (gate allows 1).");
+        w.WriteLine($"Wrong Confirmed in total: {r.CaseLevel.WrongConfirmedCases + r.Field.WrongConfirmed} (gate allows 1).");
 
         if (r.Misses.Count > 0)
         {

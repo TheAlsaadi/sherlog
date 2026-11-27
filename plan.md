@@ -305,9 +305,9 @@ sherlog/
 - [ ] Collect and freeze a fresh set `tests/public-cases/gate-1c/` (at least 30 cases, no thread already used in `gate-1` or `gate-1b`, labeled with the new convention) and score Gate 1's accuracy line on it.
 
 ### Gate 1
-*Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs. Changed by ADR 0012: the accuracy line needs at least 10 confident answers.*
+*Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs. Changed by ADR 0012: the accuracy line needs at least 10 confident answers. Changed by ADR 0014: public cases are counted once each (one PC), not per problem.*
 - [x] **100%** of seeded crashes are read and matched correctly
-- [ ] At least **10** Confirmed or Likely diagnoses, and at least **80%** of them correct, on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported` (`gate-1b` scored 2 of 2, so it doesn't meet the 10; ADR 0013 added the mixed blue-screen rule, and the line now needs a fresh set, `gate-1c`)
+- [ ] At least **10** cases with a Confirmed or Likely answer, and at least **80%** of them correct (every confident answer in the case right; ADR 0014), on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported` (`gate-1b` scored 2 of 2, so it doesn't meet the 10; ADR 0013 added the mixed blue-screen rule, and the line now needs a fresh set, `gate-1c`)
 - [ ] **No more than 1** Confirmed diagnosis is wrong, across public cases and field bundles
 - [ ] No more than **40%** of crashes end up Unclear, counted over every crash Sherlog shows in field bundles from at least 2 real PCs, background live-kernel reports included (ADR 0009). Public cases don't count toward this share
 - [x] `sherlog explain` answers in under 5 seconds on a typical PC
