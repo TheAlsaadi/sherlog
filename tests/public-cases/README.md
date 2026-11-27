@@ -286,3 +286,20 @@ wording. Written before any of them was run. Same rules.
 | q224 | `forums.tomshardware.com [SOLVED] BSOD Curve Optimizer OR undervolt Ryzen WHEA fixed` | Hardware-error blue screens |
 | q225 | `forums.tomshardware.com [SOLVED] MEMORY_MANAGEMENT OR PAGE_FAULT_IN_NONPAGED_AREA RAM replaced fixed` | Memory blue screens |
 | q226 | `forums.tomshardware.com [SOLVED] IRQL_NOT_LESS_OR_EQUAL RAM OR driver fixed` | Driver blue screens |
+
+### Added 2026-11-27 for `gate-1b`: more Tom's Hardware solved threads by fix wording (q227–q236)
+
+q101–q226 gave 26 cases from about 665 threads, still short of 30. Written before any of these were run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q227 | `forums.tomshardware.com [SOLVED] BSOD RMA CPU OR GPU OR motherboard "no more BSOD"` | Blue screens |
+| q228 | `forums.tomshardware.com [SOLVED] BSOD chipset driver fixed WHEA OR clock watchdog` | Hardware-error blue screens |
+| q229 | `forums.tomshardware.com [SOLVED] GPU RMA new card fixed nvlddmkm OR atikmpag BSOD` | Graphics blue screens |
+| q230 | `forums.tomshardware.com [SOLVED] BIOS update fixed random restart OR BSOD Ryzen OR Intel` | Unexpected shutdowns, blue screens |
+| q231 | `forums.tomshardware.com [SOLVED] Intel 13th OR 14th gen crashes 0xc0000005 OR BSOD voltage microcode fixed` | App crashes, blue screens |
+| q232 | `forums.tomshardware.com [SOLVED] Windows 11 BSOD 24H2 driver fixed` | Driver blue screens |
+| q233 | `forums.tomshardware.com [SOLVED] SATA cable OR power cable OR RAM slot BSOD fixed` | Blue screens |
+| q234 | `forums.tomshardware.com [SOLVED] antivirus OR Malwarebytes OR Norton uninstalled BSOD fixed` | Security-software blue screens |
+| q235 | `forums.tomshardware.com [SOLVED] MSI Afterburner OR RTSS OR Razer OR iCUE uninstalled BSOD OR crash fixed` | Overlay and tuning-tool crashes |
+| q236 | `forums.tomshardware.com [SOLVED] hibernation OR fast startup disabled BSOD OR crash fixed` | Blue screens, shutdowns |
