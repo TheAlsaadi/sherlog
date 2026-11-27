@@ -180,3 +180,26 @@ sites where posters more often report back (Tom's Hardware solved threads, Steam
 | q158 | `"was not found" "VCRUNTIME140.dll" OR "MSVCP140.dll" game "that worked" OR "problem solved"` | Missing runtime |
 | q159 | `"Application Hang" "Event 1002" "turned out to be" OR "solved" fixed` | App hangs |
 | q160 | `"Faulting module name" "0xc0000005" "turned out to be" OR "culprit was" crash` | App crashes |
+
+### Added 2026-11-27 for `gate-1b`: more Tom's Hardware solved-thread searches (q161–q175)
+
+q139–q147 found that Tom's Hardware threads, where posters tend to report back, qualified more often than other sites.
+These variations were written before any of them was run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q161 | `forums.tomshardware.com [SOLVED] "stopped responding" nvlddmkm replaced OR rolled back` | Graphics driver resets |
+| q162 | `forums.tomshardware.com [SOLVED] random shutdown power supply replaced fixed` | Unexpected shutdowns |
+| q163 | `forums.tomshardware.com [SOLVED] BSOD "new RAM" OR "bad RAM" fixed` | Memory blue screens |
+| q164 | `forums.tomshardware.com [SOLVED] BSOD graphics driver rollback fixed` | Driver blue screens |
+| q165 | `forums.tomshardware.com [SOLVED] BSOD XMP OR overclock disabled fixed` | Overclock-related blue screens |
+| q166 | `forums.tomshardware.com [SOLVED] game crashes to desktop "Application Error" event viewer` | App crashes |
+| q167 | `forums.tomshardware.com [SOLVED] LiveKernelEvent OR "event 141"` | Live-kernel reports |
+| q168 | `forums.tomshardware.com [SOLVED] 0xc0000005 crash overclock OR undervolt OR XMP` | App crashes |
+| q169 | `forums.tomshardware.com [SOLVED] amdkmdag OR atikmpag black screen driver timeout` | AMD driver resets |
+| q170 | `forums.tomshardware.com [SOLVED] WHEA Logger 0x124 CPU voltage OR BIOS` | Hardware-error blue screens |
+| q171 | `forums.tomshardware.com [SOLVED] CLOCK_WATCHDOG_TIMEOUT OR DPC_WATCHDOG_VIOLATION` | Watchdog blue screens |
+| q172 | `forums.tomshardware.com [SOLVED] "VCRUNTIME140" OR "MSVCP140" OR "xinput1_3" missing` | Missing runtime |
+| q173 | `forums.tomshardware.com [SOLVED] application "not responding" freezing "event 1002" OR hang` | App hangs |
+| q174 | `forums.tomshardware.com [SOLVED] SYSTEM_THREAD_EXCEPTION_NOT_HANDLED OR KMODE_EXCEPTION_NOT_HANDLED` | Driver blue screens |
+| q175 | `forums.tomshardware.com [SOLVED] UNEXPECTED_STORE_EXCEPTION OR "INACCESSIBLE_BOOT_DEVICE" OR NTFS_FILE_SYSTEM` | Disk-related blue screens |
