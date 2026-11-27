@@ -1,16 +1,17 @@
 # Gate 1: Prove it (draft)
 
-- **Status:** In progress. Seeded crashes and timing pass. The first set of public cases is scored and **fails** the
-  accuracy line (56%, and only 17 of the 30 cases needed).
-- **Waiting on:** a fresh case set (`gate-1` became a development set when ADR 0011 changed recipes from its misses),
-  an owner decision on whether 30 cases stays the target, and a second real PC's bundle for the Unclear share.
+- **Status:** In progress. Seeded crashes and timing pass. The fresh public set `gate-1b` (30 cases) is scored: the
+  accuracy line **passes as written (2 of 2 confident answers correct), but that rests on only two answers**, because
+  Sherlog said Unclear for 52 of 54 problems. The first set (`gate-1`, 56%) is now a development set.
+- **Waiting on:** an owner decision on whether the accuracy line needs a minimum number of confident answers (see the
+  `gate-1b` section), and a second real PC's bundle for the Unclear share.
 
 ## Gate checks
 
 | Gate 1 line (`plan.md` §7, as changed by ADR 0010) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 80% of Confirmed and Likely correct on ≥ 30 solved public cases | 5 of 9 correct (56%) on 17 cases | **Failing** |
+| ≥ 80% of Confirmed and Likely correct on ≥ 30 solved public cases | `gate-1b` (frozen, 30 cases): **2 of 2 correct (100%)**. Only 2 of 54 problems got a confident answer. `gate-1` (development set): 56% before ADR 0011, 67% after | **Passed on paper, thin** (2 answers) |
 | No more than 1 wrong Confirmed | 0 (public cases and field bundles) | Passing so far |
 | No more than 40% of crashes Unclear, on ≥ 2 real PCs | 100% (24 of 24) on 1 PC; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
@@ -104,6 +105,97 @@ to Unclear, and their fixes now cover overclocks, heat and memory. Re-running `e
   because that recipe's summary names their causes. The labels here stay as written.
 
 `gate-1` is a development set from here on (`tests/public-cases/README.md`), so this isn't a gate result.
+
+## 3b. Solved public cases (`gate-1b`): 30 cases, 2 of 2 confident answers correct
+
+The fresh set for the accuracy line (ADR 0010, after ADR 0011 made `gate-1` a development set). Collected on
+2026-11-27 with the fixed searches in `tests/public-cases/README.md`. The list q101–q138 was committed before any
+search ran; every later batch (q139–q240) was committed before it was run. Labels were written and committed
+(`gate-1b: 30 solved public cases with labels, written before scoring`) before `sherlog eval` was first run on the set.
+No recipe, code or `gate-1` file was changed.
+
+### How it was collected
+
+| | |
+|---|---|
+| Searches written / run | 140 (q101–q240) / 134. Never run: q151, q155, q158, q188, q190, q210 |
+| Threads opened or attempted | about 730; about 50 couldn't be read (blocked, 403/404, empty page, wrong page) |
+| Cases that met the three rules | **30**, so about 4 threads in 100 (the first pass found 1 in 18) |
+| Label strength | 5 `confirmed-by-fix`, 25 `owner-reported` |
+| Sources | Tom's Hardware forums 16, Microsoft Q&A and Tech Community 9, Steam 2, Dell 1, Adobe 1, GOG 1 |
+
+- Collecting stopped at 30, the minimum the gate asks for, with about 270 of the 1000 allowed reads unused.
+- Threads were read by sub-agents that were told to read every page and answer NO unless the original poster, not a
+  helper, said one change stopped the crash. Several long pages came back partly summarized by the fetch tool; the
+  yes-cases rest on the posters' own posts as reported, so a few details (for example a stop code) may be slightly off.
+- **The bar I applied** (the three ADR 0010 rules): the post shows a recorded fact; the poster reports the result as a
+  fact (not "maybe", "for now", "so far today"); one change, not several at once; no Windows reinstall; no fix that
+  later failed. Several dozen near-misses were left out on that bar, for example a poster who credited a CPU swap done
+  together with a motherboard swap, or a fix that held one evening. A looser bar would have reached 30 sooner but
+  every case on it is a judgment call, so the cases here lean to the clear ones.
+- Medium-confidence cases kept: pc-1007 and pc-1009 (a power-supply swap happened around the same time), pc-1016
+  (motherboard swapped after a power-supply swap failed), pc-1021, pc-1026 and pc-1027 (a processor replaced after other
+  swaps), pc-1015 (XMP off, only 6 hours reported), pc-1018 and pc-1020 (posters' own answers, no duration).
+- Where Windows records only a family of stop codes, the posts name them in words; they were turned into their usual
+  hex codes (for example IRQL_NOT_LESS_OR_EQUAL as `0x0000000a`).
+
+### Result (2026-11-27)
+
+`sherlog eval tests/public-cases/gate-1b`:
+
+| Measure | Result |
+|---|---|
+| Cases | 30 (gate needs 30) |
+| Problems (groups of crashes) | 54 |
+| Confirmed or Likely correct | **2 of 2 (100%)**, gate needs 80% |
+| By label strength | confirmed-by-fix 0 of 0; owner-reported 2 of 2 |
+| Wrong Confirmed | 0 |
+| Unclear (not a gate line here) | 52 of 54 problems (96%) |
+
+The two confident answers: **pc-1006** (the Cyberpunk launcher missing `MSVCP140_1.dll`, `runtime-vcredist-missing`)
+and **pc-1022** (stop code 0x124, fixed by a new power supply, `bsod-whea-uncorrectable-error`). Both were correct.
+
+### Misses
+
+Confident and wrong: **none**. Every other problem was Unclear. The cases are listed by what fixed them, with what
+Sherlog could and couldn't name:
+
+| What fixed it | Cases | What Sherlog could name |
+|---|---|---|
+| A replaced part: memory (6) | pc-1004, 1007, 1008, 1009, 1013, 1029 | Only 0x1A, 0x50 and 0x124 stop codes point at memory, and those are Unclear. A graphics reset (pc-1004) came out as an NVIDIA driver reset, Unclear |
+| A replaced part: processor (4) | pc-1001, 1021, 1026, 1027 | Nothing names a processor except 0x124 |
+| A replaced part: motherboard (2), power supply (1), graphics card (1) | pc-1016, 1024, 1022 (confident, right), 1028 | Kernel-Power 41 alone says nothing about the part |
+| A BIOS, memory or processor setting (6) | pc-1002, 1014, 1015, 1018, 1019, 1020 | No recipe covers a setting that isn't an overclock stop code |
+| Software: a driver, overlay, antivirus, app build or service pack (9) | pc-1003, 1005, 1010, 1011, 1012, 1017, 1023, 1025, 1030 | Overlay and antivirus recipes are for named products (not GOG Galaxy or Avast on a 0x12B); app crashes in core Windows files stay Unclear |
+| Missing Visual C++ file (1) | pc-1006 | Likely, correct |
+
+For 6 of the 52 Unclear problems the matching recipe agreed with the label even though it said Unclear: pc-1007,
+pc-1008 and pc-1009 (0x50, memory), pc-1025 (0xA, driver), and one group each in pc-1005 (0x139) and pc-1013 (0x1A).
+Counting those would not change the gate line, which scores only Confirmed and Likely.
+
+Labels, by recipe: `bsod-whea-uncorrectable-error` 9 (processor, motherboard or power-supply fixes, an overclock),
+`bsod-memory-management` 5, `bsod-page-fault-in-nonpaged-area` 3, one each for `bsod-kernel-security-check-failure`,
+`bsod-irql-not-less-or-equal`, `runtime-vcredist-missing` and `security-avast-avg-aswhook`, and 9 `none:` labels. Under
+ADR 0011's convention, eight of the nine 0x124 labels sit on cases whose records have no 0x124 code, so Sherlog could
+never say that recipe there; it doesn't affect the accuracy line, which only counts confident answers.
+
+### What it shows
+
+- **The accuracy line passes, and it tells us almost nothing.** Two confident answers, both right. After ADR 0011
+  Sherlog says Unclear for 96% of these problems, so the line mostly rewards staying quiet. On `gate-1` the same
+  rules gave 4 of 6. The owner should decide whether the line needs a minimum number of confident answers
+  (for example 10), or whether the Phase 1 "Likely only when the record narrows the cause" stance means this is the
+  expected cost.
+- **Most fixes in solved threads are hardware or settings, not software.** 14 of 30 were a replaced part and 6 a
+  BIOS or tuning setting. The records Windows keeps rarely tell those apart from a driver problem, which is why they
+  come out Unclear.
+- **Where Sherlog could be useful next** (each would need its own recipe rule and examples, and nothing is changed
+  here): a Kernel-Power 41 with no stop code and a fix menu that includes the BIOS and power settings; blue screens
+  with many different stop codes in one PC (pc-1005, 1013, 1014, 1021, 1024, 1026, 1027) pointing at hardware, which is
+  the pattern the ADR 0011 note suggested.
+- **`gate-1b` is frozen when this PR merges.** Cases aren't edited afterwards except to fix a copying mistake, and each
+  such fix is listed here. If recipes change because of these misses, it becomes a development set and the gate needs
+  `gate-1c`.
 
 ## 4. Field bundles: 1 received, 0 counting
 

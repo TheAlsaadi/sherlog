@@ -12,6 +12,7 @@ dotnet run --project src/Sherlog.Cli -- eval tests/public-cases/gate-1
 | Folder | Status | Use |
 |---|---|---|
 | `gate-1/` | **Development set** since 2026-11-27: scored at 56%, then recipes were changed from its misses (ADR 0011) | For checking recipe changes only. Gate 1's accuracy line needs a fresh set |
+| `gate-1b/` | **Frozen** when merged (2026-11-27): 30 cases, labeled before scoring, scored once (2 of 2 confident answers correct; see `docs/gates/phase-1.md`) | Gate 1's accuracy line. Not edited except to fix a copying mistake; any fix is listed in the gate file |
 
 ## Labeling convention (from the next set on, ADR 0011)
 
@@ -314,3 +315,11 @@ Written before any of them were run, and before q232 and q236 (already listed ab
 | q238 | `forums.tomshardware.com [SOLVED] laptop BSOD Dell OR HP OR Lenovo OR Asus fixed` | Laptop blue screens |
 | q239 | `forums.tomshardware.com [SOLVED] ntdll.dll OR KERNELBASE.dll crash fixed game` | App crashes |
 | q240 | `forums.tomshardware.com [SOLVED] dxgkrnl OR dxgmms2 OR "video scheduler" BSOD fixed` | Graphics blue screens |
+
+### What was run for `gate-1b`
+
+Of the searches listed above (q101–q240), q151, q155, q158, q188, q190 and q210 were written but never run. The others
+were run in standard mode, and a number also in extended mode. About 730 threads were opened or attempted, and 30 met
+the rules. Cases `pc-1001` to `pc-1030` are in `gate-1b/`; `query` names the search whose results first showed the
+thread. Labels follow the convention above, taken literally: a replaced processor, motherboard or power supply is
+labeled with the 0x124 recipe, whose summary names "a faulty part", and a memory fix with the memory recipe.

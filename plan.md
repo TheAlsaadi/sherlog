@@ -300,7 +300,7 @@ sherlog/
 - [ ] Claude Code investigates each bundle, fills the investigator section from the owner's answers and the evidence, and asks the owner a follow-up a week later where a fix was tried, to upgrade labels to `confirmed-by-fix`.
 - [x] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
 - [x] `sherlog eval` also reads public case files (`*.yaml`) and reports them apart from bundles (ADR 0010).
-- [ ] Collect and freeze the first set of solved public cases (`tests/public-cases/gate-1/`).
+- [x] Collect and freeze the first set of solved public cases (`tests/public-cases/gate-1/`, then the fresh set `tests/public-cases/gate-1b/` with 30 cases).
 
 ### Gate 1
 *Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs.*
