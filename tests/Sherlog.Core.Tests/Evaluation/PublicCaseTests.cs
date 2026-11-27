@@ -163,6 +163,35 @@ public sealed class PublicCaseTests : IDisposable
     }
 
     [Fact]
+    public void Gate_counts_each_case_once_and_right_only_if_every_confident_answer_is_right()
+    {
+        // ADR 0014: one PC with several problems is one answer to the person, right or wrong as a whole.
+        const string overlay = """
+              - source: application-error
+                app_name: SherlogTestGame.exe
+                faulting_module: FakeOverlay64.dll
+                exception_code: "0xc0000005"
+            """;
+        var right = Write("pc-0001.yaml", NvidiaCase);
+        var partlyWrong = Write("pc-0005.yaml", NvidiaCase
+            .Replace("id: pc-0001", "id: pc-0005", StringComparison.Ordinal)
+            .Replace("    days: 3", "    days: 3\n" + overlay.TrimEnd(), StringComparison.Ordinal));
+        var wrong = Write("pc-0006.yaml", NvidiaCase
+            .Replace("id: pc-0001", "id: pc-0006", StringComparison.Ordinal)
+            .Replace("true_cause: nvidia", "true_cause: none:faulty-power-supply", StringComparison.Ordinal));
+        var unclear = Write("pc-0004.yaml", NvidiaCase
+            .Replace("id: pc-0001", "id: pc-0004", StringComparison.Ordinal)
+            .Replace("faulting_module: nvlddmkm", "faulting_module: SomeOtherDriver", StringComparison.Ordinal));
+        Assert.Equal(2, PublicCaseFile.Load(partlyWrong).Crashes.Count);
+
+        var report = Evaluator.Evaluate([], Recipes, [right, partlyWrong, wrong, unclear]);
+
+        Assert.Equal(new CaseScore(Cases: 4, ConfidentCases: 3, CorrectCases: 1, WrongConfirmedCases: 1), report.CaseLevel);
+        // By problem, the partly wrong case adds two confident answers, one of them right.
+        Assert.Equal(new StrengthScore(Labeled: 5, ConfidentDiagnoses: 4, ConfidentCorrect: 2), report.PublicCases.GatePrecision);
+    }
+
+    [Fact]
     public void Unreadable_case_files_are_listed_not_fatal()
     {
         var good = Write("pc-0001.yaml", NvidiaCase);

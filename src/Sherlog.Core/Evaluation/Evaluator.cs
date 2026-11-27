@@ -28,6 +28,7 @@ public static class Evaluator
         var field = new Tally(misses);
         var cases = new Tally(misses);
         int seededLabeled = 0, seededCorrect = 0, bundles = 0, caseCount = 0;
+        int countedCases = 0, confidentCases = 0, correctCases = 0, wrongConfirmedCases = 0;
 
         foreach (var path in bundlePaths)
         {
@@ -96,6 +97,16 @@ public static class Evaluator
             var diagnoses = diagnoser.DiagnoseAll(CrashGrouper.Group(c.ToCrashes(CaseEnd)));
             var label = new CrashLabel(null, null, c.TrueCause, c.Evidence, c.LabelStrength);
             cases.Score(Path.GetFileName(path), diagnoses, [(label, diagnoses.ToList())]);
+
+            // ADR 0014: the person gets one answer per PC, so the gate counts the case once.
+            if (CountedStrengths.Contains(c.LabelStrength))
+            {
+                var confident = diagnoses.Where(d => d.Confidence is ConfidenceLevel.Confirmed or ConfidenceLevel.Likely).ToList();
+                countedCases++;
+                confidentCases += confident.Count > 0 ? 1 : 0;
+                correctCases += confident.Count > 0 && confident.All(d => d.Recipe?.Id == c.TrueCause) ? 1 : 0;
+                wrongConfirmedCases += confident.Any(d => d.Confidence == ConfidenceLevel.Confirmed && d.Recipe?.Id != c.TrueCause) ? 1 : 0;
+            }
         }
 
         return new EvalReport(
@@ -105,7 +116,8 @@ public static class Evaluator
             bundles,
             unreadable,
             cases.Result(),
-            caseCount);
+            caseCount,
+            new CaseScore(countedCases, confidentCases, correctCases, wrongConfirmedCases));
     }
 
     // A label names its crash group by id, or by app name (every group whose latest crash is that app).
