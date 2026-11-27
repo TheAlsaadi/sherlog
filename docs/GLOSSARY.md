@@ -34,6 +34,9 @@ _Avoid_: Score, probability
 A reviewed library entry that says which evidence points to a cause, how confident a match is, how to explain it, and which fixes to offer. It never contains code or commands.
 _Avoid_: Rule, script, signature
 
+**Pattern recipe**:
+A recipe that looks across all of a PC's blue screens instead of one crash group, for example "3 or more different stop codes within 30 days" (ADR 0013). When it holds, it explains every blue screen in that window.
+
 **Fix**:
 A named set of actions inside a recipe, with a risk level (**Safe**, **Moderate** or **Advanced**) and a way to check afterwards that the problem went away.
 _Avoid_: Repair, solution

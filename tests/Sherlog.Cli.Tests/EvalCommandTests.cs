@@ -94,7 +94,7 @@ public sealed class EvalCommandTests : IDisposable
         var text = cli.Out.ToString();
         Assert.Contains("Evaluated 0 bundles and 1 public case.", text);
         Assert.Contains("Public cases that count toward the gate: 1 (gate needs 30).", text);
-        Assert.Contains("Correct: 1 of 1 Confirmed or Likely diagnoses (100%; gate needs 80%).", text);
+        Assert.Contains("Correct: 1 of 1 Confirmed or Likely diagnoses (100%; gate needs 80%, from at least 10 of them).", text);
         Assert.Contains("Field bundles: none.", text);
     }
 }

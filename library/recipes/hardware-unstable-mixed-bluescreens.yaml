@@ -1,0 +1,61 @@
+id: hardware-unstable-mixed-bluescreens
+version: 1
+title: Blue screens with many different stop codes (unstable hardware or settings)
+category: bluescreen
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/stop-error-or-blue-screen-error-troubleshooting
+  - https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-checks--blue-screens-
+  - https://www.dell.com/support/article/en-us/sln179253/how-to-troubleshoot-blue-screen-or-stop-error-code-on-a-dell-computer
+
+# LIKELY (ADR 0011, ADR 0013): what narrows the cause is the mix. A faulty driver usually fails the same way, so its
+# blue screens repeat one stop code; unstable memory, an overclock or boost setting, a failing power supply or
+# motherboard corrupt whatever code is running, so each blue screen looks different. Microsoft: hardware problems
+# "may cause erratic and unpredictable behavior"; its steps are BIOS/firmware updates and hardware and memory tests.
+# It doesn't say which part, and a driver can still do this, so there is no confirmed_when (the schema refuses one).
+# Only blue screens count: not live-kernel reports, and not Kernel-Power 41 with stop code 0.
+pattern:
+  distinct_stop_codes: { count: 3, days: 30 }
+
+confidence:
+  default: likely
+
+diagnosis:
+  summary: "Your PC had blue screens with 3 or more different stop codes. That usually means unstable hardware or settings, such as memory, an overclock, the power supply or the BIOS."
+  details: "A faulty driver usually crashes the same way each time. When the stop code keeps changing, the cause is more often something every part of Windows depends on: memory that has errors or runs at XMP or EXPO speeds it can't hold, a processor overclock or automatic boost, overheating, a weak power supply, or a motherboard or BIOS problem. A driver or security app can still cause it, so Sherlog can't say which part it is."
+
+fixes:
+  - id: reset-overclock-and-xmp
+    risk: advanced
+    explain: "If you overclocked or undervolted your processor or graphics card, or turned on XMP, EXPO or Precision Boost Overdrive, set them back to default in the BIOS and see whether the blue screens stop."
+    actions:
+      - action: show_guidance
+        params: { guide: reset-overclock-and-xmp }
+  - id: test-memory
+    risk: safe
+    explain: "Run Windows Memory Diagnostic to check whether your RAM is faulty. If you have more than one memory stick, trying them one at a time can show which one is bad."
+    actions:
+      - action: show_guidance
+        params: { guide: windows-memory-diagnostic }
+  - id: check-temperatures
+    risk: safe
+    explain: "Check that your fans spin and that your processor and graphics card aren't overheating under load. Cleaning dust out of the PC can help."
+    actions:
+      - action: show_guidance
+        params: { guide: check-pc-temperatures }
+  - id: check-power-supply
+    risk: safe
+    explain: "Check that your power supply is strong enough for your graphics card and processor and that its cables are firmly in. If the blue screens go on, trying another power supply can rule it out."
+    actions:
+      - action: show_guidance
+        params: { guide: check-power-supply }
+
+# One PC: these blue screens are diagnosed together (ADR 0013).
+examples:
+  - source: bugcheck
+    bugcheck_code: "0x0000000a"
+  - source: bugcheck
+    bugcheck_code: "0x0000003b"
+  - source: bugcheck
+    bugcheck_code: "0x00000050"
+  - source: kernel-power
+    bugcheck_code: "0x00000139"

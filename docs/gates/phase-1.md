@@ -1,17 +1,18 @@
 # Gate 1: Prove it (draft)
 
-- **Status:** In progress. Seeded crashes and timing pass. The fresh public set `gate-1b` (30 cases) is scored: 2 of 2
-  confident answers correct, but Sherlog said Unclear for 52 of 54 problems. ADR 0012 now requires at least 10
-  confident answers, so the accuracy line **does not pass yet**. The first set (`gate-1`, 56%) is a development set.
-- **Waiting on:** recipes that can answer confidently and correctly more often (without undoing ADR 0011), then a fresh
-  frozen set (`gate-1c`); and a second real PC's bundle for the Unclear share.
+- **Status:** In progress. Seeded crashes and timing pass. The public set `gate-1b` was scored once: 2 of 2
+  confident answers correct, but Sherlog said Unclear for 52 of 54 problems. ADR 0012 requires at least 10
+  confident answers, so the accuracy line **does not pass yet**. ADR 0013 then added a rule for blue screens with many
+  different stop codes, designed from `gate-1b`'s misses, so both `gate-1` and `gate-1b` are now development sets.
+- **Waiting on:** a fresh frozen set (`gate-1c`) to score the accuracy line; and a second real PC's bundle for the
+  Unclear share.
 
 ## Gate checks
 
 | Gate 1 line (`plan.md` §7, as changed by ADR 0010) | Result | Status |
 |---|---|---|
 | 100% of seeded crashes read and matched | 4 of 4 | Passed |
-| ≥ 10 Confirmed or Likely answers, ≥ 80% of them correct, on ≥ 30 solved public cases (ADR 0012) | `gate-1b` (frozen, 30 cases): **2 answers, 2 correct (100%)**. Only 2 of 54 problems got a confident answer. `gate-1` (development set): 56% before ADR 0011, 67% after | **Failing** (2 of the 10 answers needed) |
+| ≥ 10 Confirmed or Likely answers, ≥ 80% of them correct, on ≥ 30 solved public cases (ADR 0012) | `gate-1b` (scored once, 30 cases): **2 answers, 2 correct (100%)**. Only 2 of 54 problems got a confident answer. Both `gate-1` and `gate-1b` are now development sets (ADR 0011, ADR 0013) | **Failing** (2 of the 10 answers needed); needs `gate-1c` |
 | No more than 1 wrong Confirmed | 0 (public cases and field bundles) | Passing so far |
 | No more than 40% of crashes Unclear, on ≥ 2 real PCs | 100% (24 of 24) on 1 PC; counted over every crash (ADR 0009) | Pending |
 | `sherlog explain` under 5 s on a typical PC | Median 2.40 s (dev PC), 3.12 s (owner's laptop) | Passed |
@@ -195,6 +196,58 @@ never say that recipe there; it doesn't affect the accuracy line, which only cou
 - **`gate-1b` is frozen when this PR merges.** Cases aren't edited afterwards except to fix a copying mistake, and each
   such fix is listed here. If recipes change because of these misses, it becomes a development set and the gate needs
   `gate-1c`.
+
+### Found after scoring (2026-11-27)
+
+No case file was changed for either point.
+
+- **A duplicate thread.** pc-1004 (`learn.microsoft.com/en-us/answers/a/6975849`) is an answer link inside the same
+  Microsoft Q&A question as `gate-1`'s pc-0001 (`…/answers/questions/4155833/…`). The URL check didn't catch it,
+  because the links differ. So `gate-1b` has **29 independent cases**, one short of the 30 the gate asks for. The
+  collecting rules now compare threads, not links (`tests/public-cases/README.md`).
+- **Labels that misapplied the old wording.** ADR 0011 said `true_cause` is "the recipe whose summary names the
+  cause", and didn't say the recipe must also fit the crash. Taken literally, **13 of the 21 recipe labels** name a
+  recipe whose match can't fit the case's crashes, so Sherlog could never give that answer there:
+  - `bsod-whea-uncorrectable-error` (0x124) on cases with no 0x124: pc-1001 (an app crash), 1014, 1016 (Kernel-Power
+    41 with no code), 1019 (app crashes), 1021, 1024, 1026, 1027;
+  - `bsod-memory-management` (0x1A) on cases with no 0x1A: pc-1004 (display resets), 1015 (app crashes), 1020 (0x12B),
+    1029 (0x7E and 0x139);
+  - `security-avast-avg-aswhook` (an app crash in an Avast file) on pc-1030 (a 0x12B blue screen).
+
+  The README's labeling convention now requires both: the recipe fits the kind of crash recorded, and its summary
+  names the cause. Otherwise the label is `none:<name>`. This doesn't change the accuracy line's result on
+  `gate-1b`, which counts confident answers only, but it would have changed which answers count as right.
+
+## 3c. Mixed blue-screen rule (ADR 0013): development, not a gate result
+
+ADR 0013 lets a recipe look across all of a PC's blue screens. The first such recipe,
+`hardware-unstable-mixed-bluescreens`, says Likely when the PC's blue screens within 30 days (ending at the latest
+one) have **at least 3 different non-zero stop codes**, and then explains every blue screen in that window. Live-kernel
+reports and Kernel-Power 41 with code 0 don't count, and it never reaches Confirmed.
+
+It was designed from `gate-1b`'s pattern, so `gate-1b` is now a **development set**, like `gate-1`. These numbers are
+`sherlog eval` runs on development sets, **not a gate result**:
+
+| | `gate-1` before | `gate-1` after | `gate-1b` before | `gate-1b` after |
+|---|---|---|---|---|
+| Confirmed or Likely correct, labels as written | 4 of 6 (67%) | 4 of 9 (44%) | 2 of 2 (100%) | 2 of 28 (7%) |
+| Wrong Confirmed | 0 | 0 | 0 | 0 |
+| Unclear problems | 16 of 22 | 13 of 22 | 52 of 54 | 26 of 54 |
+
+- **Why "after" looks worse.** Every new answer is counted as wrong, because the labels were written before the
+  recipe existed and name a single-code recipe or a `none:` cause. The labels stay as written (ADR 0010).
+- **Read by what fixed it** (informal, the case files aren't changed): the rule answered for 7 `gate-1b` PCs (pc-1005,
+  1013, 1014, 1021, 1024, 1026, 1027) and 1 `gate-1` PC (pc-0016). Seven of the eight were fixed by hardware or a BIOS
+  setting: new memory, a processor, a motherboard, a power supply, or boost turned off. **pc-1005 was not**: going back
+  to an older AMD graphics driver fixed it, so the rule was wrong there. pc-1029 (2 stop codes, new memory) and pc-0017
+  (2 codes, Norton) stay out, as designed. Under the new labeling convention `gate-1b` would read 24 of 28 (86%) and
+  `gate-1` 8 of 9, but that relabeling is after the fact, so it is no evidence for the gate.
+- **The answers come in bunches.** The gate counts problems (crash groups), and one PC with 4 different stop codes is
+  4 confident answers, right or wrong together. On `gate-1b` the rule's 26 answers come from 7 PCs. On `gate-1c`, 3
+  such PCs could reach the 10-answer floor on their own. That is worth deciding on before `gate-1c` is scored, for
+  example by also reporting the result per PC.
+- **What it means for Gate 1.** Nothing yet. The rule has to be scored on `gate-1c`, a fresh set collected the same
+  way, with no thread from `gate-1` or `gate-1b`.
 
 ## 4. Field bundles: 1 received, 0 counting
 

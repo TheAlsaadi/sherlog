@@ -55,7 +55,8 @@ This is a shortened version of the real recipe in `library/recipes/`.
 | `category` | yes | `crash`, `hang`, `driver-reset`, `bluescreen`, `shutdown` or `missing-file`. |
 | `references` | yes | At least one `https://` link supporting the cause and the fixes: vendor docs, Microsoft Learn, or a widely cited bug report. |
 | `priority` | no | 1–1000, default 100. Lower wins a tie (see "Which recipe wins"). Broad fallback recipes use a high number. |
-| `match.any` | yes | One or more conditions. The recipe matches a crash when **any one** condition holds. |
+| `match.any` | yes, unless `pattern` | One or more conditions. The recipe matches a crash when **any one** condition holds. |
+| `pattern` | no | A pattern across all of a PC's blue screens, used **instead of** `match` (see "Patterns across a PC"). |
 | `confidence.default` | yes | `likely` or `unclear`. Never `confirmed`: confirmation has to be earned. |
 | `confidence.confirmed_when` | no | Rules that raise the diagnosis to Confirmed (see below). |
 | `diagnosis.summary` | yes | What happened, in one plain sentence a non-technical person understands. A short second sentence may say how sure we are or name the common causes ("Windows doesn't record which driver."). Under 200 characters. Use "app" for programs in general and "game" only in game-specific recipes; say "blue screen", "graphics driver", "processor" and "memory" rather than technical names. |
@@ -102,6 +103,30 @@ A field with a wildcard counts the same as an exact one, so `nv*.dll` and `nvwgf
 - An **Unclear** recipe stays Unclear however often the crash repeats: repeats make a problem more certain, not its cause.
 - A crash group no recipe matches is **Unclear**. Sherlog still says what it knows: the app, the file that failed, the error code and how often it happened.
 
+### Patterns across a PC
+
+Some causes show only across several crash groups. A recipe with a `pattern` block instead of `match` looks at all the
+blue screens on the PC ([ADR 0013](adr/0013-pc-level-pattern-for-mixed-blue-screens.md)):
+
+```yaml
+category: bluescreen
+pattern:
+  distinct_stop_codes: { count: 3, days: 30 }
+```
+
+- **Blue screens** are `bugcheck` records, `kernel-power` records with a non-zero stop code and Reliability Monitor
+  blue-screen rows. Live-kernel reports (`wer`) and Kernel-Power 41 with stop code 0 aren't blue screens and don't
+  count.
+- The pattern holds when the blue screens within `days` days, ending at the PC's most recent blue screen, have at
+  least `count` **different** non-zero stop codes (`count` 3–20, `days` 1–90). Repeats of one code count once.
+- When it holds, the recipe explains **every** blue-screen group with a crash in that window, and it wins over
+  single-code recipes. Other groups are diagnosed as usual. Between pattern recipes, the lower `priority`, then the
+  `id`, wins.
+- A pattern recipe has `category: bluescreen` and no `confirmed_when`: the pattern already uses the repeats, so it can
+  say Likely at most.
+- Its `examples` together describe one PC: each entry is one blue screen. The library test diagnoses them all
+  together and checks every group lands on the recipe, so list at least `count` different stop codes.
+
 ### Fixes
 
 | Field | What it is |
@@ -115,7 +140,7 @@ A field with a wildcard counts the same as an exact one, so `nv*.dll` and `nvwgf
 
 ### Examples
 
-Each entry under `examples` is the evidence of one crash this recipe must explain: a `source` plus the fields Windows would record (no wildcards). A test diagnoses every example against the **whole** library and fails if it lands on a different recipe or none. If your new recipe overlaps an existing one, that test tells you in your pull request.
+Each entry under `examples` is the evidence of one crash this recipe must explain: a `source` plus the fields Windows would record (no wildcards). A test diagnoses every example against the **whole** library and fails if it lands on a different recipe or none. If your new recipe overlaps an existing one, that test tells you in your pull request. A pattern recipe's examples are diagnosed together, as one PC (see "Patterns across a PC").
 
 ## Checking a recipe
 

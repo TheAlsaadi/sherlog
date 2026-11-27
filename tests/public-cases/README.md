@@ -12,13 +12,26 @@ dotnet run --project src/Sherlog.Cli -- eval tests/public-cases/gate-1
 | Folder | Status | Use |
 |---|---|---|
 | `gate-1/` | **Development set** since 2026-11-27: scored at 56%, then recipes were changed from its misses (ADR 0011) | For checking recipe changes only. Gate 1's accuracy line needs a fresh set |
-| `gate-1b/` | **Frozen** when merged (2026-11-27): 30 cases, labeled before scoring, scored once (2 of 2 confident answers correct; see `docs/gates/phase-1.md`) | Gate 1's accuracy line. Not edited except to fix a copying mistake; any fix is listed in the gate file |
+| `gate-1b/` | **Development set** since 2026-11-27: frozen and scored once (2 of 2 confident answers correct, short of the 10 needed), then the mixed blue-screen rule (ADR 0013) was designed from its pattern. 29 independent cases: pc-1004 is the same thread as `gate-1`'s pc-0001 | For checking recipe changes only. Not edited except to fix a copying mistake; any fix is listed in the gate file |
+| `gate-1c/` | Not collected yet | Gate 1's accuracy line. Needs at least 30 fresh cases, none from a thread used in `gate-1` or `gate-1b` |
 
-## Labeling convention (from the next set on, ADR 0011)
+## Labeling convention (from `gate-1c` on)
 
-`true_cause` is the recipe whose **summary** names the cause the fix addressed, even if broadly. For example, the
-0x124 recipe's "an overclock, overheating, or a faulty part" covers a fix that replaced the power supply. Use
-`none:<short-name>` only when no recipe's summary covers the cause. `gate-1` keeps its original labels.
+`true_cause` is a recipe only when **both** hold:
+
+1. **Its match fits the crash recorded.** One of its `match` conditions fits a crash in the case, or, for a pattern
+   recipe (ADR 0013), the case's crashes fit its `pattern`. A recipe for a 0x124 blue screen can't label an app crash
+   or a 0x3B blue screen, and an antivirus-file recipe can't label a blue screen.
+2. **Its summary names the cause the fix addressed**, even if broadly. For example, the 0x124 recipe's "an
+   overclock, overheating, or a faulty part" covers a 0x124 case fixed by a new power supply, and the mixed
+   blue-screen recipe's "unstable hardware or settings" covers blue screens of 3 or more stop codes fixed by new
+   memory, a new processor or a BIOS setting.
+
+Otherwise use `none:<short-name>`, for example `none:faulty-ram-stick` for display resets fixed by new memory.
+
+This replaces the ADR 0011 wording ("the recipe whose summary names the cause"), which didn't say the recipe must fit
+the crash. `gate-1b` applied that wording literally, so 13 of its 21 recipe labels name a recipe that can't match the
+case's crashes (`docs/gates/phase-1.md`). `gate-1` and `gate-1b` keep their labels as written.
 
 ## Case format
 
@@ -59,6 +72,17 @@ A thread is used only when:
 For each search below, go through the results in order and keep **every** thread that meets the rules, up to 3 per
 search. Never skip a thread because of what Sherlog would say about it. Write the label from the thread **before**
 running Sherlog on it.
+
+**One thread, one case, across all sets.** A thread already used in any set is excluded, even when a search shows it
+under a different link. Compare the thread, not the URL:
+
+- **Microsoft Q&A:** a link like `learn.microsoft.com/en-us/answers/a/<n>` points to one answer inside a question.
+  Open it and compare the question it belongs to (`/answers/questions/<id>/…`) with the questions already used.
+- **Other sites:** compare the thread's own id (for example Tom's Hardware's `.<number>/` at the end of the thread
+  link) and its title, ignoring page numbers, `#post` anchors and tracking parameters.
+
+`gate-1b`'s pc-1004 (`learn.microsoft.com/en-us/answers/a/6975849`) turned out to be the same thread as `gate-1`'s
+pc-0001 (`…/answers/questions/4155833/…`), so `gate-1b` has 29 independent cases, not 30.
 
 ## Fixed searches for `gate-1`
 

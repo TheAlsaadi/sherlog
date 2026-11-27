@@ -111,7 +111,8 @@ internal static class EvalCommand
     private static void Accuracy(TextWriter w, FieldScore score, bool gateLine)
     {
         var g = score.GatePrecision;
-        var gate = gateLine ? "; gate needs 80%" : string.Empty;
+        // ADR 0012: the accuracy line also needs a minimum number of confident answers.
+        var gate = gateLine ? "; gate needs 80%, from at least 10 of them" : string.Empty;
         w.WriteLine($"  Correct: {g.ConfidentCorrect} of {g.ConfidentDiagnoses} Confirmed or Likely diagnoses ({Percent(g.ConfidentCorrect, g.ConfidentDiagnoses)}{gate}).");
         foreach (var (strength, s) in score.ByStrength.OrderBy(kv => kv.Key, StringComparer.Ordinal))
         {

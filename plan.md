@@ -301,11 +301,13 @@ sherlog/
 - [x] `sherlog eval` reports accuracy separately for seeded crashes and for field labels by `label_strength`. Bundles labeled `unknown` are counted in coverage but not in accuracy.
 - [x] `sherlog eval` also reads public case files (`*.yaml`) and reports them apart from bundles (ADR 0010).
 - [x] Collect and freeze the first set of solved public cases (`tests/public-cases/gate-1/`, then the fresh set `tests/public-cases/gate-1b/` with 30 cases).
+- [x] **Mixed blue-screen rule** (ADR 0013): a recipe can match a pattern across a PC's blue screens; `hardware-unstable-mixed-bluescreens` says Likely for 3 or more different stop codes within 30 days. It was designed from `gate-1b`'s misses, so `gate-1b` is now a development set. The labeling convention and the duplicate-thread rule in `tests/public-cases/README.md` were tightened.
+- [ ] Collect and freeze a fresh set `tests/public-cases/gate-1c/` (at least 30 cases, no thread already used in `gate-1` or `gate-1b`, labeled with the new convention) and score Gate 1's accuracy line on it.
 
 ### Gate 1
 *Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs. Changed by ADR 0012: the accuracy line needs at least 10 confident answers.*
 - [x] **100%** of seeded crashes are read and matched correctly
-- [ ] At least **10** Confirmed or Likely diagnoses, and at least **80%** of them correct, on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported` (`gate-1b` scored 2 of 2, so it doesn't meet the 10; needs recipes that can answer more often, then a fresh set)
+- [ ] At least **10** Confirmed or Likely diagnoses, and at least **80%** of them correct, on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported` (`gate-1b` scored 2 of 2, so it doesn't meet the 10; ADR 0013 added the mixed blue-screen rule, and the line now needs a fresh set, `gate-1c`)
 - [ ] **No more than 1** Confirmed diagnosis is wrong, across public cases and field bundles
 - [ ] No more than **40%** of crashes end up Unclear, counted over every crash Sherlog shows in field bundles from at least 2 real PCs, background live-kernel reports included (ADR 0009). Public cases don't count toward this share
 - [x] `sherlog explain` answers in under 5 seconds on a typical PC

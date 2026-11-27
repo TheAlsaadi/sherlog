@@ -119,6 +119,48 @@ public class RecipeLoaderTests
         Assert.Contains(location, error.Message);
     }
 
+    [Fact]
+    public void Pattern_recipe_loads_with_no_match_conditions()
+    {
+        var result = Load("pattern");
+
+        Assert.Empty(result.Errors);
+        var recipe = Assert.Single(result.Recipes);
+        Assert.Equal(new StopCodePattern(3, 30), recipe.Pattern);
+        Assert.Empty(recipe.Match);
+        Assert.Equal(3, recipe.Examples.Count);
+        Assert.Equal("0x00000050", recipe.Examples[2].BugCheckCode);
+    }
+
+    [Fact]
+    public void Match_recipe_has_no_pattern()
+    {
+        Assert.Null(Assert.Single(Load("valid").Recipes).Pattern);
+    }
+
+    [Theory]
+    [InlineData("count: 3, days: 30", "count: 2, days: 30")] // two codes are too easy to get from two unrelated problems
+    [InlineData("count: 3, days: 30", "count: 21, days: 30")]
+    [InlineData("count: 3, days: 30", "count: 3, days: 0")]
+    [InlineData("count: 3, days: 30", "count: 3, days: 91")]
+    [InlineData("category: bluescreen", "category: crash")] // a pattern counts blue screens only
+    [InlineData("  default: likely\n", "  default: likely\n  confirmed_when:\n    - occurrences_within_days: { count: 3, days: 7 }\n")]
+    [InlineData("pattern:\n  distinct_stop_codes: { count: 3, days: 30 }\n", "")] // neither match nor pattern
+    [InlineData("pattern:\n", "match:\n  any:\n    - source: bugcheck\n      bugcheck_code: \"0x0000000a\"\npattern:\n")] // both
+    public void Bad_pattern_recipe_is_rejected(string from, string to)
+    {
+        var text = PatternText();
+        Assert.Contains(from, text);
+
+        var result = LoadOne(text.Replace(from, to));
+
+        Assert.Empty(result.Recipes);
+        Assert.Single(result.Errors);
+    }
+
+    private static string PatternText() =>
+        File.ReadAllText(Fixture.Path("recipes", "pattern", "mixed-bluescreens.yaml")).ReplaceLineEndings("\n");
+
     private static string ValidText() =>
         File.ReadAllText(Fixture.Path("recipes", "valid", "gpu-nvidia-driver-reset.yaml")).ReplaceLineEndings("\n");
 

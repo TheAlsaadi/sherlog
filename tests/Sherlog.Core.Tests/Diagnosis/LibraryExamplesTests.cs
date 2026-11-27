@@ -24,15 +24,48 @@ public class LibraryExamplesTests
         var diagnoser = new Diagnoser(Library.Recipes, TimeZoneInfo.Utc);
         var time = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
+        // A match recipe's examples are crashes on their own; a pattern recipe's examples together are one PC (ADR 0013).
         var wrong = (
-            from recipe in Library.Recipes
+            from recipe in Library.Recipes.Where(r => r.Pattern is null)
             from example in recipe.Examples.Select((e, i) => (Example: e, Index: i))
             let crash = ToCrash(example.Example, time)
             let got = diagnoser.Diagnose(CrashGrouper.Group([crash])[0]).Recipe?.Id ?? "(no recipe)"
             where got != recipe.Id
             select $"{recipe.Id} example {example.Index + 1} resolved to {got}").ToList();
 
+        wrong.AddRange(
+            from recipe in Library.Recipes.Where(r => r.Pattern is not null)
+            from d in diagnoser.DiagnoseAll(CrashGrouper.Group(recipe.Examples.Select(e => ToCrash(e, time))))
+            where d.Recipe?.Id != recipe.Id
+            select $"{recipe.Id} example group {d.Group.Signature} resolved to {d.Recipe?.Id ?? "(no recipe)"}");
+
         Assert.Empty(wrong);
+    }
+
+    // ADR 0013: blue screens with many different stop codes point to hardware or its settings, and the fixes say so.
+    [Fact]
+    public void Mixed_blue_screen_recipe_is_likely_and_suggests_the_hardware_checks()
+    {
+        var recipe = Library.Recipes.Single(r => r.Id == "hardware-unstable-mixed-bluescreens");
+
+        Assert.Equal(new StopCodePattern(3, 30), recipe.Pattern);
+        Assert.Equal(ConfidenceLevel.Likely, recipe.Confidence.Default);
+        Assert.Empty(recipe.Confidence.ConfirmedWhen);
+        var fixes = recipe.Fixes.Select(f => f.Id).ToList();
+        Assert.Equal(["reset-overclock-and-xmp", "test-memory", "check-temperatures", "check-power-supply"], fixes);
+    }
+
+    [Fact]
+    public void Mixed_blue_screen_recipe_does_not_take_over_one_repeated_code()
+    {
+        var diagnoser = new Diagnoser(Library.Recipes, TimeZoneInfo.Utc);
+        var time = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var repeats = Enumerable.Range(0, 5)
+            .Select(i => ToCrash(new MatchCondition(EvidenceSources.BugCheck, null, null, null, null, null, "0x0000003b", null, null), time.AddHours(-i)));
+
+        var diagnosis = Assert.Single(diagnoser.DiagnoseAll(CrashGrouper.Group(repeats)));
+
+        Assert.Equal("bsod-system-service-exception", diagnosis.Recipe?.Id);
     }
 
     // ADR 0011: a graphics timeout only says the card didn't answer in time. The driver, an overclock, heat, power or
