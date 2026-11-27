@@ -77,7 +77,8 @@ thread, and the poster must still confirm the fix in the thread.
 ## Gate 1, as changed
 
 - 100% of seeded crashes read and matched (unchanged).
-- At least **80%** of Confirmed and Likely diagnoses correct on a frozen set of **at least 30 solved public cases**.
+- At least **80%** of Confirmed and Likely diagnoses correct on a frozen set of **at least 30 solved public cases**
+  (ADR 0012 adds: and at least 10 such diagnoses).
 - **No more than 1** wrong Confirmed diagnosis, across public cases and field bundles.
 - No more than **40%** of crashes Unclear, counted over every crash in field bundles from **at least 2 real PCs**
   (ADR 0009). Public cases don't count toward this share, because solved threads lean toward problems with known

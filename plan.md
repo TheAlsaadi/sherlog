@@ -303,9 +303,9 @@ sherlog/
 - [x] Collect and freeze the first set of solved public cases (`tests/public-cases/gate-1/`, then the fresh set `tests/public-cases/gate-1b/` with 30 cases).
 
 ### Gate 1
-*Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs.*
+*Changed by ADR 0010 (2026-11-27): accuracy is measured on solved public cases; the Unclear share stays on real PCs. Changed by ADR 0012: the accuracy line needs at least 10 confident answers.*
 - [x] **100%** of seeded crashes are read and matched correctly
-- [ ] At least **80%** of Confirmed and Likely diagnoses are correct on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported`
+- [ ] At least **10** Confirmed or Likely diagnoses, and at least **80%** of them correct, on a frozen set of at least **30 solved public cases** labeled `confirmed-by-fix` or `owner-reported` (`gate-1b` scored 2 of 2, so it doesn't meet the 10; needs recipes that can answer more often, then a fresh set)
 - [ ] **No more than 1** Confirmed diagnosis is wrong, across public cases and field bundles
 - [ ] No more than **40%** of crashes end up Unclear, counted over every crash Sherlog shows in field bundles from at least 2 real PCs, background live-kernel reports included (ADR 0009). Public cases don't count toward this share
 - [x] `sherlog explain` answers in under 5 seconds on a typical PC
