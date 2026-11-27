@@ -303,3 +303,14 @@ q101–q226 gave 26 cases from about 665 threads, still short of 30. Written bef
 | q234 | `forums.tomshardware.com [SOLVED] antivirus OR Malwarebytes OR Norton uninstalled BSOD fixed` | Security-software blue screens |
 | q235 | `forums.tomshardware.com [SOLVED] MSI Afterburner OR RTSS OR Razer OR iCUE uninstalled BSOD OR crash fixed` | Overlay and tuning-tool crashes |
 | q236 | `forums.tomshardware.com [SOLVED] hibernation OR fast startup disabled BSOD OR crash fixed` | Blue screens, shutdowns |
+
+### Added 2026-11-27 for `gate-1b`: last additions (q237–q240)
+
+Written before any of them were run, and before q232 and q236 (already listed above) were run. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q237 | `forums.tomshardware.com [SOLVED] "stopped responding and has successfully recovered" Event 4101 AMD OR NVIDIA fixed by` | Graphics driver resets |
+| q238 | `forums.tomshardware.com [SOLVED] laptop BSOD Dell OR HP OR Lenovo OR Asus fixed` | Laptop blue screens |
+| q239 | `forums.tomshardware.com [SOLVED] ntdll.dll OR KERNELBASE.dll crash fixed game` | App crashes |
+| q240 | `forums.tomshardware.com [SOLVED] dxgkrnl OR dxgmms2 OR "video scheduler" BSOD fixed` | Graphics blue screens |
