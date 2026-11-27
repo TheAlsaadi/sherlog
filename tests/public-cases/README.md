@@ -149,3 +149,34 @@ searches are added to this section, written down before they are run.
 | q136 | `site:reddit.com "rebooted from a bugcheck" "fixed" OR "solved"` | Blue screens, Reddit |
 | q137 | `site:github.com issues "Faulting module name" windows crash fixed by` | App crashes, GitHub issues |
 | q138 | `site:community.adobe.com OR site:dell.com/community "Faulting module name" fixed` | App crashes, vendor communities |
+
+### Added 2026-11-27 for `gate-1b`: more searches (q139–q160)
+
+Added because q101–q138 (standard mode) gave too few cases from about 300 threads read: most Microsoft Q&A threads end
+without a word from the poster. Written before any of these were run. Same rules and same order-taking. Several aim at
+sites where posters more often report back (Tom's Hardware solved threads, Steam discussions, vendor communities).
+
+| Id | Search | Covers |
+|---|---|---|
+| q139 | `forums.tomshardware.com [SOLVED] BSOD PAGE_FAULT_IN_NONPAGED_AREA replaced RAM` | Memory blue screens |
+| q140 | `forums.tomshardware.com [SOLVED] WHEA_UNCORRECTABLE_ERROR 0x124 fixed` | Hardware-error blue screens |
+| q141 | `forums.tomshardware.com [SOLVED] "stopped responding and has successfully recovered" fixed` | Graphics driver resets |
+| q142 | `forums.tomshardware.com [SOLVED] Kernel-Power 41 random restart fixed` | Unexpected shutdowns |
+| q143 | `forums.tomshardware.com [SOLVED] game crashes "faulting module" fixed` | App crashes |
+| q144 | `forums.tomshardware.com [SOLVED] KERNEL_DATA_INPAGE_ERROR OR CRITICAL_PROCESS_DIED BSOD` | Disk and critical-process blue screens |
+| q145 | `forums.tomshardware.com [SOLVED] DRIVER_IRQL_NOT_LESS_OR_EQUAL OR SYSTEM_SERVICE_EXCEPTION BSOD` | Driver blue screens |
+| q146 | `forums.tomshardware.com [SOLVED] VIDEO_TDR_FAILURE nvlddmkm OR atikmpag` | Graphics timeout blue screens |
+| q147 | `forums.tomshardware.com [SOLVED] MEMORY_MANAGEMENT 0x1a BSOD` | Memory blue screens |
+| q148 | `steamcommunity.com discussions "Faulting module name" "I fixed it"` | Game crashes, Steam |
+| q149 | `steamcommunity.com discussions crash "Event Viewer" "exception code" "solved by"` | Game crashes, Steam |
+| q150 | `techcommunity.microsoft.com "faulting module" crash resolved` | App crashes |
+| q151 | `community.adobe.com "faulting module" crash "solved" OR "fixed" Windows` | App crashes, Adobe |
+| q152 | `"Application Error" "faulting module" "after updating" crash fixed rolled back` | App crashes after updates |
+| q153 | `"Faulting module name" crash "disabled" "no more crashes" overlay OR antivirus` | Overlay and security-software crashes |
+| q154 | `"stopped responding and has successfully recovered" "after I replaced" OR "turned out to be"` | Graphics driver resets |
+| q155 | `"LiveKernelEvent" 141 OR 117 "problem went away" OR "turned out to be"` | Live-kernel graphics reports |
+| q156 | `"Kernel-Power" 41 "after replacing" OR "turned out to be" power supply stopped restarting` | Unexpected shutdowns |
+| q157 | `"bugcheck" "0x00000124" OR "0x00000116" "turned out to be" OR "problem went away"` | Hardware-error and graphics blue screens |
+| q158 | `"was not found" "VCRUNTIME140.dll" OR "MSVCP140.dll" game "that worked" OR "problem solved"` | Missing runtime |
+| q159 | `"Application Hang" "Event 1002" "turned out to be" OR "solved" fixed` | App hangs |
+| q160 | `"Faulting module name" "0xc0000005" "turned out to be" OR "culprit was" crash` | App crashes |
