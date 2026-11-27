@@ -226,3 +226,21 @@ what fixed it. These searches aim at that kind of post. Written before any of th
 | q188 | `github.com issues Windows crash "0xc0000005" "faulting module" "was caused by" OR "fixed by updating"` | App crashes, GitHub issues |
 | q189 | `community.adobe.com "faulting module" "solved" "I fixed" Photoshop OR Premiere OR Lightroom` | App crashes, Adobe |
 | q190 | `forums.unrealengine.com OR forum.unity.com "faulting module" crash "fixed by" Windows editor` | App crashes, game engines |
+
+### Added 2026-11-27 for `gate-1b`: more Tom's Hardware searches by outcome wording (q191–q200)
+
+Written before any of them was run. Tom's Hardware threads gave the best yield so far, so these vary the wording that
+solved threads tend to contain. Same rules.
+
+| Id | Search | Covers |
+|---|---|---|
+| q191 | `forums.tomshardware.com [SOLVED] BSOD "replaced the" PSU OR RAM OR GPU "no more"` | Blue screens |
+| q192 | `forums.tomshardware.com [SOLVED] "stopped crashing" after BIOS update OR "BIOS update" BSOD` | Blue screens |
+| q193 | `forums.tomshardware.com [SOLVED] ntoskrnl.exe BSOD "was the RAM" OR "was the PSU" OR "was the GPU"` | Blue screens |
+| q194 | `forums.tomshardware.com [SOLVED] random restarts "event 41" "it was the"` | Unexpected shutdowns |
+| q195 | `forums.tomshardware.com [SOLVED] game crashing "0xc0000005" "it was the"` | App crashes |
+| q196 | `forums.tomshardware.com [SOLVED] nvlddmkm OR LiveKernelEvent "it was the"` | Graphics driver resets |
+| q197 | `forums.tomshardware.com [SOLVED] WHEA "it was the"` | Hardware-error blue screens |
+| q198 | `forums.tomshardware.com [SOLVED] BSOD "Core Performance Boost" OR "Precision Boost" OR XMP disabled stable` | Overclock-related blue screens |
+| q199 | `forums.tomshardware.com [SOLVED] GPU undervolt OR underclock black screen crash fixed` | Graphics driver resets |
+| q200 | `forums.tomshardware.com [SOLVED] "Application Error" OR "Event ID 1000" crash fixed "it was"` | App crashes |
